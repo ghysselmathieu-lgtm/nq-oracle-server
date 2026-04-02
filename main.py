@@ -91,6 +91,12 @@ def analyse():
             return jsonify({"error":f"Anthropic fout {response.status_code}: {response.text[:200]}"}), 500
         data = response.json()
         result_text = "".join(b.get("text","") for b in data.get("content",[]))
+        # Strip markdown code blocks if Claude wrapped the JSON
+        result_text = result_text.strip()
+        if result_text.startswith("```"):
+            lines = result_text.split("\n")
+            lines = [l for l in lines if not l.strip().startswith("```")]
+            result_text = "\n".join(lines).strip()
         return jsonify({"status":"ok","result":result_text}), 200
     except Exception as e:
         return jsonify({"error":str(e)}), 500
