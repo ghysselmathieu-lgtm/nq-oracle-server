@@ -357,6 +357,14 @@ def evaluate_predictions(current_candle):
         except: pass
 
         if dir == "bull":
+            # LONG: target must be above entry, stop below entry
+            # Safety check: if stored prediction is invalid, mark expired
+            if not (target > entry > stop):
+                pred["outcome"] = "expired"
+                pred["outcome_at"] = now.isoformat()
+                pred["outcome_price"] = cur_c
+                print(f"⚠ Invalid LONG prediction #{pred.get('id')} expired: E={entry} T={target} S={stop}")
+                continue
             if cur_h >= target:
                 pred["outcome"]="target_hit"; pred["outcome_price"]=target
                 pred["outcome_at"]=now.isoformat(); pred["pnl_pts"]=round(target-entry,2)
@@ -364,6 +372,13 @@ def evaluate_predictions(current_candle):
                 pred["outcome"]="stop_hit"; pred["outcome_price"]=stop
                 pred["outcome_at"]=now.isoformat(); pred["pnl_pts"]=round(stop-entry,2)
         elif dir == "bear":
+            # SHORT: target must be below entry, stop above entry
+            if not (target < entry < stop):
+                pred["outcome"] = "expired"
+                pred["outcome_at"] = now.isoformat()
+                pred["outcome_price"] = cur_c
+                print(f"⚠ Invalid SHORT prediction #{pred.get('id')} expired: E={entry} T={target} S={stop}")
+                continue
             if cur_l <= target:
                 pred["outcome"]="target_hit"; pred["outcome_price"]=target
                 pred["outcome_at"]=now.isoformat(); pred["pnl_pts"]=round(entry-target,2)
@@ -584,38 +599,6 @@ def analyse_async(data, smc, tf_biases):
 
         signal = json.loads(match.group())
 
-        # ── Signal Validation ─────────────────────────────────
-        # Ensure target/stop are consistent with direction
-        sig_dir    = signal.get("direction","neutral")
-        sig_entry  = float(signal.get("entry", close) or close)
-        sig_target = float(signal.get("target", close) or close)
-        sig_stop   = float(signal.get("stop",   close) or close)
-
-        if sig_dir == "bull":
-            # LONG: target must be ABOVE entry, stop must be BELOW entry
-            if sig_target <= sig_entry:
-                sig_target = round(sig_entry + atr * 2.0, 2)
-                print(f"⚠ LONG target corrected to {sig_target}")
-            if sig_stop >= sig_entry:
-                sig_stop = round(sig_entry - atr * 0.8, 2)
-                print(f"⚠ LONG stop corrected to {sig_stop}")
-        elif sig_dir == "bear":
-            # SHORT: target must be BELOW entry, stop must be ABOVE entry
-            if sig_target >= sig_entry:
-                sig_target = round(sig_entry - atr * 2.0, 2)
-                print(f"⚠ SHORT target corrected to {sig_target}")
-            if sig_stop <= sig_entry:
-                sig_stop = round(sig_entry + atr * 0.8, 2)
-                print(f"⚠ SHORT stop corrected to {sig_stop}")
-
-        signal["entry"]  = sig_entry
-        signal["target"] = sig_target
-        signal["stop"]   = sig_stop
-        # Recalculate R:R
-        risk   = abs(sig_entry - sig_stop)
-        reward = abs(sig_target - sig_entry)
-        signal["rr"] = round(reward / risk, 2) if risk > 0 else 0
-
         # Signal lock
         locked = apply_lock(
             signal.get("direction","neutral"),
@@ -631,6 +614,39 @@ def analyse_async(data, smc, tf_biases):
         signal["lock_count"]  = locked["count"]
         signal["signal_locked"]= locked["locked"]
 
+        # ── Validate AFTER lock — lock cannot override physics ───
+        final_dir    = signal.get("direction","neutral")
+        final_entry  = float(signal.get("entry",  close) or close)
+        final_target = float(signal.get("target", close) or close)
+        final_stop   = float(signal.get("stop",   close) or close)
+
+        if final_dir == "bull":
+            if final_target <= final_entry:
+                final_target = round(final_entry + atr * 2.0, 2)
+                print(f"⚠ POST-LOCK: LONG target {signal.get('target')} corrected → {final_target}")
+            if final_stop >= final_entry:
+                final_stop = round(final_entry - atr * 0.8, 2)
+                print(f"⚠ POST-LOCK: LONG stop {signal.get('stop')} corrected → {final_stop}")
+        elif final_dir == "bear":
+            if final_target >= final_entry:
+                final_target = round(final_entry - atr * 2.0, 2)
+                print(f"⚠ POST-LOCK: SHORT target {signal.get('target')} corrected → {final_target}")
+            if final_stop <= final_entry:
+                final_stop = round(final_entry + atr * 0.8, 2)
+                print(f"⚠ POST-LOCK: SHORT stop {signal.get('stop')} corrected → {final_stop}")
+
+        risk   = abs(final_entry - final_stop)
+        reward = abs(final_target - final_entry)
+        signal["entry"]  = final_entry
+        signal["target"] = final_target
+        signal["stop"]   = final_stop
+        signal["rr"]     = round(reward / risk, 2) if risk > 0 else 0
+
+        # Also fix the direction_lock stored values
+        direction_lock["entry"]  = final_entry
+        direction_lock["stop"]   = final_stop
+        direction_lock["target"] = final_target
+
         # Attach context
         signal["smc_data"]    = smc
         signal["tf_biases"]   = tf_biases
@@ -644,6 +660,20 @@ def analyse_async(data, smc, tf_biases):
             is_new = (not last_pred or
                       last_pred.get("direction")!=signal["direction"] or
                       abs(signal.get("entry",0)-last_pred.get("entry",0))>atr*1.5)
+            if is_new:
+                # Only store prediction if entry/target/stop are logically valid
+                p_dir = signal["direction"]
+                p_entry = float(signal["entry"] or 0)
+                p_target = float(signal["target"] or 0)
+                p_stop = float(signal["stop"] or 0)
+                p_valid = (
+                    (p_dir == "bull" and p_target > p_entry > p_stop) or
+                    (p_dir == "bear" and p_target < p_entry < p_stop)
+                )
+                if not p_valid:
+                    print(f"⚠ Prediction skipped: invalid {p_dir} E={p_entry} T={p_target} S={p_stop}")
+                    is_new = False
+
             if is_new:
                 prediction = {
                     "id":          len(predictions)+1,
