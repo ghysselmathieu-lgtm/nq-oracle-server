@@ -65,13 +65,23 @@ def normalize(data):
     for key,tf in [("m1","1"),("m5","5"),("m15","15"),("m30","30"),("m60","60")]:
         if key in data:
             try:
-                parts = str(data.pop(key)).split(",")
-                if len(parts)>=8:
+                raw = str(data.pop(key))
+                parts = raw.split(",")
+                # New compact format: close,rsi,ema21,atr (4 fields)
+                # Old format: open,high,low,close,volume,rsi,ema21,atr (8 fields)
+                if len(parts) >= 8:
                     tf_result[tf] = {
                         "open":float(parts[0]),"high":float(parts[1]),
                         "low":float(parts[2]),"close":float(parts[3]),
                         "volume":float(parts[4]),"rsi":float(parts[5]),
                         "ema21":float(parts[6]),"atr":float(parts[7])
+                    }
+                elif len(parts) >= 4:
+                    # Compact format: close,rsi,ema21,atr
+                    tf_result[tf] = {
+                        "close":float(parts[0]),"open":float(parts[0]),
+                        "rsi":float(parts[1]),"ema21":float(parts[2]),
+                        "atr":float(parts[3])
                     }
             except: pass
 
@@ -521,7 +531,11 @@ Analyseer alle data als een professionele institutionele trader:
 4. Waar staat institutionele liquiditeit en wat is de logische magneet?
 5. Geef een concreet, actionable signaal met precieze niveaus.
 
-KRITISCH: Geef UITSLUITEND het JSON object terug. Geen tekst, geen markdown, geen uitleg buiten het JSON.
+KRITISCH:
+- Voor BULL signaal: target MOET hoger zijn dan entry, stop MOET lager zijn dan entry
+- Voor BEAR signaal: target MOET lager zijn dan entry, stop MOET hoger zijn dan entry
+- Controleer dit ALTIJD voor je antwoordt
+- Geef UITSLUITEND het JSON object terug. Geen tekst, geen markdown.
 
 {{"direction":"bull","probability":74,"entry":{close},"target":{round(close+atr*2,2)},"stop":{round(close-atr*0.8,2)},"rr":2.5,"confidence":"high","setup_type":"ob_retest","confluence_scores":[78,72,85,68,82,79],"smc_bias":"bullish","invalidation":{round(close-atr*1.2,2)},"regime":"{regime}","key_driver":"vwap_reclaim_ob_confluence","analysis":"[120-150 woorden professionele Nederlandse analyse. Bespreek: 1) institutionele bias op basis van MTF data, 2) specifiek SMC concept dat het signaal drijft met exacte niveaus, 3) volume/delta bevestiging of waarschuwing, 4) exacte invalidatie conditie en risicobeheer]"}}"""
 
@@ -569,6 +583,38 @@ def analyse_async(data, smc, tf_biases):
             return
 
         signal = json.loads(match.group())
+
+        # ── Signal Validation ─────────────────────────────────
+        # Ensure target/stop are consistent with direction
+        sig_dir    = signal.get("direction","neutral")
+        sig_entry  = float(signal.get("entry", close) or close)
+        sig_target = float(signal.get("target", close) or close)
+        sig_stop   = float(signal.get("stop",   close) or close)
+
+        if sig_dir == "bull":
+            # LONG: target must be ABOVE entry, stop must be BELOW entry
+            if sig_target <= sig_entry:
+                sig_target = round(sig_entry + atr * 2.0, 2)
+                print(f"⚠ LONG target corrected to {sig_target}")
+            if sig_stop >= sig_entry:
+                sig_stop = round(sig_entry - atr * 0.8, 2)
+                print(f"⚠ LONG stop corrected to {sig_stop}")
+        elif sig_dir == "bear":
+            # SHORT: target must be BELOW entry, stop must be ABOVE entry
+            if sig_target >= sig_entry:
+                sig_target = round(sig_entry - atr * 2.0, 2)
+                print(f"⚠ SHORT target corrected to {sig_target}")
+            if sig_stop <= sig_entry:
+                sig_stop = round(sig_entry + atr * 0.8, 2)
+                print(f"⚠ SHORT stop corrected to {sig_stop}")
+
+        signal["entry"]  = sig_entry
+        signal["target"] = sig_target
+        signal["stop"]   = sig_stop
+        # Recalculate R:R
+        risk   = abs(sig_entry - sig_stop)
+        reward = abs(sig_target - sig_entry)
+        signal["rr"] = round(reward / risk, 2) if risk > 0 else 0
 
         # Signal lock
         locked = apply_lock(
