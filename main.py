@@ -148,8 +148,9 @@ def health():
 @app.route("/webhook", methods=["POST"])
 def webhook():
     """Ontvangt 1-min candle van Pine Script.
-    Dedupeert op minuut-niveau zodat dubbele alerts (chart refresh, reconnect)
-    geen duplicate candles aanmaken."""
+    Gebruikt Pine's 'bt' (bar time UNIX ms) als authoritatieve bucket-key.
+    Dit voorkomt het probleem waar Pine soms dezelfde bar 2× verzendt
+    (bijv. bij chart refresh) of waar webhook-arrival-time afwijkt van bar-time."""
     global candle_history, tf_data
     if not check_auth():
         return jsonify({"error":"Unauthorized"}), 401
@@ -159,6 +160,13 @@ def webhook():
         if not data:
             return jsonify({"error":"No JSON"}), 400
 
+        # ─── Bepaal bar_time VÓÓR normalize (bt is short key uit Pine) ───
+        bar_time_ms = None
+        if "bt" in data:
+            try:
+                bar_time_ms = int(data.pop("bt"))
+            except: pass
+
         data = normalize(data)
         tf_raw = data.pop("_tf_data", {})
         for tf,c in tf_raw.items():
@@ -166,24 +174,40 @@ def webhook():
 
         now = datetime.now(timezone.utc)
         data["received_at"] = now.isoformat()
-        # Bucket-tijdstempel = de huidige minuut (UTC). Dit is de unieke key.
-        bucket = now.strftime("%Y-%m-%d %H:%M")
+
+        # ─── Bucket = ECHTE bar-tijd uit Pine (UTC), niet wall-clock ───
+        if bar_time_ms is not None:
+            bar_dt = datetime.fromtimestamp(bar_time_ms / 1000, tz=timezone.utc)
+            bucket = bar_dt.strftime("%Y-%m-%d %H:%M")
+            data["bar_time"] = bar_dt.isoformat()
+        else:
+            # Fallback voor oude Pine zonder bt: gebruik now afgerond op minuut
+            bucket = now.strftime("%Y-%m-%d %H:%M")
         data["bucket"] = bucket
 
-        # Dedup: als laatste candle dezelfde bucket heeft → vervang ipv append
-        if candle_history and candle_history[-1].get("bucket") == bucket:
-            candle_history[-1] = data
+        # ─── DEDUP: zoek in HELE history naar deze bucket, niet alleen laatste ───
+        # (Pine kan oude bars opnieuw verzenden bij refresh — die moeten ook gevangen worden)
+        existing_idx = None
+        for i in range(len(candle_history) - 1, max(-1, len(candle_history) - 10), -1):
+            if candle_history[i].get("bucket") == bucket:
+                existing_idx = i
+                break
+
+        if existing_idx is not None:
+            # Bestaande bucket → vervang in-place (zelfde positie, geen reorder)
+            candle_history[existing_idx] = data
         else:
+            # Nieuwe bucket → append + sorteer (om out-of-order Pine-bursts op te vangen)
             candle_history.append(data)
+            candle_history.sort(key=lambda x: x.get("bucket", ""))
             if len(candle_history) > MAX_HISTORY:
                 candle_history = candle_history[-MAX_HISTORY:]
 
-        # Persist (alleen elke 5 candles om disk I/O te beperken)
         if len(candle_history) % 5 == 0:
             save_state()
 
-        print(f"[{bucket}] C={data.get('close')} | {data.get('session','?')}")
-        return jsonify({"status":"ok","candles":len(candle_history)}), 200
+        print(f"[{bucket}] C={data.get('close')} | bar_t={bar_time_ms} | dedup={'YES' if existing_idx is not None else 'NEW'}")
+        return jsonify({"status":"ok","candles":len(candle_history),"bucket":bucket}), 200
 
     except Exception as e:
         print(f"✗ webhook: {e}")

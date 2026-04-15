@@ -148,10 +148,16 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 
 /* ── Chart ── */
 .chart-wrap{flex:1;background:white;position:relative;min-height:0;overflow:hidden}
-canvas{display:block;width:100%;height:100%}
-.chart-overlay{position:absolute;top:8px;left:10px;z-index:2;display:flex;gap:6px;font-family:'IBM Plex Mono';font-size:10px;color:var(--muted)}
-.chart-overlay span{padding:2px 6px;background:rgba(255,255,255,0.9);border:1px solid var(--border);border-radius:2px}
+canvas{display:block;width:100%;height:100%;cursor:crosshair}
+.chart-overlay{position:absolute;top:8px;left:10px;right:10px;z-index:2;display:flex;gap:6px;font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);align-items:center}
+.chart-overlay > span{padding:2px 6px;background:rgba(255,255,255,0.92);border:1px solid var(--border);border-radius:2px}
 .chart-cur{font-family:'IBM Plex Mono';font-weight:700;color:var(--text)}
+.chart-btn{padding:2px 8px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;font-weight:700;color:var(--text);min-width:24px;line-height:1.2}
+.chart-btn:hover{background:var(--bg3);border-color:var(--text2)}
+.chart-scrollbar-wrap{display:flex;align-items:center;gap:4px;padding:5px 8px;background:#f8fafc;border-top:1px solid var(--border);flex-shrink:0}
+.chart-scrollbar-wrap input[type=range]{height:6px;cursor:pointer;accent-color:var(--blue);flex:1}
+.scroll-btn{padding:3px 8px;background:white;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:10px;font-weight:700;color:var(--text2);min-width:30px}
+.scroll-btn:hover{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
 
 /* ── Execute box ── */
 .exec-wrap{padding:10px 13px;background:linear-gradient(135deg,var(--bull-bg),white);border:2px solid var(--bull);border-radius:5px;margin:0 13px 10px}
@@ -229,6 +235,8 @@ canvas{display:block;width:100%;height:100%}
     <input type="text" class="ci url" id="srv-url" placeholder="server URL" value="https://web-production-e596.up.railway.app">
     <input type="text" class="ci sec" id="srv-sec" placeholder="secret" value="NQsecret2024">
     <button class="btn-conn" id="btn-conn" onclick="toggleConn()">▶ CONNECT</button>
+    <input type="file" id="seed-csv" accept=".csv" style="display:none">
+    <button class="btn-conn" style="background:#7c3aed" onclick="document.getElementById('seed-csv').click()" title="Laad CSV historiek voor instant warmup">📥 SEED</button>
   </div>
 </div>
 
@@ -257,6 +265,20 @@ canvas{display:block;width:100%;height:100%}
 
   <!-- LEFT COLUMN: Engine config + filters -->
   <div class="col left">
+
+    <!-- History import -->
+    <div class="panel">
+      <h3>📂 HISTORY BACKFILL</h3>
+      <p style="font-size:9px;color:var(--muted);line-height:1.4;margin-bottom:6px">
+        Upload TradingView 1-min CSV om de engine direct te starten met genoeg context (≥300 candles nodig voor signalen).
+      </p>
+      <input type="file" id="hist-csv" accept=".csv" style="width:100%;font-size:9px;padding:3px;border:1px solid var(--border);border-radius:3px;background:white">
+      <div style="display:flex;gap:4px;margin-top:6px">
+        <button class="btn-conn" id="btn-hist-local" onclick="loadHistoryLocal()" style="flex:1;font-size:10px;padding:5px;background:#475569" title="Alleen lokaal in browser laden (snel, geen server)">📥 LOCAL</button>
+        <button class="btn-conn" id="btn-hist-server" onclick="loadHistoryServer()" style="flex:1;font-size:10px;padding:5px;background:#3b82f6" title="Push naar server (cross-device + Pine kan voortbouwen)">☁ SERVER</button>
+      </div>
+      <p id="hist-status" style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono';min-height:11px"></p>
+    </div>
 
     <!-- Engine config -->
     <div class="panel">
@@ -297,6 +319,10 @@ canvas{display:block;width:100%;height:100%}
             <option value="yes" selected>AAN</option>
             <option value="no">UIT</option>
           </select>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:10px;color:var(--muted);font-weight:600">COOLDOWN</span>
+          <input type="number" id="p-cooldown" value="5" min="0" max="60" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center" title="Minuten geen nieuw signaal NA trade-close (niet tussen alle signalen)">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
           <span style="font-size:10px;color:var(--muted);font-weight:600">DIRECTION</span>
@@ -385,8 +411,22 @@ canvas{display:block;width:100%;height:100%}
         <span>NQ 1-MIN</span>
         <span class="chart-cur" id="chart-cur">--</span>
         <span id="chart-chg">--</span>
+        <span style="margin-left:auto;display:flex;gap:3px;align-items:center">
+          <button class="chart-btn" onclick="chartZoom(0.7)" title="Inzoomen (minder candles)">+</button>
+          <button class="chart-btn" onclick="chartZoom(1.4)" title="Uitzoomen (meer candles)">−</button>
+          <button class="chart-btn" onclick="chartReset()" title="Reset naar nu">⟳</button>
+          <span id="chart-zoom-info" style="font-family:'IBM Plex Mono';font-size:9px;color:#94a3b8;padding:0 4px">120c</span>
+        </span>
       </div>
       <canvas id="chart"></canvas>
+    </div>
+    <div class="chart-scrollbar-wrap" id="chart-scroll-wrap">
+      <button class="scroll-btn" onclick="chartScroll(-50)" title="Verder terug in tijd">◀◀</button>
+      <button class="scroll-btn" onclick="chartScroll(-10)" title="Terug">◀</button>
+      <input type="range" id="chart-scroll" min="0" max="100" value="0" oninput="onScrollChange(this.value)" style="flex:1">
+      <button class="scroll-btn" onclick="chartScroll(10)" title="Vooruit">▶</button>
+      <button class="scroll-btn" onclick="chartScroll(50)" title="Naar nu">▶▶</button>
+      <span id="chart-scroll-info" style="font-family:'IBM Plex Mono';font-size:9px;color:#94a3b8;min-width:60px;text-align:right">NU</span>
     </div>
   </div>
 
@@ -421,12 +461,12 @@ canvas{display:block;width:100%;height:100%}
         <table class="pred-table" id="pred-table">
           <thead>
             <tr>
-              <th>#</th><th>TIJD</th><th>DIR</th><th>SETUP</th><th>SC</th>
+              <th>#</th><th>SIG</th><th>ENT</th><th>EXIT</th><th>DIR</th><th>SETUP</th><th>SC</th>
               <th>ENTRY</th><th>STATUS</th><th>P&amp;L</th>
             </tr>
           </thead>
           <tbody id="pred-tbody">
-            <tr><td colspan="8" class="empty">Wacht op signaal…</td></tr>
+            <tr><td colspan="10" class="empty">Wacht op signaal…</td></tr>
           </tbody>
         </table>
       </div>
@@ -473,6 +513,14 @@ let candleBuffer = [];        // alle candles in master format {t,o,h,l,c,v}
 let predictions = [];         // alle predictions (geladen uit localStorage + server)
 let activePending = null;     // huidige pending limit setup
 let activeTrade = null;       // huidige live trade
+let lastCloseTime = 0;        // cooldown na elke trade close (wall-clock ms timestamp)
+let cooldownBars = 5;         // standaard 5 minuten geen nieuw signaal na close
+
+// ─── CHART ZOOM/SCROLL state ───
+let chartZoomCount = 120;     // aantal candles in view (zoom level)
+let chartScrollOffset = 0;    // hoeveel candles vanaf eind scrollen we terug (0 = nieuwste)
+const CHART_ZOOM_MIN = 30;
+const CHART_ZOOM_MAX = 800;
 let cBufForChart = [];        // candles voor chart (gewoon de raw stream)
 let signalCount = 0;
 let candleCount = 0;
@@ -493,6 +541,15 @@ const STORAGE_PARAMS = 'nq_oracle_params';
 // ─── Helpers ───
 const $ = id => document.getElementById(id);
 const r2 = v => Math.round(v*100)/100;
+// MNQ tick = 0.25. Snap een prijs naar de dichtsbijzijnde geldige tick.
+const TICK_SIZE = 0.25;
+const snapTick = v => Math.round(v / TICK_SIZE) * TICK_SIZE;
+// Voor stops/targets: round AWAY van entry (conservatief) zodat we niet binnen
+// de bedoelde range eindigen door tick-rounding.
+function snapStopBull(v){ return Math.floor(v / TICK_SIZE) * TICK_SIZE; }   // lager = veiliger voor LONG stop
+function snapStopBear(v){ return Math.ceil(v / TICK_SIZE) * TICK_SIZE; }    // hoger = veiliger voor SHORT stop
+function snapTgtBull(v){ return Math.floor(v / TICK_SIZE) * TICK_SIZE; }    // realistischer fill voor LONG target
+function snapTgtBear(v){ return Math.ceil(v / TICK_SIZE) * TICK_SIZE; }     // realistischer fill voor SHORT target
 function fmt(v, dec=2){ return v==null||isNaN(v) ? '--' : (+v).toFixed(dec); }
 function fmtPct(v){ return v==null||isNaN(v) ? '--' : v.toFixed(1)+'%'; }
 function nowIso(){ return new Date().toISOString(); }
@@ -747,9 +804,16 @@ function detectLiveSignal(rawCandles, params){
 
   const slSize = params.sl * atr;
   const tpSize = slSize * params.tp;
-  const entryPrice = r2(htf.c);
-  const stop = dir === 'bull' ? r2(entryPrice - slSize) : r2(entryPrice + slSize);
-  const tgt  = dir === 'bull' ? r2(entryPrice + tpSize) : r2(entryPrice - tpSize);
+  const entryPriceRaw = htf.c;
+  const entryPrice = snapTick(entryPriceRaw);
+  let stop, tgt;
+  if(dir === 'bull'){
+    stop = snapStopBull(entryPrice - slSize);
+    tgt  = snapTgtBull(entryPrice + tpSize);
+  } else {
+    stop = snapStopBear(entryPrice + slSize);
+    tgt  = snapTgtBear(entryPrice - tpSize);
+  }
 
   return {
     dir, score, setup,
@@ -870,19 +934,33 @@ function onNewCandle(rc){
     }
   }
 
-  // ─── 3. Geen actieve trade/pending → zoek nieuw signaal ───
+  // ─── 3. Geen actieve trade/pending → zoek nieuw signaal (na cooldown) ───
   if(!activeTrade && !activePending){
-    const sig = detectLiveSignal(candleBuffer, params);
-    if(sig){
-      // Check filter
+    // Cooldown check op wall-clock tijd (niet op buffer index)
+    cooldownBars = +$('p-cooldown').value || 0;
+    const sinceCloseMin = lastCloseTime > 0 ? Math.floor((Date.now() - lastCloseTime) / 60000) : 9999;
+    if(cooldownBars > 0 && sinceCloseMin < cooldownBars){
+      $('sig-dir').textContent = `COOLDOWN ${cooldownBars - sinceCloseMin}m`;
+      $('sig-dir').style.color = 'var(--gold)';
+      $('sig-filter').textContent = `cooldown ${sinceCloseMin}/${cooldownBars}`;
+      $('sig-filter').style.color = 'var(--gold)';
+    } else {
+      const sig = detectLiveSignal(candleBuffer, params);
+      if(sig){
+      // ─── Filter check ───
       const filter = passesFilter(sig);
       if(!filter.ok){
         $('sig-filter').textContent = filter.reason;
         $('sig-filter').style.color = 'var(--bear)';
         lg(`Signaal ${sig.dir} score ${sig.score} ${sig.setup} → GEFILTERD (${filter.reason})`, 'warn');
         showSignalRing(sig, false);
+      } else if(isDuplicateSignal(sig)){
+        // ─── Fingerprint dedup: voorkom rapid-fire op dezelfde setup ───
+        $('sig-filter').textContent = 'duplicate (fingerprint)';
+        $('sig-filter').style.color = 'var(--gold)';
+        showSignalRing(sig, false);
       } else {
-        // Nieuw geldig signaal!
+        // ─── Nieuw geldig signaal! ───
         signalCount++;
         $('ts-signals').textContent = signalCount;
         $('sig-filter').textContent = '✓ passed';
@@ -897,11 +975,40 @@ function onNewCandle(rc){
       $('sig-dir').textContent = 'GEEN SIGNAAL';
       $('sig-dir').style.color = 'var(--muted)';
     }
+    }
   }
 
   renderPredictions();
   renderStats();
   drawChart();
+}
+
+/**
+ * Fingerprint dedup: weiger nieuwe signaal als binnen DEDUP_WINDOW minuten
+ * een prediction bestaat met zelfde dir + entry binnen 0.5pt tolerantie.
+ * Voorkomt dat 4 trades op zelfde minuut met identieke entry getriggerd worden
+ * door candle-buffer hiccups of close-her-open binnen 1 minuut.
+ */
+const DEDUP_WINDOW_MIN = 30;
+const DEDUP_PRICE_TOL = 0.5;
+function isDuplicateSignal(sig){
+  if(predictions.length === 0) return false;
+  const now = Date.now();
+  for(let i = predictions.length - 1; i >= 0; i--){
+    const p = predictions[i];
+    if(p.dir !== sig.dir) continue;
+    let ageMin = Infinity;
+    try {
+      const t = p.created_at ? new Date(p.created_at).getTime() : 0;
+      if(t) ageMin = (now - t) / 60000;
+    } catch(e){}
+    if(ageMin > DEDUP_WINDOW_MIN) break; // alle oudere zijn ook ouder
+    if(Math.abs(p.entry - sig.entry) <= DEDUP_PRICE_TOL){
+      lg(`DEDUP: ${sig.dir} entry ${sig.entry} dup van #${p.id} (${ageMin.toFixed(1)}m geleden)`, 'warn');
+      return true;
+    }
+  }
+  return false;
 }
 
 function createPending(sig){
@@ -959,6 +1066,8 @@ function cancelPending(reason){
     savePredictions();
     if(connected) updatePredictionOnServer(p.id, {outcome:'expired', exitReason: reason});
   }
+  // Korte cooldown ook na pending-cancel
+  lastCloseTime = Date.now();
   activePending = null;
   $('exec-wrap').classList.add('hidden');
   curOrder = null;
@@ -987,6 +1096,8 @@ function closeActiveTrade(outcome, exitPrice, exitTime){
       pnlPt: p.pnlPt, pnlUsd: p.pnlUsd
     });
   }
+  // Cooldown: blokkeer nieuwe signalen voor X minuten na close
+  lastCloseTime = Date.now();
   activeTrade = null;
   $('exec-wrap').classList.add('hidden');
   curOrder = null;
@@ -1138,7 +1249,7 @@ async function confirmOrder(){
 function renderPredictions(){
   const tbody = $('pred-tbody');
   if(!predictions.length){
-    tbody.innerHTML = '<tr><td colspan="8" class="empty">Wacht op signaal…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">Wacht op signaal…</td></tr>';
     return;
   }
 
@@ -1154,10 +1265,14 @@ function renderPredictions(){
     else if(oc === 'pending') badge = '<span class="pbadge pp">⌛ PEND</span>';
     const dirCol = p.dir === 'bull' ? 'var(--bull)' : 'var(--bear)';
     const pnl = p.pnlPt != null ? `<b style="color:${p.pnlPt>=0?'var(--bull)':'var(--bear)'}">${p.pnlPt>=0?'+':''}${p.pnlPt}</b>` : '--';
-    const ts = p.signalTime ? p.signalTime.slice(11,16) : '--';
+    const sigT = p.signalTime ? p.signalTime.slice(11,16) : '--';
+    const entT = p.entryTime  ? p.entryTime.slice(11,16)  : '--';
+    const exiT = p.exitTime   ? p.exitTime.slice(11,16)   : '--';
     return `<tr class="${rowCls}">
       <td style="color:var(--muted)">#${p.id}</td>
-      <td>${ts}</td>
+      <td>${sigT}</td>
+      <td style="color:var(--blue)">${entT}</td>
+      <td>${exiT}</td>
       <td style="color:${dirCol};font-weight:700">${p.dir==='bull'?'▲':'▼'}</td>
       <td style="font-size:9px">${p.setup||'?'}</td>
       <td>${p.score||'?'}</td>
@@ -1265,17 +1380,140 @@ function setDot(state){
 }
 
 // ─── INITIAL CANDLE LOAD ───
+// ─── HISTORY CSV IMPORT ───
+function parseHistoryCSV(txt){
+  const lines = txt.trim().split(/\r?\n/);
+  const h = lines[0].replace(/"/g,'').toLowerCase().split(',');
+  const gi = k => h.findIndex(x => x.trim() === k || x.trim().includes(k));
+  const ti = gi('time'), oi = gi('open'), hi = gi('high'), li = gi('low'), ci = gi('close'), vi = gi('volume');
+  if(ci < 0) throw new Error('CSV kolommen niet herkend (verwacht: time,open,high,low,close,volume)');
+  const out = [];
+  for(let i = 1; i < lines.length; i++){
+    const c = lines[i].replace(/"/g,'').split(',');
+    if(!c[ci]) continue;
+    let ts = (c[ti]||'').trim();
+    // UNIX timestamp → "YYYY-MM-DD HH:MM"
+    if(/^\d{9,11}$/.test(ts)){
+      const d = new Date(+ts * 1000);
+      const y = d.getUTCFullYear();
+      const mo = String(d.getUTCMonth()+1).padStart(2,'0');
+      const da = String(d.getUTCDate()).padStart(2,'0');
+      const hr = String(d.getUTCHours()).padStart(2,'0');
+      const mi = String(d.getUTCMinutes()).padStart(2,'0');
+      ts = `${y}-${mo}-${da} ${hr}:${mi}`;
+    }
+    const o = +c[oi]||0, hv = +c[hi]||0, lv = +c[li]||0, cv = +c[ci]||0;
+    if(cv > 0) out.push({t:ts, o, h:hv, l:lv, c:cv, v:+(c[vi]||c[6]||100)});
+  }
+  return out;
+}
+
+async function loadHistoryLocal(){
+  const file = $('hist-csv').files[0];
+  if(!file){ alert('Selecteer eerst een CSV bestand'); return; }
+  $('hist-status').textContent = 'CSV inlezen…';
+  try {
+    const txt = await file.text();
+    const candles = parseHistoryCSV(txt);
+    if(candles.length === 0) throw new Error('Geen geldige candles in CSV');
+
+    // Merge in candleBuffer met dedup op t
+    const existing = new Set(candleBuffer.map(c => c.t));
+    let added = 0;
+    for(const c of candles){
+      if(!existing.has(c.t)){
+        candleBuffer.push(c);
+        existing.add(c.t);
+        added++;
+      }
+    }
+    candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
+    if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
+
+    // Chart toont nu de laatste chartZoomCount candles met scroll-offset
+    chartScrollOffset = 0;
+    cBufForChart = candleBuffer;
+    candleCount = candleBuffer.length;
+    $('ts-candles').textContent = candleCount;
+    if(candleBuffer.length > 0) lastCandleTs = candleBuffer[candleBuffer.length-1].t;
+
+    $('hist-status').innerHTML = `<span style="color:var(--bull)">✓ ${added} nieuwe candles geladen (totaal ${candleBuffer.length})</span>`;
+    lg(`History CSV: ${added} candles toegevoegd, totaal ${candleBuffer.length}`, 'ok');
+    updateScrollBar();
+    drawChart();
+
+    // Run engine eenmaal op huidige buffer om eventueel direct een signaal te detecteren
+    if(candleBuffer.length >= 300){
+      // Reset cooldown zodat we niet door history gaan handelen
+      lastCloseTime = 0;
+      lg(`Engine klaar voor live signalen (cooldown reset)`, 'ok');
+    }
+  } catch(e){
+    $('hist-status').innerHTML = `<span style="color:var(--bear)">✗ ${e.message}</span>`;
+    lg('History CSV fout: '+e.message, 'err');
+  }
+}
+
+async function loadHistoryServer(){
+  const file = $('hist-csv').files[0];
+  if(!file){ alert('Selecteer eerst een CSV bestand'); return; }
+  if(!connected){ alert('Verbind eerst met de server'); return; }
+  $('hist-status').textContent = 'CSV uploaden naar server…';
+  try {
+    const txt = await file.text();
+    const candles = parseHistoryCSV(txt);
+    if(candles.length === 0) throw new Error('Geen geldige candles in CSV');
+
+    // Push naar server in chunks van 500 om timeout te voorkomen
+    const chunkSize = 500;
+    let totalAdded = 0;
+    for(let i = 0; i < candles.length; i += chunkSize){
+      const chunk = candles.slice(i, i + chunkSize);
+      const r = await fetch(`${serverUrl}/import_history`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-TV-Secret':serverSecret},
+        body: JSON.stringify({candles: chunk})
+      });
+      const j = await r.json();
+      if(j.status !== 'ok') throw new Error(j.error || 'Server fout');
+      totalAdded += j.added || 0;
+      $('hist-status').textContent = `Upload: ${i + chunk.length}/${candles.length}…`;
+    }
+
+    $('hist-status').innerHTML = `<span style="color:var(--bull)">✓ ${totalAdded} candles toegevoegd op server</span>`;
+    lg(`Server: ${totalAdded} historische candles toegevoegd`, 'ok');
+
+    // Reload candles van server
+    await loadInitialCandles();
+  } catch(e){
+    $('hist-status').innerHTML = `<span style="color:var(--bear)">✗ ${e.message}</span>`;
+    lg('Server upload fout: '+e.message, 'err');
+  }
+}
+
 async function loadInitialCandles(){
   try {
     lg('Initiële candles ophalen…', 'info');
     const r = await fetch(`${serverUrl}/candles?n=2000`);
     const j = await r.json();
     if(j.status === 'ok' && j.data){
-      candleBuffer = j.data;
-      cBufForChart = candleBuffer.slice(-300);
+      // ─── MERGE met bestaande buffer (bv. CSV history) ipv overwrite ───
+      const existing = new Set(candleBuffer.map(c => c.t));
+      let added = 0;
+      for(const c of j.data){
+        if(!existing.has(c.t)){
+          candleBuffer.push(c);
+          existing.add(c.t);
+          added++;
+        }
+      }
+      candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
+      if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
+
+      cBufForChart = candleBuffer; updateScrollBar();
       candleCount = candleBuffer.length;
       $('ts-candles').textContent = candleCount;
-      lg(`Geladen: ${candleBuffer.length} candles uit server`, 'ok');
+      lg(`Server merge: +${added} candles (totaal ${candleBuffer.length})`, 'ok');
       if(candleBuffer.length > 0) lastCandleTs = candleBuffer[candleBuffer.length-1].t;
       drawChart();
 
@@ -1321,37 +1559,72 @@ async function poll(){
       // MTF update altijd
       if(j.tf_data) updMTFstrip(j.tf_data);
 
-      // Check of nieuwe candle
+      // Bouw minuut-bucket string van received_at
       const ts = d.received_at || '';
-      if(ts && ts !== lastCandleTs){
-        lastCandleTs = ts;
+      if(!ts) return;
+      const dt = new Date(ts);
+      const tStr = dt.toISOString().slice(0,16).replace('T',' ');
 
-        // Convert naar master format en append
-        const dt = new Date(ts);
-        const tStr = dt.toISOString().slice(0,16).replace('T',' ');
-        const newCandle = {
-          t: tStr,
-          o: +d.open || 0,
-          h: +d.high || 0,
-          l: +d.low || 0,
-          c: +d.close || 0,
-          v: +d.volume || 0
-        };
-
-        // Append uniek
-        const exists = candleBuffer.length > 0 && candleBuffer[candleBuffer.length-1].t === tStr;
-        if(!exists){
-          candleBuffer.push(newCandle);
-          if(candleBuffer.length > 2000) candleBuffer = candleBuffer.slice(-2000);
-          cBufForChart.push(newCandle);
-          if(cBufForChart.length > 300) cBufForChart.shift();
-
-          updCandleDisplay(d);
-
-          // ─── CORE: trigger engine op nieuwe candle ───
-          onNewCandle(newCandle);
+      // ─── DEDUP op minuut-bucket (NIET op received_at, want server kan
+      // received_at updaten binnen dezelfde minuut bij meerdere webhooks) ───
+      if(tStr === lastCandleTs){
+        // Zelfde minuut die we al gezien hebben — alleen UI verversen, geen engine trigger
+        const lastInBuf = candleBuffer.length > 0 ? candleBuffer[candleBuffer.length-1] : null;
+        if(lastInBuf && lastInBuf.t === tStr){
+          lastInBuf.h = Math.max(lastInBuf.h, +d.high);
+          lastInBuf.l = Math.min(lastInBuf.l, +d.low);
+          lastInBuf.c = +d.close;
+          lastInBuf.v = +d.volume;
         }
+        updCandleDisplay(d);
+        return;
       }
+
+      // Nieuwe minuut!
+      lastCandleTs = tStr;
+      const newCandle = {
+        t: tStr,
+        o: +d.open || 0,
+        h: +d.high || 0,
+        l: +d.low || 0,
+        c: +d.close || 0,
+        v: +d.volume || 0
+      };
+
+      // Belt-and-suspenders: als laatste in buffer toch zelfde tStr heeft
+      // (kan na sort gebeuren), update ipv append
+      const lastInBuf = candleBuffer.length > 0 ? candleBuffer[candleBuffer.length-1] : null;
+      if(lastInBuf && lastInBuf.t === tStr){
+        lastInBuf.h = Math.max(lastInBuf.h, newCandle.h);
+        lastInBuf.l = Math.min(lastInBuf.l, newCandle.l);
+        lastInBuf.c = newCandle.c;
+        lastInBuf.v = newCandle.v;
+        updCandleDisplay(d);
+        drawChart();
+        return;
+      }
+
+      // Echte nieuwe candle — defensief dedupen
+      // Zoek in laatste 20 candles of deze t al bestaat (defense vs server bugs)
+      let dupIdx = -1;
+      for(let i = candleBuffer.length - 1; i >= Math.max(0, candleBuffer.length - 20); i--){
+        if(candleBuffer[i].t === tStr){ dupIdx = i; break; }
+      }
+      if(dupIdx >= 0){
+        // Update bestaande positie ipv append
+        candleBuffer[dupIdx] = newCandle;
+        lg(`~candle ${tStr} update bestaande positie #${dupIdx} (server stuurde dup)`, 'warn');
+      } else {
+        candleBuffer.push(newCandle);
+        if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
+        lg(`+candle ${tStr} OHLC=${newCandle.o}/${newCandle.h}/${newCandle.l}/${newCandle.c}`, 'info');
+      }
+      // Sorteer chronologisch (voor het geval out-of-order)
+      candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
+      cBufForChart = candleBuffer; updateScrollBar();
+
+      updCandleDisplay(d);
+      onNewCandle(newCandle);
     }
   } catch(e){
     setDot('err');
@@ -1458,15 +1731,6 @@ function drawChart(){
   ctx.clearRect(0, 0, W, H);
   ctx.fillStyle = '#ffffff';
   ctx.fillRect(0, 0, W, H);
-  ctx.strokeStyle = '#f1f5f9';
-  ctx.lineWidth = 1;
-  for(let i = 0; i <= 8; i++){
-    const y = 18 + i * (H - 55) / 8;
-    ctx.beginPath();
-    ctx.moveTo(54, y);
-    ctx.lineTo(W - 6, y);
-    ctx.stroke();
-  }
 
   if(cBufForChart.length < 2){
     ctx.fillStyle = '#94a3b8';
@@ -1476,45 +1740,159 @@ function drawChart(){
     return;
   }
 
-  const N = Math.min(cBufForChart.length, 100);
-  const candles = cBufForChart.slice(-N);
-  let mn = Infinity, mx = -Infinity;
-  candles.forEach(c => { mn = Math.min(mn, +c.l); mx = Math.max(mx, +c.h); });
+  // ─── Layout (TradingView-style: prijs-as RECHTS, tijd-as ONDER) ───
+  const AXIS_R = 64;   // breder rechts voor labels
+  const AXIS_B = 24;
+  const PAD_L = 6;
+  const PAD_T = 8;
+  const cL = PAD_L, cR = W - AXIS_R, cT = PAD_T, cB = H - AXIS_B;
+  const cW = cR - cL, cH = cB - cT;
 
-  // Include actieve trade levels in zoom
-  if(activeTrade){
-    mn = Math.min(mn, activeTrade.stop * 0.9998);
-    mx = Math.max(mx, activeTrade.tgt * 1.0002);
-  } else if(activePending){
-    mn = Math.min(mn, activePending.stop * 0.9998);
-    mx = Math.max(mx, activePending.tgt * 1.0002);
+  // ─── Hoeveel candles tonen — afhankelijk van zoom + scroll positie ───
+  const N = Math.min(cBufForChart.length, chartZoomCount);
+  // chartScrollOffset: 0 = end of buffer (now), positive = N candles back
+  const endIdx = Math.max(N, cBufForChart.length - chartScrollOffset);
+  const startIdx = Math.max(0, endIdx - N);
+  const candles = cBufForChart.slice(startIdx, endIdx);
+
+  // ─── Y-as range ───
+  let mn = Infinity, mx = -Infinity;
+  candles.forEach(c => { if(+c.l < mn) mn = +c.l; if(+c.h > mx) mx = +c.h; });
+  const trade = activeTrade || activePending;
+  if(trade){
+    if(trade.stop < mn) mn = trade.stop;
+    if(trade.stop > mx) mx = trade.stop;
+    if(trade.tgt < mn) mn = trade.tgt;
+    if(trade.tgt > mx) mx = trade.tgt;
+    if(trade.entry < mn) mn = trade.entry;
+    if(trade.entry > mx) mx = trade.entry;
+  }
+  const rawRange = mx - mn;
+  const padPx = rawRange * 0.05;
+  mn -= padPx; mx += padPx;
+  // Snap naar tick boundaries voor mooie y-as
+  mn = Math.floor(mn / TICK_SIZE) * TICK_SIZE;
+  mx = Math.ceil(mx / TICK_SIZE) * TICK_SIZE;
+  const range = mx - mn;
+
+  const sp = cW / N;
+  const bw = Math.max(2, Math.min(11, sp * 0.7));
+  const toY = p => cT + cH * (1 - (p - mn) / (mx - mn));
+  const toX = i => cL + i * sp + sp/2;
+
+  // ─── 1. HORIZONTALE GRID (op tick-multiples, mooie ronde getallen) ───
+  // Bereken nice gridStep zodat er ~6-10 lines zijn
+  const targetLines = 8;
+  const rawStep = range / targetLines;
+  // NQ tick = 0.25 → mooie steps: 0.25, 0.5, 1, 2.5, 5, 10, 25, 50
+  const niceSteps = [0.25, 0.5, 1, 2.5, 5, 10, 25, 50, 100, 250];
+  let gridStep = niceSteps[niceSteps.length-1];
+  for(const s of niceSteps){ if(s >= rawStep){ gridStep = s; break; } }
+  const firstGrid = Math.ceil(mn / gridStep) * gridStep;
+
+  ctx.strokeStyle = '#f1f5f9';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px IBM Plex Mono';
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for(let p = firstGrid; p <= mx; p = +(p + gridStep).toFixed(4)){
+    const y = toY(p);
+    if(y < cT - 1 || y > cB + 1) continue;
+    ctx.beginPath();
+    ctx.moveTo(cL, y);
+    ctx.lineTo(cR, y);
+    ctx.stroke();
+    // Label rechts (TradingView stijl)
+    ctx.fillText(p.toFixed(2), cR + 4, y);
   }
 
-  const pad = (mx - mn) * 0.04;
-  mn -= pad; mx += pad;
-  const cL = 55, cR = W - 6, cT = 15, cB = H - 42;
-  const cW = cR - cL, cH = cB - cT;
-  const toY = p => cT + cH * (1 - (p - mn) / (mx - mn));
-  const sp = cW / N;
-  const bw = Math.max(2, Math.min(10, sp * 0.6));
+  // ─── 2. VERTICALE GRID + tijd labels ───
+  // Adaptieve density: bij weinig candles zien we elke minuut, bij veel alleen elke N
+  // Reken min pixel-gap per label uit; ~50px voor leesbaarheid
+  const minPxPerLabel = 50;
+  const maxLabels = Math.max(4, Math.floor(cW / minPxPerLabel));
+  // Hoeveel candles per label? Round naar mooie multiples (1, 2, 5, 10, 15, 30, 60, 120, ...)
+  const niceLabelSteps = [1, 2, 5, 10, 15, 30, 60, 120, 240, 480];
+  const rawStepX = Math.ceil(N / maxLabels);
+  let labelStep = niceLabelSteps[niceLabelSteps.length-1];
+  for(const s of niceLabelSteps){ if(s >= rawStepX){ labelStep = s; break; } }
 
-  // Volume bars (achtergrond)
+  // Vind eerste candle waarvan de minuut deelbaar is door labelStep
+  // (zodat labels op mooie tijden vallen: 19:00, 19:15, 19:30, ...)
+  const filteredLabels = [];
+  let prevDay = '';
+  candles.forEach((c, i) => {
+    const t = c.t || '';
+    if(t.length < 16) return;
+    const day = t.slice(0, 10);
+    const hr = parseInt(t.slice(11, 13));
+    const mn2 = parseInt(t.slice(14, 16));
+    const totalMin = hr * 60 + mn2;
+    const isNewDay = day !== prevDay && prevDay !== '';
+    const isLabelTime = labelStep <= 1 || (totalMin % labelStep === 0);
+    if(isLabelTime || isNewDay || (i === 0 && filteredLabels.length === 0)){
+      filteredLabels.push({
+        i,
+        x: toX(i),
+        text: isNewDay ? t.slice(5, 10) + ' ' + t.slice(11, 16) : t.slice(11, 16),
+        bold: isNewDay
+      });
+    }
+    prevDay = day;
+  });
+
+  ctx.strokeStyle = '#f1f5f9';
+  ctx.fillStyle = '#64748b';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.font = '10px IBM Plex Mono';
+  filteredLabels.forEach(l => {
+    ctx.beginPath();
+    ctx.moveTo(l.x, cT);
+    ctx.lineTo(l.x, cB);
+    ctx.stroke();
+    ctx.font = (l.bold ? 'bold ' : '') + '10px IBM Plex Mono';
+    ctx.fillText(l.text, l.x, cB + 5);
+  });
+
+  // ─── 3. VOLUME bars onderaan (subtle) ───
+  const volH = Math.min(40, cH * 0.18);
   const vmx = Math.max(...candles.map(c => +c.v || 0), 1);
   candles.forEach((c, i) => {
-    const x = cL + i * sp + sp/2;
+    const x = toX(i);
     const isG = +c.c >= +c.o;
-    const vh = (+c.v || 0) / vmx * 28;
-    ctx.fillStyle = isG ? 'rgba(21,128,61,0.1)' : 'rgba(220,38,38,0.1)';
+    const vh = (+c.v || 0) / vmx * volH;
+    ctx.fillStyle = isG ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)';
     ctx.fillRect(x - bw/2, cB, bw, -vh);
   });
 
-  // Candles
+  // ─── 4. EMA21 lijn (oranje, dun) ───
+  if(candles.length > 21){
+    let ema = null;
+    const k = 2 / 22;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    candles.forEach((c, i) => {
+      ema = ema == null ? +c.c : (+c.c) * k + ema * (1-k);
+      const x = toX(i), y = toY(ema);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+  }
+
+  // ─── 5. CANDLES (TradingView-style: opvulling = body, lijn = wick) ───
+  const greenC = '#22c55e';
+  const redC = '#ef4444';
   candles.forEach((c, i) => {
-    const x = cL + i * sp + sp/2;
+    const x = toX(i);
     const isG = +c.c >= +c.o;
-    ctx.strokeStyle = isG ? '#15803d' : '#dc2626';
-    ctx.fillStyle = isG ? '#15803d' : '#dc2626';
-    ctx.lineWidth = 1;
+    const col = isG ? greenC : redC;
+    ctx.strokeStyle = col;
+    ctx.fillStyle = col;
+    ctx.lineWidth = 1.2;
     // Wick
     ctx.beginPath();
     ctx.moveTo(x, toY(+c.h));
@@ -1523,56 +1901,227 @@ function drawChart(){
     // Body
     const bt = toY(Math.max(+c.o, +c.c));
     const bb = toY(Math.min(+c.o, +c.c));
-    ctx.fillRect(x - bw/2, bt, bw, Math.max(1, bb - bt));
+    const bh = Math.max(1, bb - bt);
+    if(isG){
+      // green = filled (TradingView default)
+      ctx.fillRect(x - bw/2, bt, bw, bh);
+    } else {
+      // red = filled
+      ctx.fillRect(x - bw/2, bt, bw, bh);
+    }
   });
 
-  // Active trade lines
-  const drawLine = (price, color, label) => {
-    const y = toY(price);
-    if(y < cT || y > cB) return;
-    ctx.strokeStyle = color;
+  // ─── 6. ACTIVE TRADE LINES (entry, stop, target) ───
+  if(trade){
+    const drawLine = (price, color, label, dashed) => {
+      const y = toY(price);
+      if(y < cT || y > cB) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash(dashed ? [6, 3] : []);
+      ctx.beginPath();
+      ctx.moveTo(cL, y);
+      ctx.lineTo(cR, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Label rechts in een gekleurd vakje (TradingView-stijl)
+      const lblText = `${label} ${price.toFixed(2)}`;
+      ctx.font = 'bold 10px IBM Plex Mono';
+      ctx.fillStyle = color;
+      ctx.fillRect(cR, y - 8, AXIS_R, 16);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(lblText, cR + AXIS_R/2, y);
+    };
+    drawLine(trade.tgt, '#15803d', 'TGT', true);
+    drawLine(trade.entry, '#1d4ed8', 'ENT', false);
+    drawLine(trade.stop, '#dc2626', 'STP', true);
+
+    // ─── 7. ENTRY/EXIT TIJD MARKERS (verticale stippellijnen) ───
+    if(trade.entryTime){
+      // Vind candle index met deze tijd
+      const entryIdx = candles.findIndex(c => c.t === trade.entryTime);
+      if(entryIdx >= 0){
+        const x = toX(entryIdx);
+        ctx.strokeStyle = '#1d4ed8';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(x, cT);
+        ctx.lineTo(x, cB);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Label tijd
+        ctx.fillStyle = '#1d4ed8';
+        ctx.font = 'bold 9px IBM Plex Mono';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        const lbl = `▲ ${trade.entryTime.slice(11,16)}`;
+        const lblW = ctx.measureText(lbl).width + 8;
+        ctx.fillRect(x - lblW/2, cT, lblW, 14);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(lbl, x, cT + 2);
+      }
+    }
+  }
+
+  // ─── 8. RECENT EXIT MARKERS (laatste 5 closed predictions) ───
+  const recentClosed = predictions
+    .filter(p => p.exitTime && p.outcome && (p.outcome === 'WIN' || p.outcome === 'LOSS'))
+    .slice(-8);
+  recentClosed.forEach(p => {
+    const idx = candles.findIndex(c => c.t === p.exitTime);
+    if(idx < 0) return;
+    const x = toX(idx);
+    const y = toY(p.exitPrice);
+    const col = p.outcome === 'WIN' ? '#15803d' : '#dc2626';
+    ctx.fillStyle = col;
+    ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1.5;
-    ctx.setLineDash([4, 3]);
     ctx.beginPath();
-    ctx.moveTo(cL, y);
-    ctx.lineTo(cR, y);
+    if(p.outcome === 'WIN'){
+      // groene driehoek omhoog
+      ctx.moveTo(x, y - 7);
+      ctx.lineTo(x - 5, y + 3);
+      ctx.lineTo(x + 5, y + 3);
+    } else {
+      // rode driehoek omlaag
+      ctx.moveTo(x, y + 7);
+      ctx.lineTo(x - 5, y - 3);
+      ctx.lineTo(x + 5, y - 3);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+  });
+
+  // ─── 9. CURRENT PRICE LABEL (rechts, gekleurd vakje) ───
+  if(candles.length > 0){
+    const lastCandle = candles[candles.length - 1];
+    const lastPrice = +lastCandle.c;
+    const prevPrice = candles.length > 1 ? +candles[candles.length-2].c : lastPrice;
+    const isUp = lastPrice >= prevPrice;
+    const lastY = toY(lastPrice);
+    const col = isUp ? '#15803d' : '#dc2626';
+    ctx.fillStyle = col;
+    ctx.fillRect(cR, lastY - 9, AXIS_R, 18);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 11px IBM Plex Mono';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lastPrice.toFixed(2), cR + AXIS_R/2, lastY);
+
+    // Stippellijntje van laatste close naar prijs-label
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 0.6;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    ctx.moveTo(cL, lastY);
+    ctx.lineTo(cR, lastY);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = color;
-    ctx.font = 'bold 10px IBM Plex Mono';
-    ctx.textAlign = 'left';
-    ctx.fillText(`${label} ${price.toFixed(2)}`, cL + 4, y - 3);
-  };
-
-  const trade = activeTrade || activePending;
-  if(trade){
-    drawLine(trade.entry, '#1d4ed8', 'ENTRY');
-    drawLine(trade.tgt, '#15803d', 'TGT');
-    drawLine(trade.stop, '#dc2626', 'STOP');
-  }
-
-  // Y-axis labels
-  ctx.fillStyle = '#64748b';
-  ctx.font = '10px IBM Plex Mono';
-  ctx.textAlign = 'right';
-  for(let i = 0; i <= 4; i++){
-    const p = mn + (mx - mn) * (1 - i/4);
-    const y = cT + cH * (i/4);
-    ctx.fillText(p.toFixed(2), 51, y + 3);
-  }
-
-  // X-axis: tijd labels (elke ~10 candles)
-  ctx.textAlign = 'center';
-  for(let i = 0; i < N; i += Math.ceil(N/8)){
-    const x = cL + i * sp + sp/2;
-    const t = candles[i].t;
-    if(t){
-      ctx.fillText(t.slice(11,16), x, cB + 14);
-    }
   }
 }
 
 window.addEventListener('resize', resizeChart);
+
+// ─── CHART ZOOM/SCROLL HANDLERS ───
+window.chartZoom = function(factor){
+  chartZoomCount = Math.max(CHART_ZOOM_MIN, Math.min(CHART_ZOOM_MAX, Math.round(chartZoomCount * factor)));
+  $('chart-zoom-info').textContent = chartZoomCount + 'c';
+  drawChart();
+};
+
+window.chartScroll = function(delta){
+  const total = cBufForChart.length;
+  chartScrollOffset = Math.max(0, Math.min(total - chartZoomCount, chartScrollOffset + delta));
+  updateScrollBar();
+  drawChart();
+};
+
+window.chartReset = function(){
+  chartScrollOffset = 0;
+  chartZoomCount = 120;
+  $('chart-zoom-info').textContent = chartZoomCount + 'c';
+  updateScrollBar();
+  drawChart();
+};
+
+window.onScrollChange = function(val){
+  // val 0 = oudste, 100 = nieuwste (NU)
+  const total = cBufForChart.length;
+  const maxOffset = Math.max(0, total - chartZoomCount);
+  // Inverteer: slider 100 = offset 0
+  chartScrollOffset = Math.round(maxOffset * (1 - val/100));
+  // Update info label
+  if(chartScrollOffset === 0){
+    $('chart-scroll-info').textContent = 'NU';
+  } else {
+    const minutesBack = chartScrollOffset;
+    if(minutesBack < 60) $('chart-scroll-info').textContent = `-${minutesBack}m`;
+    else if(minutesBack < 1440) $('chart-scroll-info').textContent = `-${Math.floor(minutesBack/60)}h${minutesBack%60}m`;
+    else $('chart-scroll-info').textContent = `-${Math.floor(minutesBack/1440)}d`;
+  }
+  drawChart();
+};
+
+function updateScrollBar(){
+  const total = cBufForChart.length;
+  const maxOffset = Math.max(0, total - chartZoomCount);
+  const pct = maxOffset > 0 ? (1 - chartScrollOffset/maxOffset) * 100 : 100;
+  $('chart-scroll').value = pct;
+  if(chartScrollOffset === 0){
+    $('chart-scroll-info').textContent = 'NU';
+  } else {
+    const m = chartScrollOffset;
+    if(m < 60) $('chart-scroll-info').textContent = `-${m}m`;
+    else if(m < 1440) $('chart-scroll-info').textContent = `-${Math.floor(m/60)}h${m%60}m`;
+    else $('chart-scroll-info').textContent = `-${Math.floor(m/1440)}d`;
+  }
+  $('chart-zoom-info').textContent = chartZoomCount + 'c';
+}
+
+// Mouse wheel zoom op canvas (Ctrl+wheel = zoom, plain wheel = scroll)
+if(canvas){
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    if(e.ctrlKey || e.metaKey){
+      // Zoom
+      chartZoom(e.deltaY > 0 ? 1.2 : 0.85);
+    } else {
+      // Scroll
+      const direction = e.deltaY > 0 || e.deltaX > 0 ? 1 : -1;
+      chartScroll(direction * Math.max(3, Math.floor(chartZoomCount / 20)));
+    }
+  }, { passive: false });
+
+  // Drag to scroll
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartOffset = 0;
+  canvas.addEventListener('mousedown', e => {
+    isDragging = true;
+    dragStartX = e.clientX;
+    dragStartOffset = chartScrollOffset;
+    canvas.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mousemove', e => {
+    if(!isDragging) return;
+    const dx = e.clientX - dragStartX;
+    const w = $('chart-wrap').clientWidth;
+    const candlesPerPx = chartZoomCount / Math.max(1, w);
+    const deltaCandles = Math.round(dx * candlesPerPx);
+    const total = cBufForChart.length;
+    chartScrollOffset = Math.max(0, Math.min(total - chartZoomCount, dragStartOffset + deltaCandles));
+    updateScrollBar();
+    drawChart();
+  });
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+    if(canvas) canvas.style.cursor = 'crosshair';
+  });
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // FILTERS — chips + presets
@@ -1659,15 +2208,86 @@ $('setup-filter').onchange = e => {
 $('ex-contr').addEventListener('input', updExecRisk);
 
 // ═══════════════════════════════════════════════════════════════════
-// INIT
+// CSV SEED — laad TradingView CSV historiek voor instant warmup
 // ═══════════════════════════════════════════════════════════════════
+function parseSeedCSV(txt){
+  const lines = txt.trim().split(/\r?\n/);
+  const h = lines[0].replace(/"/g,'').toLowerCase().split(',');
+  const gi = k => h.findIndex(x => x.trim() === k || x.trim().includes(k));
+  const ti = gi('time'), oi = gi('open'), hi = gi('high'),
+        li = gi('low'), ci = gi('close'), vi = gi('volume');
+  if(ci < 0) throw new Error('Kolommen niet herkend (verwacht: time,open,high,low,close,volume)');
+  const out = [];
+  for(let i = 1; i < lines.length; i++){
+    const c = lines[i].replace(/"/g,'').split(',');
+    if(!c[ci]) continue;
+    let ts = (c[ti]||'').trim();
+    // UNIX timestamp → string
+    if(/^\d{9,11}$/.test(ts)){
+      const d = new Date(+ts * 1000);
+      const y = d.getUTCFullYear();
+      const mo = String(d.getUTCMonth()+1).padStart(2,'0');
+      const da = String(d.getUTCDate()).padStart(2,'0');
+      const hr = String(d.getUTCHours()).padStart(2,'0');
+      const mi = String(d.getUTCMinutes()).padStart(2,'0');
+      ts = `${y}-${mo}-${da} ${hr}:${mi}`;
+    }
+    const o = +c[oi]||0, hv = +c[hi]||0, lv = +c[li]||0, cv = +c[ci]||0;
+    if(cv > 0) out.push({t:ts, o, h:hv, l:lv, c:cv, v:+(c[vi]||c[6]||100)});
+  }
+  return out;
+}
+
+document.getElementById('seed-csv').addEventListener('change', async (e) => {
+  const f = e.target.files[0];
+  if(!f) return;
+  try {
+    lg(`CSV inlezen: ${f.name}…`, 'info');
+    const txt = await f.text();
+    const seedCandles = parseSeedCSV(txt);
+    if(seedCandles.length < 100){
+      alert(`CSV heeft maar ${seedCandles.length} candles. Aanbevolen: minstens 300 voor warmup.`);
+      return;
+    }
+
+    // Merge met bestaande buffer — vermijd duplicaten op tijdstempel
+    const existingTs = new Set(candleBuffer.map(c => c.t));
+    let added = 0;
+    const merged = [...seedCandles];
+    candleBuffer.forEach(c => {
+      if(!merged.find(s => s.t === c.t)) merged.push(c);
+    });
+    merged.sort((a,b) => a.t.localeCompare(b.t));
+
+    candleBuffer = merged.slice(-20000);
+    cBufForChart = candleBuffer; updateScrollBar();
+    candleCount = candleBuffer.length;
+    $('ts-candles').textContent = candleCount;
+    if(candleBuffer.length > 0){
+      lastCandleTs = candleBuffer[candleBuffer.length-1].t;
+    }
+    lg(`✓ Seed: ${seedCandles.length} candles → buffer = ${candleBuffer.length} (${candleBuffer[0].t.slice(0,10)} → ${candleBuffer[candleBuffer.length-1].t.slice(0,10)})`, 'ok');
+    drawChart();
+
+    // Reset cooldown zodat eerste live candle direct geanalyseerd wordt
+    lastCloseTime = 0;
+
+    alert(`✓ ${seedCandles.length} candles geladen. Engine heeft nu warmup. Klik CONNECT en wacht op live candle.`);
+    e.target.value = ''; // reset zodat zelfde file opnieuw geladen kan worden
+  } catch(err){
+    lg('CSV fout: '+err.message, 'err');
+    alert('CSV fout: '+err.message);
+  }
+});
+
+
 loadFilters();
 loadParams();
 loadPredictions();
 renderChips();
 renderPredictions();
 renderStats();
-setTimeout(resizeChart, 100);
+setTimeout(() => { resizeChart(); updateScrollBar(); }, 100);
 lg('NQ Oracle LIVE v1 ready · Klik CONNECT om te starten', 'info');
 
 // Auto-connect if URL fields are pre-filled

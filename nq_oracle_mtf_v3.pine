@@ -1,0 +1,70 @@
+//@version=5
+indicator("NQ Oracle MTF Feed v3", overlay=true)
+
+show_vwap = input.bool(true, "Toon VWAP")
+show_ema  = input.bool(true, "Toon EMAs")
+
+// ── Huidige TF ───────────────────────────────────────────────
+vwap_val    = ta.vwap(hlc3)
+ema8        = ta.ema(close, 8)
+ema21       = ta.ema(close, 21)
+ema50       = ta.ema(close, 50)
+atr14       = ta.atr(14)
+rsi14       = ta.rsi(close, 14)
+vol_bull    = close >= open ? volume : 0
+vol_bear    = close < open  ? volume : 0
+vol_delta_5 = math.sum(vol_bull - vol_bear, 5)
+
+// ── Daily levels ─────────────────────────────────────────────
+[pivot_d, pdh, pdl] = request.security(syminfo.tickerid, "D", [(high[1]+low[1]+close[1])/3, high[1], low[1]], lookahead=barmerge.lookahead_on)
+r1_d = 2 * pivot_d - pdl
+s1_d = 2 * pivot_d - pdh
+
+// ── MTF: 5 calls ─────────────────────────────────────────────
+[o1, h1, l1, c1, v1, rsi1, ema1, atr1] = request.security(syminfo.tickerid, "1", [open, high, low, close, volume, ta.rsi(close,14), ta.ema(close,21), ta.atr(14)], lookahead=barmerge.lookahead_off)
+[o5, h5, l5, c5, v5, rsi5, ema5, atr5] = request.security(syminfo.tickerid, "5", [open, high, low, close, volume, ta.rsi(close,14), ta.ema(close,21), ta.atr(14)], lookahead=barmerge.lookahead_off)
+[o15,h15,l15,c15,v15,rsi15,ema15,atr15] = request.security(syminfo.tickerid, "15", [open, high, low, close, volume, ta.rsi(close,14), ta.ema(close,21), ta.atr(14)], lookahead=barmerge.lookahead_off)
+[o30,h30,l30,c30,v30,rsi30,ema30,atr30] = request.security(syminfo.tickerid, "30", [open, high, low, close, volume, ta.rsi(close,14), ta.ema(close,21), ta.atr(14)], lookahead=barmerge.lookahead_off)
+[o60,h60,l60,c60,v60,rsi60,ema60,atr60] = request.security(syminfo.tickerid, "60", [open, high, low, close, volume, ta.rsi(close,14), ta.ema(close,21), ta.atr(14)], lookahead=barmerge.lookahead_off)
+
+htf_bull = ema60 > ema60[3]
+
+// ── Sessie & patroon ─────────────────────────────────────────
+ny_h     = hour(time, "America/New_York")
+ny_m     = minute(time, "America/New_York")
+is_pre   = ny_h < 9 or (ny_h == 9 and ny_m < 30)
+is_open  = (ny_h == 9 and ny_m >= 30) or (ny_h >= 10 and ny_h < 12)
+is_power = ny_h >= 15 and ny_h < 16
+sess_num = is_pre ? 0 : is_open ? 1 : is_power ? 3 : 2
+
+body        = math.abs(close - open)
+wick_down   = math.min(close, open) - low
+wick_up     = high - math.max(close, open)
+is_bull_eng = close > open[1] and open < close[1] and close > open and body > atr14 * 0.3
+is_bear_eng = close < open[1] and open > close[1] and close < open and body > atr14 * 0.3
+is_doji     = body < atr14 * 0.1
+is_hammer   = wick_down > body * 2 and wick_up < body * 0.5 and close > open
+is_star     = wick_up > body * 2 and wick_down < body * 0.5 and close < open
+pat_num     = is_bull_eng ? 1 : is_bear_eng ? 2 : is_doji ? 3 : is_hammer ? 4 : is_star ? 5 : 0
+
+// ── Plots ────────────────────────────────────────────────────
+plot(show_vwap ? vwap_val : na, "VWAP",  color=color.new(#00e5ff, 0), linewidth=2)
+plot(show_ema  ? ema8     : na, "EMA 8", color=color.new(#7c4dff, 0), linewidth=1)
+plot(show_ema  ? ema21    : na, "EMA21", color=color.new(#ffd740, 0), linewidth=1)
+plot(show_ema  ? ema50    : na, "EMA50", color=color.new(color.gray, 50), linewidth=1)
+bgcolor(rsi14 > 70 ? color.new(color.red, 92) : rsi14 < 30 ? color.new(color.green, 92) : na)
+
+// ── Alert: NU MET "bt" (bar time, UNIX ms) als unieke ID ─────
+if barstate.isconfirmed
+    _bt   = '{"bt":' + str.tostring(time)
+    _base = ',"o":' + str.tostring(open,"#.00") + ',"h":' + str.tostring(high,"#.00") + ',"l":' + str.tostring(low,"#.00") + ',"c":' + str.tostring(close,"#.00") + ',"v":' + str.tostring(volume,"#")
+    _ind  = ',"vw":' + str.tostring(vwap_val,"#.00") + ',"e8":' + str.tostring(ema8,"#.00") + ',"e21":' + str.tostring(ema21,"#.00") + ',"e50":' + str.tostring(ema50,"#.00") + ',"rs":' + str.tostring(rsi14,"#.0") + ',"at":' + str.tostring(atr14,"#.00")
+    _lvl  = ',"pv":' + str.tostring(pivot_d,"#.00") + ',"r1":' + str.tostring(r1_d,"#.00") + ',"s1":' + str.tostring(s1_d,"#.00") + ',"ph":' + str.tostring(pdh,"#.00") + ',"pl":' + str.tostring(pdl,"#.00")
+    _ctx  = ',"vd":' + str.tostring(vol_delta_5,"#") + ',"ht":' + str.tostring(htf_bull ? 1 : 0) + ',"ss":' + str.tostring(sess_num) + ',"pt":' + str.tostring(pat_num)
+    _prev = ',"ph1":' + str.tostring(high[1],"#.00") + ',"pl1":' + str.tostring(low[1],"#.00") + ',"pc1":' + str.tostring(close[1],"#.00") + ',"pv1":' + str.tostring(volume[1],"#")
+    _tf1  = ',"m1":"' + str.tostring(o1,"#.00") + ',' + str.tostring(h1,"#.00") + ',' + str.tostring(l1,"#.00") + ',' + str.tostring(c1,"#.00") + ',' + str.tostring(v1,"#") + ',' + str.tostring(rsi1,"#.0") + ',' + str.tostring(ema1,"#.00") + ',' + str.tostring(atr1,"#.00") + '"'
+    _tf2  = ',"m5":"' + str.tostring(o5,"#.00") + ',' + str.tostring(h5,"#.00") + ',' + str.tostring(l5,"#.00") + ',' + str.tostring(c5,"#.00") + ',' + str.tostring(v5,"#") + ',' + str.tostring(rsi5,"#.0") + ',' + str.tostring(ema5,"#.00") + ',' + str.tostring(atr5,"#.00") + '"'
+    _tf3  = ',"m15":"' + str.tostring(o15,"#.00") + ',' + str.tostring(h15,"#.00") + ',' + str.tostring(l15,"#.00") + ',' + str.tostring(c15,"#.00") + ',' + str.tostring(v15,"#") + ',' + str.tostring(rsi15,"#.0") + ',' + str.tostring(ema15,"#.00") + ',' + str.tostring(atr15,"#.00") + '"'
+    _tf4  = ',"m30":"' + str.tostring(o30,"#.00") + ',' + str.tostring(h30,"#.00") + ',' + str.tostring(l30,"#.00") + ',' + str.tostring(c30,"#.00") + ',' + str.tostring(v30,"#") + ',' + str.tostring(rsi30,"#.0") + ',' + str.tostring(ema30,"#.00") + ',' + str.tostring(atr30,"#.00") + '"'
+    _tf5  = ',"m60":"' + str.tostring(o60,"#.00") + ',' + str.tostring(h60,"#.00") + ',' + str.tostring(l60,"#.00") + ',' + str.tostring(c60,"#.00") + ',' + str.tostring(v60,"#") + ',' + str.tostring(rsi60,"#.0") + ',' + str.tostring(ema60,"#.00") + ',' + str.tostring(atr60,"#.00") + '"}'
+    alert(_bt + _base + _ind + _lvl + _ctx + _prev + _tf1 + _tf2 + _tf3 + _tf4 + _tf5, alert.freq_once_per_bar_close)
