@@ -1,10 +1,10 @@
 """
-NQ Oracle Master Server v1 — minimal candle store
+DAX Oracle Master Server v1 — minimal candle store
 ============================================================
 Geen AI, geen subjective signaal-engine.
 Dit is alleen een receiver + opslag voor 1-min candles uit TradingView.
-De signaal-engine zit in de frontend (nq-oracle-live.html) en gebruikt
-EXACT dezelfde v13 logica als nq-oracle-master-v1.html backtest.
+De signaal-engine zit in de frontend (dax-oracle-live.html) en gebruikt
+EXACT dezelfde v13 logica als dax-oracle-master-v1.html backtest.
 
 → Backtest signaal == Live signaal (zelfde code path).
 """
@@ -23,13 +23,13 @@ tf_data        = {"1":{},"5":{},"15":{},"30":{},"60":{}}  # MTF snapshot
 predictions    = []        # signalen + outcomes voor cross-session tracking
 order_history  = []        # uitgevoerde orders
 
-MAX_HISTORY     = 2000     # ~33 uur 1-min data
+MAX_HISTORY     = 100000   # ~69 dagen 1-min data (geen praktische limiet)
 MAX_PREDICTIONS = 5000
 
-WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "nq-oracle-secret")
+WEBHOOK_SECRET = os.environ.get("WEBHOOK_SECRET", "dax-oracle-secret")
 DATA_DIR       = Path("/tmp")
 CANDLES_FILE   = DATA_DIR / "nq_candles.json"
-PRED_FILE      = DATA_DIR / "nq_predictions.json"
+PRED_FILE      = DATA_DIR / "dax_predictions.json"
 
 # ─── Persistence (overleeft Railway restart) ─────────────────
 def save_state():
@@ -137,7 +137,7 @@ def health():
     last_ts = candle_history[-1].get("received_at") if candle_history else None
     return jsonify({
         "status":"online",
-        "service":"NQ Oracle Master Server v1 (no-AI, deterministic engine in client)",
+        "service":"DAX Oracle Master Server v1 (no-AI, deterministic engine in client)",
         "candles": len(candle_history),
         "predictions": len(predictions),
         "open_predictions": sum(1 for p in predictions if p.get("outcome") == "open"),
@@ -436,6 +436,6 @@ def clear():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    print(f"NQ Oracle Master Server v1 — port {port}")
+    print(f"DAX Oracle Master Server v1 — port {port}")
     print(f"Loaded: {len(candle_history)} candles, {len(predictions)} predictions")
     app.run(host="0.0.0.0", port=port, debug=False)
