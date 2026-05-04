@@ -19,32 +19,38 @@
   --purple:#7c3aed; --purple-bg:#faf5ff;
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;display:flex;flex-direction:column}
+html{height:100%;margin:0;padding:0}
+body{margin:0;padding:0;height:100vh;background:var(--bg);color:var(--text);font-family:"Inter",sans-serif;font-size:15px;display:grid;grid-template-rows:auto auto auto 1fr;overflow:hidden}
 
 /* ── Topbar ── */
-.topbar{display:grid;grid-template-columns:240px 1fr 380px;align-items:center;gap:10px;padding:8px 14px;background:#1e293b;color:white;flex-shrink:0}
+.topbar{display:grid;grid-template-columns:280px 1fr clamp(380px,35vw,600px);align-items:center;gap:10px;padding:8px 14px;background:#1e293b;color:white;flex-shrink:0}
 .logo{display:flex;align-items:center;gap:9px}
-.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:10px;color:white;font-weight:700}
-.logo h1{font-size:14px;font-weight:800;letter-spacing:1.5px;color:white;line-height:1.1}
-.logo small{font-size:8px;color:#94a3b8;letter-spacing:1px}
+.logo-mark{width:30px;height:30px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono';font-size:12px;color:white;font-weight:700}
+.logo h1{font-size:16px;font-weight:800;letter-spacing:1.5px;color:white;line-height:1.1}
+.logo small{font-size:10px;color:#94a3b8;letter-spacing:1px}
 .topstats{display:flex;gap:2px;justify-content:center;flex-wrap:nowrap}
 .ts{padding:4px 9px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:3px;text-align:center;min-width:64px}
-.ts .tv{font-family:'IBM Plex Mono';font-size:12px;font-weight:600;color:white;line-height:1.2}
-.ts .tl{font-size:8px;color:#64748b;letter-spacing:.5px;margin-top:1px}
+.ts .tv{font-family:'IBM Plex Mono';font-size:14px;font-weight:600;color:white;line-height:1.2}
+.ts .tl{font-size:10px;color:#64748b;letter-spacing:.5px;margin-top:1px}
 .ts.hi{border-color:#3b82f6;background:rgba(59,130,246,0.15)}
 .ts.win .tv{color:#4ade80}
 .ts.loss .tv{color:#f87171}
 .dot{width:6px;height:6px;border-radius:50%;background:#475569;display:inline-block;margin-right:3px}
 .dot.live{background:#22c55e;box-shadow:0 0 5px #22c55e;animation:blink 1.5s infinite}
 .dot.err{background:#ff4560}
+.ts.pulse .tv{animation:flash .4s ease-out}
+@keyframes flash{0%{color:#22c55e;transform:scale(1.3)}100%{color:white;transform:scale(1)}}
+.engine-status{font-family:'IBM Plex Mono';font-size:11px;padding:3px 8px;border-radius:3px;text-align:center;margin-top:4px}
+.engine-status.waiting{background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+.engine-status.ready{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.engine-status.nocandl{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
 .topconn{display:flex;align-items:center;gap:5px}
-.ci{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:3px;color:white;font-family:'IBM Plex Mono';font-size:10px;padding:5px 7px}
+.ci{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:3px;color:white;font-family:'IBM Plex Mono';font-size:12px;padding:5px 7px}
 .ci.url{width:200px} .ci.sec{width:110px}
 .ci::placeholder{color:#475569}
 .ci:focus{outline:none;border-color:#3b82f6}
-.btn-conn{padding:6px 12px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;border:none;background:#3b82f6;color:white;white-space:nowrap}
+.btn-conn{padding:6px 12px;border-radius:3px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:#3b82f6;color:white;white-space:nowrap}
 .btn-conn:hover{background:#2563eb}
 .btn-conn.on{background:#dc2626}
 
@@ -54,8 +60,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .mc.bc{border-top-color:var(--bull)}
 .mc.rc{border-top-color:var(--bear)}
 .mc.fc{border-top-color:var(--gold)}
-.mc-tf{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:1px}
-.mc-bias{font-size:16px;font-weight:800;margin-bottom:3px;color:var(--muted)}
+.mc-tf{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:1px}
+.mc-bias{font-size:18px;font-weight:800;margin-bottom:3px;color:var(--muted)}
 .mc.bc .mc-bias{color:var(--bull)}
 .mc.rc .mc-bias{color:var(--bear)}
 .mc.fc .mc-bias{color:var(--gold)}
@@ -63,36 +69,36 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .mc-fill{height:100%;border-radius:2px;transition:width .8s}
 .mc-row{display:flex;gap:10px}
 .mc-row span{display:flex;flex-direction:column}
-.mc-row .sv{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--text)}
-.mc-row .sl{font-size:8px;color:var(--muted);margin-top:1px}
+.mc-row .sv{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;color:var(--text)}
+.mc-row .sl{font-size:10px;color:var(--muted);margin-top:1px}
 
 /* ── Consensus bar ── */
 .cons{display:flex;align-items:center;gap:8px;background:white;border-bottom:1px solid var(--border);padding:6px 14px;flex-shrink:0}
-.cons-lbl{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1.5px;white-space:nowrap}
+.cons-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1.5px;white-space:nowrap}
 .cons-bar{flex:1;display:flex;height:18px;border-radius:2px;overflow:hidden;gap:1px;border:1px solid var(--border)}
-.cs{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:flex .8s}
+.cs{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:flex .8s}
 .csb{background:#dcfce7;color:var(--bull)}
 .csf{background:#fef9c3;color:var(--gold)}
 .csr{background:#fee2e2;color:var(--bear)}
-.cons-v{font-size:14px;font-weight:800;white-space:nowrap;margin-left:2px}
+.cons-v{font-size:16px;font-weight:800;white-space:nowrap;margin-left:2px}
 
 /* ── Main grid ── */
-.main{display:grid;grid-template-columns:240px 1fr 380px;gap:1px;background:var(--border);flex:1;min-height:0}
-.col{background:var(--bg);display:flex;flex-direction:column;gap:1px;min-height:0}
+.main{display:grid;grid-template-columns:280px 1fr clamp(380px,35vw,600px);grid-template-rows:1fr;gap:1px;background:var(--border);overflow:hidden}
+.col{background:var(--bg);display:flex;flex-direction:column;gap:1px;overflow:hidden}
 .col.left,.col.right{overflow-y:auto}
 .col.left::-webkit-scrollbar,.col.right::-webkit-scrollbar{width:4px}
 .col.left::-webkit-scrollbar-thumb,.col.right::-webkit-scrollbar-thumb{background:var(--border2)}
-.col.center{display:flex;flex-direction:column}
+.col.center{display:flex;flex-direction:column;min-width:0}
 .panel{background:white;padding:10px 13px;flex-shrink:0;border-bottom:1px solid var(--border)}
-.panel h3{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.panel h3{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
 
 /* ── Filter chips ── */
 .preset-row{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
-.preset{padding:5px 8px;border:1px solid var(--border);background:white;border-radius:3px;cursor:pointer;font-size:10px;font-weight:700;color:var(--text);letter-spacing:.3px;text-transform:uppercase}
+.preset{padding:5px 8px;border:1px solid var(--border);background:white;border-radius:3px;cursor:pointer;font-size:12px;font-weight:700;color:var(--text);letter-spacing:.3px;text-transform:uppercase}
 .preset:hover{background:var(--bg3)}
 .preset.active{background:var(--text);color:white;border-color:var(--text)}
 .chip-row{display:flex;flex-wrap:wrap;gap:3px;margin-top:5px}
-.chip{padding:2px 7px;border:1px solid var(--border);background:white;border-radius:10px;cursor:pointer;font-family:'IBM Plex Mono';font-size:10px;font-weight:600;user-select:none;transition:all .15s}
+.chip{padding:2px 7px;border:1px solid var(--border);background:white;border-radius:10px;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;font-weight:600;user-select:none;transition:all .15s}
 .chip:hover{background:var(--bg3)}
 .chip.skip{background:var(--bear-bg);color:var(--bear);border-color:var(--bear-bd);text-decoration:line-through}
 .chip.active{background:var(--text);color:white;border-color:var(--text)}
@@ -100,8 +106,8 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 /* ── Candle panel ── */
 .candle-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
 .cg{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #f1f5f9}
-.cg .l{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.5px}
-.cg .v{font-family:'IBM Plex Mono';font-size:11px;font-weight:600;color:var(--text)}
+.cg .l{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px}
+.cg .v{font-family:'IBM Plex Mono';font-size:13px;font-weight:600;color:var(--text)}
 .cg .v.bv{color:var(--bull)}
 .cg .v.rv{color:var(--bear)}
 .cg .v.nv{color:var(--text2)}
@@ -111,19 +117,19 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .sig-circle{width:140px;height:140px;margin:0 auto 12px;position:relative}
 .sig-circle svg{transform:rotate(-90deg)}
 .sig-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
-.sig-pct .p{font-family:'IBM Plex Mono';font-size:32px;font-weight:700;color:var(--gold)}
-.sig-pct .d{font-size:11px;font-weight:700;color:var(--gold);margin-top:2px;letter-spacing:1px}
+.sig-pct .p{font-family:'IBM Plex Mono';font-size:34px;font-weight:700;color:var(--gold)}
+.sig-pct .d{font-size:13px;font-weight:700;color:var(--gold);margin-top:2px;letter-spacing:1px}
 .sig-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f1f5f9}
-.sig-row .sl{font-size:9px;color:var(--muted);font-weight:600;letter-spacing:.5px}
-.sig-row .sv4{font-family:'IBM Plex Mono';font-size:13px;font-weight:700}
+.sig-row .sl{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.5px}
+.sig-row .sv4{font-family:'IBM Plex Mono';font-size:15px;font-weight:700}
 .sig-row .sv4.bv{color:var(--bull)}
 .sig-row .sv4.rv{color:var(--bear)}
 .sig-row .sv4.nv{color:var(--text)}
-.setup-tag{display:inline-block;padding:3px 8px;background:var(--purple-bg);color:var(--purple);border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.5px;margin-top:6px}
-.score-box{display:inline-block;padding:3px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;font-family:'IBM Plex Mono';font-size:11px;font-weight:700;margin-left:6px}
+.setup-tag{display:inline-block;padding:3px 8px;background:var(--purple-bg);color:var(--purple);border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.5px;margin-top:6px}
+.score-box{display:inline-block;padding:3px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:3px;font-family:'IBM Plex Mono';font-size:13px;font-weight:700;margin-left:6px}
 
 /* ── Status ── */
-.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.5px}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:10px;font-size:12px;font-weight:700;letter-spacing:.5px}
 .sp-pending{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)}
 .sp-active{background:var(--gold-bg);color:var(--gold);border:1px solid var(--gold-bd)}
 .sp-win{background:var(--bull-bg);color:var(--bull);border:1px solid var(--bull-bd)}
@@ -132,14 +138,14 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .sp-waiting{background:var(--bg3);color:var(--muted);border:1px solid var(--border)}
 
 /* ── Predictions table ── */
-.pred-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:10px}
-.pred-table th{text-align:left;padding:5px 6px;background:var(--bg3);font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
+.pred-table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:12px}
+.pred-table th{text-align:left;padding:5px 6px;background:var(--bg3);font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:1}
 .pred-table td{padding:4px 6px;border-bottom:1px solid #f1f5f9}
 .pred-table tr.wr td{background:rgba(34,197,94,0.04)}
 .pred-table tr.lr td{background:rgba(220,38,38,0.04)}
 .pred-table tr.or td{background:rgba(59,130,246,0.04)}
 .pred-table tr.pr td{background:rgba(180,83,9,0.04)}
-.pbadge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;letter-spacing:.3px}
+.pbadge{display:inline-block;padding:1px 5px;border-radius:2px;font-size:11px;font-weight:700;letter-spacing:.3px}
 .pbadge.pw{background:var(--bull-bg);color:var(--bull)}
 .pbadge.pl2{background:var(--bear-bg);color:var(--bear)}
 .pbadge.po{background:var(--blue-bg);color:var(--blue)}
@@ -147,38 +153,42 @@ body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-
 .pbadge.pe{background:#f1f5f9;color:var(--muted)}
 
 /* ── Chart ── */
-.chart-wrap{flex:1;background:white;position:relative;min-height:0;overflow:hidden}
+.chart-wrap{flex:1;background:white;position:relative;min-height:250px;overflow:hidden}
 canvas{display:block;width:100%;height:100%;cursor:crosshair}
-.chart-overlay{position:absolute;top:8px;left:10px;right:10px;z-index:2;display:flex;gap:6px;font-family:'IBM Plex Mono';font-size:10px;color:var(--muted);align-items:center}
+.chart-overlay{position:absolute;top:8px;left:10px;right:10px;z-index:2;display:flex;gap:6px;font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);align-items:center}
 .chart-overlay > span{padding:2px 6px;background:rgba(255,255,255,0.92);border:1px solid var(--border);border-radius:2px}
 .chart-cur{font-family:'IBM Plex Mono';font-weight:700;color:var(--text)}
-.chart-btn{padding:2px 8px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;font-weight:700;color:var(--text);min-width:24px;line-height:1.2}
+.chart-btn{padding:2px 8px;background:rgba(255,255,255,0.95);border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:14px;font-weight:700;color:var(--text);min-width:24px;line-height:1.2}
 .chart-btn:hover{background:var(--bg3);border-color:var(--text2)}
 .chart-scrollbar-wrap{display:flex;align-items:center;gap:4px;padding:5px 8px;background:#f8fafc;border-top:1px solid var(--border);flex-shrink:0}
 .chart-scrollbar-wrap input[type=range]{height:6px;cursor:pointer;accent-color:var(--blue);flex:1}
-.scroll-btn{padding:3px 8px;background:white;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:10px;font-weight:700;color:var(--text2);min-width:30px}
+.scroll-btn{padding:3px 8px;background:white;border:1px solid var(--border);border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;font-weight:700;color:var(--text2);min-width:30px}
 .scroll-btn:hover{background:var(--blue-bg);color:var(--blue);border-color:var(--blue-bd)}
+.reset-btn{padding:6px 10px;background:white;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-family:'IBM Plex Mono';font-size:12px;color:var(--text2);text-align:left;transition:all .15s}
+.reset-btn:hover{background:#fef2f2;color:#dc2626;border-color:#fca5a5}
+.reset-all{background:#fef2f2;color:#dc2626;border-color:#fca5a5;font-weight:700}
+.reset-all:hover{background:#fee2e2;border-color:#dc2626}
 
 /* ── Execute box ── */
 .exec-wrap{padding:10px 13px;background:linear-gradient(135deg,var(--bull-bg),white);border:2px solid var(--bull);border-radius:5px;margin:0 13px 10px}
 .exec-wrap.bear-mode{background:linear-gradient(135deg,var(--bear-bg),white);border-color:var(--bear)}
 .exec-wrap.hidden{display:none}
 .exec-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0}
-.exec-row .l{font-size:9px;color:var(--text2);font-weight:600;letter-spacing:.5px}
-.exec-row .v{font-family:'IBM Plex Mono';font-size:13px;font-weight:700}
-.btn-exec{width:100%;padding:9px;font-size:13px;font-weight:800;letter-spacing:1px;border:none;border-radius:3px;cursor:pointer;color:white;margin-top:8px}
+.exec-row .l{font-size:11px;color:var(--text2);font-weight:600;letter-spacing:.5px}
+.exec-row .v{font-family:'IBM Plex Mono';font-size:15px;font-weight:700}
+.btn-exec{width:100%;padding:9px;font-size:15px;font-weight:800;letter-spacing:1px;border:none;border-radius:3px;cursor:pointer;color:white;margin-top:8px}
 .btn-exec.lb{background:var(--bull)}
 .btn-exec.lb:hover{background:#166534}
 .btn-exec.sb{background:var(--bear)}
 .btn-exec.sb:hover{background:#b91c1c}
-.btn-cancel{padding:6px 10px;font-size:10px;font-weight:600;background:white;border:1px solid var(--border);border-radius:3px;cursor:pointer;color:var(--text2);margin-top:5px}
-.exec-econtr{width:50px;font-family:'IBM Plex Mono';font-size:13px;font-weight:700;padding:4px 6px;border:1px solid var(--border);border-radius:3px;text-align:center}
+.btn-cancel{padding:6px 10px;font-size:12px;font-weight:600;background:white;border:1px solid var(--border);border-radius:3px;cursor:pointer;color:var(--text2);margin-top:5px}
+.exec-econtr{width:50px;font-family:'IBM Plex Mono';font-size:15px;font-weight:700;padding:4px 6px;border:1px solid var(--border);border-radius:3px;text-align:center}
 
 /* ── Stats ── */
 .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .stat-box{padding:6px;background:var(--bg3);border-radius:3px;text-align:center}
-.stat-box .lbl{font-size:8px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
-.stat-box .val{font-family:'IBM Plex Mono';font-size:14px;font-weight:700;margin-top:2px;color:var(--text)}
+.stat-box .lbl{font-size:10px;color:var(--muted);font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+.stat-box .val{font-family:'IBM Plex Mono';font-size:16px;font-weight:700;margin-top:2px;color:var(--text)}
 .stat-box.pos .val{color:var(--bull)}
 .stat-box.neg .val{color:var(--bear)}
 
@@ -186,29 +196,76 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
 .confov{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:100}
 .confov.show{display:flex}
 .confbx{background:white;border-radius:6px;padding:24px;max-width:420px;width:90%}
-.confbx h2{font-size:18px;font-weight:800;margin-bottom:14px;letter-spacing:.5px}
-.confd{margin:6px 0;display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:13px}
+.confbx h2{font-size:20px;font-weight:800;margin-bottom:14px;letter-spacing:.5px}
+.confd{margin:6px 0;display:flex;justify-content:space-between;font-family:'IBM Plex Mono';font-size:15px}
 .confd .l{color:var(--muted)}
 .confd .v{font-weight:700}
 .confbtns{display:flex;gap:8px;margin-top:18px}
-.confbtns button{flex:1;padding:10px;border:none;border-radius:4px;font-weight:700;cursor:pointer;font-size:12px}
+.confbtns button{flex:1;padding:10px;border:none;border-radius:4px;font-weight:700;cursor:pointer;font-size:14px}
 .btn-cy2{color:white}
 .btn-cy2.lc2{background:var(--bull)}
 .btn-cy2.sc2{background:var(--bear)}
 .btn-cn2{background:var(--bg3);color:var(--text)}
 
 /* ── Misc ── */
-.empty{padding:20px;text-align:center;color:var(--muted);font-style:italic;font-size:11px}
+.empty{padding:20px;text-align:center;color:var(--muted);font-style:italic;font-size:13px}
 .hidden{display:none}
-.legend{padding:10px 13px;font-size:10px;color:var(--text2);background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:3px;margin:8px 13px;line-height:1.5}
+.legend{padding:10px 13px;font-size:12px;color:var(--text2);background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:3px;margin:8px 13px;line-height:1.5}
 .legend strong{color:var(--blue)}
 
-@media (max-width:1100px){
-  .main{grid-template-columns:1fr;overflow-y:auto}
-  html,body{overflow:auto}
-  .topbar{grid-template-columns:1fr;gap:8px}
+/* ── Responsive ── */
+/* 1500px+: full layout */
+/* 1100-1500px: smaller sidebars */
+@media (max-width:1500px){
+  .topbar{grid-template-columns:240px 1fr clamp(320px,33vw,500px)}
+  .main{grid-template-columns:240px 1fr clamp(320px,33vw,500px)}
+  .ci.url{width:160px}
+  .ci.sec{width:80px}
+  .ts{min-width:54px;padding:4px 6px}
+  .ts .tv{font-size:13px}
 }
+/* 1100-1280px: even kleiner */
+@media (max-width:1280px){
+  .topbar{grid-template-columns:200px 1fr clamp(280px,30vw,420px)}
+  .main{grid-template-columns:200px 1fr clamp(280px,30vw,420px)}
+  .ci.url{width:130px;font-size:11px}
+  .ci.sec{width:70px;font-size:11px}
+  .topstats{gap:1px}
+  .ts{min-width:46px;padding:3px 5px}
+  .ts .tv{font-size:12px}
+  .ts .tl{font-size:9px}
+  .logo h1{font-size:14px;letter-spacing:1px}
+  .logo small{font-size:9px}
+  .panel{padding:8px 10px}
+  .pred-table{font-size:11px}
+  .pred-table th, .pred-table td{padding:3px 4px}
+  .mc{padding:6px 8px}
+  .mc-bias{font-size:15px}
+  .mc-row .sv{font-size:12px}
+}
+/* <1100px: stack alles verticaal (mobile/tablet) */
+@media (max-width:1100px){
+  html{height:auto} body{height:auto;overflow:auto;display:block}
+  .main{grid-template-columns:1fr;overflow-y:auto}
+  .topbar{grid-template-columns:1fr;gap:8px}
+  .col.left,.col.right{max-height:none;overflow-y:visible}
+  .col.center{min-height:500px}
+  .mtf-strip{grid-template-columns:repeat(3,1fr)}
+  .mc:nth-child(4),.mc:nth-child(5){grid-column:span 1}
+}
+/* ─── Tooltips ─── */
+.tip{position:relative;cursor:help;border-bottom:1px dotted rgba(148,163,184,0.5)}
+.tip:hover .tip-box{display:block}
+.tip-box{display:none;position:fixed;z-index:9999;background:#1e293b;color:#e2e8f0;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.5;width:320px;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,0.3);font-weight:400;letter-spacing:0;text-transform:none;white-space:normal;font-family:'Inter',sans-serif;pointer-events:none}
+.tip-box b{color:#fbbf24}
+.tip-box .tip-title{font-weight:700;color:#fbbf24;font-size:13px;margin-bottom:4px}
+.tip-wide{min-width:450px;max-width:600px}
+.tip-wide table{width:100%;border-collapse:collapse;margin-top:6px;font-size:11px}
+.tip-wide table th{text-align:left;padding:4px 6px;border-bottom:1px solid #334155;color:#94a3b8;font-weight:600}
+.tip-wide table td{padding:4px 6px;border-bottom:1px solid #1e293b}
+.tip-wide table tr:nth-child(even){background:rgba(255,255,255,0.03)}
 </style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" async></script>
 </head>
 <body>
 
@@ -224,6 +281,7 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
   <div class="topstats">
     <div class="ts"><div class="tv" id="ts-candles">0</div><div class="tl">CANDLES</div></div>
     <div class="ts"><div class="tv" id="ts-signals">0</div><div class="tl">SIGNALS</div></div>
+    <div class="ts" id="ts-last-wrap"><div class="tv" id="ts-last">--:--</div><div class="tl">LAST DATA</div></div>
     <div class="ts win"><div class="tv" id="ts-wins">0</div><div class="tl">WINS</div></div>
     <div class="ts loss"><div class="tv" id="ts-losses">0</div><div class="tl">LOSSES</div></div>
     <div class="ts hi"><div class="tv" id="ts-wr">--</div><div class="tl">WIN RATE</div></div>
@@ -231,7 +289,7 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
   </div>
   <div class="topconn">
     <span class="dot" id="dot-conn"></span>
-    <span style="font-size:9px;letter-spacing:.5px" id="conn-text">OFF</span>
+    <span style="font-size:13px;letter-spacing:.5px" id="conn-text">OFF</span>
     <input type="text" class="ci url" id="srv-url" placeholder="server URL" value="https://web-production-e596.up.railway.app">
     <input type="text" class="ci sec" id="srv-sec" placeholder="secret" value="NQsecret2024">
     <button class="btn-conn" id="btn-conn" onclick="toggleConn()">▶ CONNECT</button>
@@ -260,6 +318,29 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
   <span class="cons-v" id="cv" style="color:var(--gold)">● MIXED</span>
 </div>
 
+<!-- REGIME STRIP -->
+<div id="regime-strip" style="display:flex;align-items:center;gap:10px;padding:4px 14px;background:#1e293b;border-bottom:1px solid var(--border2);font-family:'IBM Plex Mono';font-size:14px;flex-shrink:0">
+  <span class="tip" style="color:#94a3b8;font-weight:600;letter-spacing:0.05em;font-size:13px">REGIME<div class="tip-box tip-wide" style="left:-10px">
+    <div class="tip-title">NQ (MNQ) — Sessie-regimes in Belgische tijd</div>
+    <p style="margin:4px 0 6px;font-size:11px;color:#94a3b8">Het regime-systeem detecteert automatisch welk markttype actief is en past de beste strategie-parameters toe per sessie.</p>
+    <table>
+      <tr><th>Uren</th><th>Sessie</th><th>Regime</th><th>Uitleg</th></tr>
+      <tr><td style="color:#94a3b8">00-07</td><td>Azië</td><td><b style="color:#94a3b8">Low vol range</b></td><td>Nauwelijks volume. Smalle range.</td></tr>
+      <tr><td style="color:#94a3b8">08-14</td><td>EU Only</td><td><b style="color:#94a3b8">Low vol drift</b></td><td>NQ reageert licht op EU nieuws. Langzame trends.</td></tr>
+      <tr><td style="color:#a78bfa">15</td><td>US Pre/Data</td><td><b style="color:#a78bfa">Volatility spike</b></td><td>Earnings, data releases. Scherpe moves.</td></tr>
+      <tr><td style="color:#34d399">16-17</td><td>US Open</td><td><b style="color:#34d399">Trending</b></td><td>Hoogste volume. Duidelijke richting. Beste window.</td></tr>
+      <tr><td style="color:#fbbf24">18-19</td><td>US Middag</td><td><b style="color:#fbbf24">Range / chop</b></td><td>Volume daalt. Market makers. Veel reversals.</td></tr>
+      <tr><td style="color:#94a3b8">20-21</td><td>US Late</td><td><b style="color:#94a3b8">Low vol drift</b></td><td>Rustig driften op laag volume.</td></tr>
+      <tr><td style="color:#94a3b8">22-23</td><td>Overnight</td><td><b style="color:#94a3b8">Low vol range</b></td><td>Minimaal volume.</td></tr>
+    </table>
+    <p style="margin:8px 0 0;font-size:11px;color:#fbbf24">💡 Draai een Grid Search om per-sessie parameter-suggesties te krijgen.</p>
+  </div></span>
+  <span id="regime-session" style="color:#e2e8f0;font-weight:700">—</span>
+  <span id="regime-type" style="padding:2px 8px;border-radius:3px;font-weight:700;font-size:13px">—</span>
+  <span id="regime-suggest" style="color:#94a3b8;font-size:13px;flex:1">Wacht op data…</span>
+  <button id="regime-apply-btn" onclick="applyRegimeSuggestion()" style="display:none;padding:2px 10px;background:#059669;color:white;border:none;border-radius:3px;font-size:13px;font-weight:600;cursor:pointer">✅ Toepassen</button>
+</div>
+
 <!-- ═══════ MAIN ═══════ -->
 <div class="main">
 
@@ -269,24 +350,28 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
     <!-- History import -->
     <div class="panel">
       <h3>📂 HISTORY BACKFILL</h3>
-      <p style="font-size:9px;color:var(--muted);line-height:1.4;margin-bottom:6px">
+      <p style="font-size:13px;color:var(--muted);line-height:1.4;margin-bottom:6px">
         Upload TradingView 1-min CSV om de engine direct te starten met genoeg context (≥300 candles nodig voor signalen).
       </p>
-      <input type="file" id="hist-csv" accept=".csv" style="width:100%;font-size:9px;padding:3px;border:1px solid var(--border);border-radius:3px;background:white">
+      <input type="file" id="hist-csv" accept=".csv" style="width:100%;font-size:13px;padding:3px;border:1px solid var(--border);border-radius:3px;background:white">
       <div style="display:flex;gap:4px;margin-top:6px">
-        <button class="btn-conn" id="btn-hist-local" onclick="loadHistoryLocal()" style="flex:1;font-size:10px;padding:5px;background:#475569" title="Alleen lokaal in browser laden (snel, geen server)">📥 LOCAL</button>
-        <button class="btn-conn" id="btn-hist-server" onclick="loadHistoryServer()" style="flex:1;font-size:10px;padding:5px;background:#3b82f6" title="Push naar server (cross-device + Pine kan voortbouwen)">☁ SERVER</button>
+        <button class="btn-conn" id="btn-hist-local" onclick="loadHistoryLocal()" style="flex:1;font-size:14px;padding:5px;background:#475569" title="Alleen lokaal in browser laden (snel, geen server)">📥 LOCAL</button>
+        <button class="btn-conn" id="btn-hist-server" onclick="loadHistoryServer()" style="flex:1;font-size:14px;padding:5px;background:#3b82f6" title="Push naar server (cross-device + Pine kan voortbouwen)">☁ SERVER</button>
       </div>
-      <p id="hist-status" style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono';min-height:11px"></p>
+      <p id="hist-status" style="font-size:13px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono';min-height:11px"></p>
     </div>
+
+    <!-- Engine status -->
+    <div id="engine-status" class="engine-status nocandl">⏳ Geen data — connect of upload CSV</div>
+    <div id="strat-name" style="font-family:'IBM Plex Mono';font-size:12px;color:var(--muted);text-align:center;margin-top:3px;word-break:break-all"></div>
 
     <!-- Engine config -->
     <div class="panel">
       <h3>⚙ ENGINE PARAMS</h3>
       <div style="display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">TIMEFRAME</span>
-          <select id="p-tf" style="font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">TIMEFRAME<div class="tip-box"><div class="tip-title">Timeframe</div>Het aantal 1-min candles dat samengevoegd wordt tot één HTF candle voor analyse. TF=5 = 5-minuten candles, TF=15 = 15-minuten. <b>Hoger TF = minder maar betrouwbaardere signalen</b>.</div></span>
+          <select id="p-tf" style="font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
             <option value="1">1 min</option>
             <option value="3">3 min</option>
             <option value="5" selected>5 min</option>
@@ -294,39 +379,39 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
           </select>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">SL × ATR</span>
-          <input type="number" id="p-sl" value="1.0" step="0.1" min="0.3" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">SL × ATR<div class="tip-box"><div class="tip-title">Stop Loss × ATR</div>De stop loss afstand als veelvoud van de ATR (Average True Range). Bv. SL=1.2 en ATR=20pt → stop op 24pt afstand. <b>Hogere SL</b> = meer ademruimte maar groter verlies per trade. <b>Lagere SL</b> = strakker maar vaker uitgestopt.</div></span>
+          <input type="number" id="p-sl" value="1.0" step="0.1" min="0.3" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">TP × SL</span>
-          <input type="number" id="p-tp" value="1.5" step="0.1" min="0.5" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">TP × SL<div class="tip-box"><div class="tip-title">Take Profit × Stop Loss</div>De take profit als veelvoud van de stop loss. Bv. TP=1.5 en SL=24pt → target op 36pt. Dit is je <b>Risk:Reward ratio</b>. TP=1.5 betekent dat je 1.5× je risico wint per winnende trade.</div></span>
+          <input type="number" id="p-tp" value="1.5" step="0.1" min="0.5" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">ATR MAX</span>
-          <input type="number" id="p-atrmax" value="26" min="5" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">ATR MAX<div class="tip-box"><div class="tip-title">Maximum ATR Filter</div>Signalen worden geblokkeerd als de ATR (volatiliteit) hoger is dan deze drempel. Voorkomt traden in <b>extreme volatiliteit</b> waar stops te ver liggen. Typisch: NQ 22-30pt, DAX 30-45pt.</div></span>
+          <input type="number" id="p-atrmax" value="26" min="5" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">MAX BARS</span>
-          <input type="number" id="p-maxbars" value="19" min="3" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">MAX BARS<div class="tip-box"><div class="tip-title">Maximum Bars Open</div>Maximaal aantal candles dat een trade open mag staan. Na dit aantal sluit de trade als EXPIRED tegen de huidige prijs. Voorkomt dat trades <b>eindeloos open</b> blijven in zijwaartse markten.</div></span>
+          <input type="number" id="p-maxbars" value="19" min="3" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">MIN SCORE</span>
-          <input type="number" id="p-minscore" value="4" min="1" max="15" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">MIN SCORE<div class="tip-box"><div class="tip-title">Minimum Signaal Score</div>Alleen signalen met een score ≥ deze drempel worden geaccepteerd. De score (0-12) is de som van 8 technische componenten: EMA alignment, VWAP, RSI, Liquidity Sweep, OB Retest, FVG, BOS, Volume. <b>Hoger = strengere filter</b>.</div></span>
+          <input type="number" id="p-minscore" value="4" min="1" max="15" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">HTF FILTER</span>
-          <select id="p-htf" style="font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">HTF FILTER<div class="tip-box"><div class="tip-title">Higher Timeframe Trend Filter</div>Als AAN: signalen tegen de hogere-timeframe trend krijgen <b>-3 penalty</b> op hun score. Dit filtert counter-trend trades die vaak verliezen. UIT = alle richtingen gelijk behandeld.</div></span>
+          <select id="p-htf" style="font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
             <option value="yes" selected>AAN</option>
             <option value="no">UIT</option>
           </select>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">COOLDOWN</span>
-          <input type="number" id="p-cooldown" value="5" min="0" max="60" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center" title="Minuten geen nieuw signaal NA trade-close (niet tussen alle signalen)">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">COOLDOWN<div class="tip-box"><div class="tip-title">Cooldown na Signaal</div>Aantal candles wachttijd na elk signaal voordat een nieuw signaal geaccepteerd wordt. Voorkomt <b>overtrading</b> door meerdere signalen op dezelfde move.</div></span>
+          <input type="number" id="p-cooldown" value="15" min="0" max="120" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center" title="Candles cooldown na signaal (backtest default = TF waarde)">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">DIRECTION</span>
-          <select id="p-dir" style="font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
+          <span class="tip" style="font-size:14px;color:var(--muted);font-weight:600">DIRECTION<div class="tip-box"><div class="tip-title">Trade Richting</div><b>L+S</b> = Long én Short signalen. <b>L</b> = alleen Long (kopen). <b>S</b> = alleen Short (verkopen). Gebruik L+S tenzij je een sterke bias hebt.</div></span>
+          <select id="p-dir" style="font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px">
             <option value="both" selected>L+S</option>
             <option value="long">LONG</option>
             <option value="short">SHORT</option>
@@ -339,35 +424,73 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
     <div class="panel">
       <h3>★ QUALITY FILTERS</h3>
       <div class="preset-row">
-        <button class="preset" data-preset="off">OFF</button>
-        <button class="preset active" data-preset="balanced">★ BAL</button>
-        <button class="preset" data-preset="quality">QUAL</button>
-        <button class="preset" data-preset="strict">STRICT</button>
+        <span class="tip" style="display:inline-block"><button class="preset" data-preset="off">OFF</button><div class="tip-box"><div class="tip-title">OFF — Geen filter</div>Alle signalen worden geaccepteerd, ongeacht score of uur. Maximaal aantal trades, maar ook meer ruis en lagere win rate.</div></span>
+        <span class="tip" style="display:inline-block"><button class="preset active" data-preset="balanced">★ BAL</button><div class="tip-box"><div class="tip-title">★ BAL — Balanced</div>Skip score 6 + skip uren 18-19h (Belgische tijd). Licht gefilterd: verwijdert de slechtste uren maar behoudt de meeste trades. <b>Goed startpunt</b>.</div></span>
+        <span class="tip" style="display:inline-block"><button class="preset" data-preset="quality">QUAL</button><div class="tip-box"><div class="tip-title">QUAL — High Quality</div>Skip scores 3,6 + skip uren 16,18,19h + skip setup "none". Alleen de sterkste signalen met een benoemd setup-patroon. <b>Minder trades, hogere WR</b>.</div></span>
+        <span class="tip" style="display:inline-block"><button class="preset" data-preset="strict">STRICT</button><div class="tip-box"><div class="tip-title">STRICT — Maximum WR</div>Zelfde als QUAL maar nog strenger. Alleen de allerbeste setups in de beste uren. <b>Minste trades maar hoogste betrouwbaarheid</b>.</div></span>
       </div>
-      <div style="font-size:9px;color:var(--muted);margin-top:6px">Skip scores:</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Skip scores:</div>
       <div class="chip-row" id="score-chips"></div>
-      <div style="font-size:9px;color:var(--muted);margin-top:6px">Setup mode:</div>
-      <select id="setup-filter" style="width:100%;font-family:'IBM Plex Mono';font-size:10px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;margin-top:3px">
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Setup mode:</div>
+      <select id="setup-filter" style="width:100%;font-family:'IBM Plex Mono';font-size:14px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;margin-top:3px">
         <option value="all">All setups</option>
         <option value="real">Skip 'none'</option>
         <option value="ob_only">OB only</option>
         <option value="ob_sweep">OB + Sweep</option>
       </select>
-      <div style="font-size:9px;color:var(--muted);margin-top:6px">Skip uren (UTC):</div>
+      <div style="font-size:13px;color:var(--muted);margin-top:6px">Skip uren (Belgische tijd):</div>
       <div class="chip-row" id="hour-chips"></div>
+    </div>
+
+    <!-- Grid search -->
+    <div class="panel">
+      <h3 style="cursor:pointer" onclick="$('grid-search-body').style.display=$('grid-search-body').style.display==='none'?'block':'none'">🔍 GRID SEARCH ▾</h3>
+      <div id="grid-search-body" style="display:none">
+        <div id="grid-buffer-info" style="font-size:13px;color:var(--muted);margin-bottom:6px;font-family:'IBM Plex Mono'">Buffer: geen candles</div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:14px;margin-bottom:6px;padding:5px;background:#f8fafc;border-radius:4px;border:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center"><label style="font-weight:600">Van</label><input type="datetime-local" id="gs-from" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><label style="font-weight:600">Tot</label><input type="datetime-local" id="gs-to" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="font-size:12px;color:var(--muted);text-align:right">Leeg = alle data in buffer</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px;font-size:14px">
+          <div style="display:flex;justify-content:space-between"><label>SL × ATR</label><input type="text" id="gs-sl" value="0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>TP × SL</label><input type="text" id="gs-tp" value="1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>ATR Max</label><input type="text" id="gs-atrmax" value="22,26,30,45" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>Max Bars</label><input type="text" id="gs-bars" value="12,15,19,24" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>Min Score</label><input type="text" id="gs-score" value="4,5" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>HTF</label><input type="text" id="gs-htf" value="aan,uit" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+          <div style="display:flex;justify-content:space-between"><label>Direction</label><input type="text" id="gs-dir" value="both" style="width:65%;font-family:'IBM Plex Mono';font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:3px"></div>
+        </div>
+        <button onclick="runLiveGridSearch()" style="margin-top:6px;width:100%;padding:6px;background:#1d4ed8;color:white;border:none;border-radius:4px;cursor:pointer;font-weight:600;font-size:15px">🔍 Zoek beste strategie</button>
+        <div id="gs-status" style="font-size:13px;color:var(--muted);margin-top:4px;font-family:'IBM Plex Mono'"></div>
+      </div>
     </div>
 
     <!-- Trading config -->
     <div class="panel">
+      <h3>🔔 NOTIFICATIES</h3>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <button class="reset-btn" onclick="testSound()" style="background:#eff6ff;color:#1d4ed8;border-color:#93c5fd">🔊 Test geluid + notificatie</button>
+        <div style="font-size:13px;color:var(--muted);line-height:1.3;margin:2px 0">
+          📱 <b>Telefoon push</b> (optioneel):<br>
+          1. Installeer <a href="https://ntfy.sh" target="_blank" style="color:var(--blue)">ntfy app</a> op je telefoon<br>
+          2. Subscribe op een zelfgekozen topic<br>
+          3. Vul hieronder hetzelfde topic in:
+        </div>
+        <input type="text" id="ntfy-topic" placeholder="bv. mathieu-nq-oracle" value="mathieu-nq-oracle" style="font-family:'IBM Plex Mono';font-size:14px;padding:4px 6px;border:1px solid var(--border);border-radius:3px;width:100%">
+      </div>
+    </div>
+
+    <div class="panel">
       <h3>💰 ORDER CONFIG</h3>
       <div style="display:flex;flex-direction:column;gap:6px">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">CONTRACTS</span>
-          <input type="number" id="p-contracts" value="1" min="1" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span style="font-size:14px;color:var(--muted);font-weight:600">CONTRACTS</span>
+          <input type="number" id="p-contracts" value="1" min="1" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:10px;color:var(--muted);font-weight:600">COMM ($)</span>
-          <input type="number" id="p-comm" value="3.00" step="0.10" min="0" style="width:55px;font-family:'IBM Plex Mono';font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
+          <span style="font-size:14px;color:var(--muted);font-weight:600">COMM ($)</span>
+          <input type="number" id="p-comm" value="3.00" step="0.10" min="0" style="width:55px;font-family:'IBM Plex Mono';font-size:15px;padding:3px 5px;border:1px solid var(--border);border-radius:3px;text-align:center">
         </div>
       </div>
     </div>
@@ -385,16 +508,25 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
       </div>
     </div>
 
+    <div class="panel">
+      <h3>🗑 RESET</h3>
+      <div style="display:flex;flex-direction:column;gap:5px">
+        <button class="reset-btn" onclick="resetCandles()" title="Wis alle candles (history + live) uit lokale buffer">🕯 Candle history wissen</button>
+        <button class="reset-btn" onclick="resetPredictions()" title="Wis alle predictions uit tabel + localStorage">📋 Predictions wissen</button>
+        <button class="reset-btn reset-all" onclick="resetAll()" title="Wis alles: candles + predictions + server clear">⚠ ALLES WISSEN (+ server)</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- CENTER COLUMN: Chart + execute -->
   <div class="col center">
     <div class="exec-wrap hidden" id="exec-wrap">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-        <div style="font-size:13px;font-weight:800" id="ex-dir">▲ LONG</div>
+        <div style="font-size:17px;font-weight:800" id="ex-dir">▲ LONG</div>
         <div class="status-pill sp-pending" id="ex-status">⌛ PENDING</div>
       </div>
-      <div class="exec-row"><span class="l">SETUP</span><span class="v" id="ex-setup" style="color:var(--purple);font-size:11px">--</span></div>
+      <div class="exec-row"><span class="l">SETUP</span><span class="v" id="ex-setup" style="color:var(--purple);font-size:15px">--</span></div>
       <div class="exec-row"><span class="l">SCORE</span><span class="v" id="ex-score">--</span></div>
       <div class="exec-row"><span class="l">ENTRY</span><span class="v" id="ex-entry">--</span></div>
       <div class="exec-row"><span class="l">TARGET</span><span class="v" id="ex-target" style="color:var(--bull)">--</span></div>
@@ -415,18 +547,18 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
           <button class="chart-btn" onclick="chartZoom(0.7)" title="Inzoomen (minder candles)">+</button>
           <button class="chart-btn" onclick="chartZoom(1.4)" title="Uitzoomen (meer candles)">−</button>
           <button class="chart-btn" onclick="chartReset()" title="Reset naar nu">⟳</button>
-          <span id="chart-zoom-info" style="font-family:'IBM Plex Mono';font-size:9px;color:#94a3b8;padding:0 4px">120c</span>
+          <span id="chart-zoom-info" style="font-family:'IBM Plex Mono';font-size:13px;color:#94a3b8;padding:0 4px">120c</span>
         </span>
       </div>
       <canvas id="chart"></canvas>
     </div>
     <div class="chart-scrollbar-wrap" id="chart-scroll-wrap">
-      <button class="scroll-btn" onclick="chartScroll(-50)" title="Verder terug in tijd">◀◀</button>
-      <button class="scroll-btn" onclick="chartScroll(-10)" title="Terug">◀</button>
-      <input type="range" id="chart-scroll" min="0" max="100" value="0" oninput="onScrollChange(this.value)" style="flex:1">
-      <button class="scroll-btn" onclick="chartScroll(10)" title="Vooruit">▶</button>
-      <button class="scroll-btn" onclick="chartScroll(50)" title="Naar nu">▶▶</button>
-      <span id="chart-scroll-info" style="font-family:'IBM Plex Mono';font-size:9px;color:#94a3b8;min-width:60px;text-align:right">NU</span>
+      <button class="scroll-btn" onclick="chartScroll(50)" title="Verder terug in tijd">◀◀</button>
+      <button class="scroll-btn" onclick="chartScroll(10)" title="Terug">◀</button>
+      <input type="range" id="chart-scroll" min="0" max="100" value="100" oninput="onScrollChange(this.value)" style="flex:1">
+      <button class="scroll-btn" onclick="chartScroll(-10)" title="Vooruit">▶</button>
+      <button class="scroll-btn" onclick="chartScroll(-50)" title="Naar nu">▶▶</button>
+      <span id="chart-scroll-info" style="font-family:'IBM Plex Mono';font-size:13px;color:#94a3b8;min-width:60px;text-align:right">NU</span>
     </div>
   </div>
 
@@ -451,22 +583,25 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
         <div class="sig-row"><span class="sl">STOP</span><span class="sv4 rv" id="sig-stop">--</span></div>
         <div class="sig-row"><span class="sl">R:R</span><span class="sv4 nv" id="sig-rr">--</span></div>
         <div class="sig-row"><span class="sl">ATR</span><span class="sv4 nv" id="sig-atr">--</span></div>
-        <div class="sig-row"><span class="sl">FILTER</span><span class="sv4 nv" id="sig-filter" style="font-size:10px">passed</span></div>
+        <div class="sig-row"><span class="sl">FILTER</span><span class="sv4 nv" id="sig-filter" style="font-size:14px">passed</span></div>
       </div>
     </div>
 
     <div class="panel">
-      <h3>📋 LIVE PREDICTIONS</h3>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h3 style="margin:0">📋 LIVE PREDICTIONS</h3>
+        <button class="reset-btn" onclick="exportLivePredictions()" style="padding:3px 8px;font-size:13px">📥 Export XLSX</button>
+      </div>
       <div style="max-height:340px;overflow-y:auto">
         <table class="pred-table" id="pred-table">
           <thead>
             <tr>
               <th>#</th><th>SIG</th><th>ENT</th><th>EXIT</th><th>DIR</th><th>SETUP</th><th>SC</th>
-              <th>ENTRY</th><th>STATUS</th><th>P&amp;L</th>
+              <th>ENTRY</th><th>TGT</th><th>STP</th><th>STATUS</th><th>P&amp;L</th>
             </tr>
           </thead>
           <tbody id="pred-tbody">
-            <tr><td colspan="10" class="empty">Wacht op signaal…</td></tr>
+            <tr><td colspan="12" class="empty">Wacht op signaal…</td></tr>
           </tbody>
         </table>
       </div>
@@ -474,7 +609,7 @@ canvas{display:block;width:100%;height:100%;cursor:crosshair}
 
     <div class="panel">
       <h3>📜 LOG</h3>
-      <div id="log" style="font-family:'IBM Plex Mono';font-size:9px;max-height:120px;overflow-y:auto;background:#0f172a;color:#cbd5e1;padding:6px;border-radius:3px;line-height:1.4"></div>
+      <div id="log" style="font-family:'IBM Plex Mono';font-size:13px;max-height:120px;overflow-y:auto;background:#0f172a;color:#cbd5e1;padding:6px;border-radius:3px;line-height:1.4"></div>
     </div>
   </div>
 
@@ -513,8 +648,8 @@ let candleBuffer = [];        // alle candles in master format {t,o,h,l,c,v}
 let predictions = [];         // alle predictions (geladen uit localStorage + server)
 let activePending = null;     // huidige pending limit setup
 let activeTrade = null;       // huidige live trade
-let lastCloseTime = 0;        // cooldown na elke trade close (wall-clock ms timestamp)
-let cooldownBars = 5;         // standaard 5 minuten geen nieuw signaal na close
+let lastSignalCandleIdx = -999; // cooldown: candle-index van laatste signaal (identiek aan backtest)
+let cooldownBars = 15;        // standaard = TF waarde (backtest-equivalent)
 
 // ─── CHART ZOOM/SCROLL state ───
 let chartZoomCount = 120;     // aantal candles in view (zoom level)
@@ -534,15 +669,146 @@ let setupMode  = 'all';
 const SCORES = [3,4,5,6,7,8,9,10,11,12];
 const HOURS  = Array.from({length:24}, (_,i)=>i);
 
-const STORAGE_KEY = 'nq_oracle_predictions';
+const STORAGE_BASE = 'nq_oracle_predictions';
 const STORAGE_FILTERS = 'nq_oracle_filters';
 const STORAGE_PARAMS = 'nq_oracle_params';
+
+// ── Strategie-naam: auto-gegenereerd uit parameters ──
+function getStrategyName(){
+  const p = getEngineParams();
+  const htf = p.htfOn ? 'AAN' : 'UIT';
+  const dir = p.dirMode === 'both' ? 'Both' : (p.dirMode === 'long' ? 'Long' : 'Short');
+  return `TF${p.tf}·SL${p.sl}·TP${p.tp}·ATR${p.atrMax}·Bars${p.maxBars}·MinScore${p.minScore}·HTF${htf}·${dir}`;
+}
+function getStorageKey(){
+  return STORAGE_BASE + '_' + getStrategyName().replace(/[·]/g, '_');
+}
+let currentStorageKey = null; // cached, updated on param change
 
 // ─── Helpers ───
 const $ = id => document.getElementById(id);
 const r2 = v => Math.round(v*100)/100;
-// MNQ tick = 0.25. Snap een prijs naar de dichtsbijzijnde geldige tick.
+
+// ─── TIMEZONE: interne data = UTC, display = lokale tijd (browser) ───
+// Converteer "YYYY-MM-DD HH:MM" UTC string naar lokale tijd
+function utcToLocal(utcStr){
+  if(!utcStr || utcStr.length < 16) return utcStr || '--';
+  // Parse als UTC
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const y = d.getFullYear();
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const da = String(d.getDate()).padStart(2,'0');
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${y}-${mo}-${da} ${hr}:${mi}`;
+}
+// Korte versie: alleen HH:MM lokaal
+function utcToLocalTime(utcStr){
+  if(!utcStr || utcStr.length < 16) return utcStr || '--';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr.slice(11,16);
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+// DD/MM + HH:MM lokaal
+function utcToLocalFull(utcStr){
+  if(!utcStr || utcStr.length < 16) return utcStr || '--';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const da = String(d.getDate()).padStart(2,'0');
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${da}/${mo} ${hr}:${mi}`;
+}
+// Alleen uur als getal (voor filters)
+function utcToLocalHour(utcStr){
+  if(!utcStr || utcStr.length < 16) return -1;
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  return isNaN(d) ? parseInt(utcStr.slice(11,13)) : d.getHours();
+}
+// Export formaat: "21/04/2026  17:55:00"
+function utcToExport(utcStr){
+  if(!utcStr || utcStr.length < 16) return '';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const da = String(d.getDate()).padStart(2,'0');
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const y = d.getFullYear();
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${da}/${mo}/${y}  ${hr}:${mi}:00`;
+}
+
+// ─── GELUIDSSIGNAAL + NOTIFICATIES bij nieuw signaal ───
+let audioCtx = null;
+function playSignalSound(){
+  try {
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const playTone = (freq, start, dur) => {
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.4, audioCtx.currentTime + start);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + start + dur);
+      osc.start(audioCtx.currentTime + start);
+      osc.stop(audioCtx.currentTime + start + dur);
+    };
+    playTone(880, 0, 0.15);
+    playTone(1100, 0.12, 0.15);
+    playTone(1320, 0.24, 0.25);
+  } catch(e){ console.warn('Audio fout:', e); }
+}
+
+function sendBrowserNotification(sig){
+  if(!('Notification' in window)) return;
+  if(Notification.permission === 'granted'){
+    const dir = sig.dir === 'bull' ? '▲ LONG' : '▼ SHORT';
+    new Notification(`${dir} Signaal!`, {
+      body: `${sig.setup} score ${sig.score}\nEntry: ${sig.entry}\nTP: ${sig.tgt} | SL: ${sig.stop}`,
+      icon: '📊',
+      tag: 'oracle-signal-' + sig.entry,
+      requireInteraction: true
+    });
+  } else if(Notification.permission !== 'denied'){
+    Notification.requestPermission();
+  }
+}
+
+// Telefoon push via ntfy.sh (gratis, geen account nodig)
+function sendPhonePush(sig){
+  const topic = $('ntfy-topic')?.value?.trim();
+  if(!topic) return;
+  const dir = sig.dir === 'bull' ? '▲ LONG' : '▼ SHORT';
+  const msg = `${dir} ${sig.setup} sc=${sig.score}\nEntry: ${sig.entry}\nTP: ${sig.tgt} | SL: ${sig.stop}`;
+  fetch(`https://ntfy.sh/${topic}`, {
+    method: 'POST',
+    body: msg
+  }).then(r => {
+    if(r.ok) lg(`📱 Push verstuurd naar ntfy.sh/${topic}`, 'ok');
+    else lg(`📱 Push FOUT: HTTP ${r.status}`, 'err');
+  }).catch(e => lg(`📱 Push FOUT: ${e.message}`, 'err'));
+}
+
+function testSound(){
+  playSignalSound();
+  sendBrowserNotification({dir:'bull', setup:'test', score:7, entry:99999, tgt:100050, stop:99950});
+  const topic = $('ntfy-topic')?.value?.trim();
+  if(topic){
+    sendPhonePush({dir:'bull', setup:'test', score:7, entry:99999, tgt:100050, stop:99950});
+  } else {
+    lg('🔔 Test: geluid + browser notificatie (geen ntfy topic ingevuld)', 'warn');
+  }
+}
+// MNQ tick = 0.25 punt (= €12.50 per tick). 1 punt = €25.
+// PT_VALUE wordt overal gebruikt voor P&L conversie naar EUR.
 const TICK_SIZE = 0.25;
+const PT_VALUE = 2;      // USD per punt voor MNQ
+const CURRENCY = '$';
 const snapTick = v => Math.round(v / TICK_SIZE) * TICK_SIZE;
 // Voor stops/targets: round AWAY van entry (conservatief) zodat we niet binnen
 // de bedoelde range eindigen door tick-rounding.
@@ -569,15 +835,83 @@ function lg(msg, type='info'){
 
 // ─── localStorage persistence ───
 function savePredictions(){
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(predictions.slice(-1000))); }
-  catch(e){ lg('localStorage save fout: '+e.message, 'err'); }
+  try {
+    if(!currentStorageKey) currentStorageKey = getStorageKey();
+    localStorage.setItem(currentStorageKey, JSON.stringify(predictions.slice(-200)));
+  }
+  catch(e){
+    lg('localStorage vol — opruimen…', 'warn');
+    cleanupLocalStorage();
+    try { localStorage.setItem(currentStorageKey, JSON.stringify(predictions.slice(-100))); }
+    catch(e2){ lg('localStorage opruimen mislukt', 'err'); }
+  }
+}
+function cleanupLocalStorage(){
+  for(let i=localStorage.length-1; i>=0; i--){
+    const key = localStorage.key(i);
+    if(key && (key.startsWith('dax_oracle_pred') || key.startsWith('nq_oracle_pred'))){
+      try {
+        const data = JSON.parse(localStorage.getItem(key) || '[]');
+        if(data.length > 200) localStorage.setItem(key, JSON.stringify(data.slice(-100)));
+      } catch(e){ localStorage.removeItem(key); }
+    }
+  }
+  try {
+    const tr = JSON.parse(localStorage.getItem(TRACKRECORD_KEY) || '[]');
+    if(tr.length > 500) localStorage.setItem(TRACKRECORD_KEY, JSON.stringify(tr.slice(-500)));
+  } catch(e){}
 }
 function loadPredictions(){
   try {
-    const s = localStorage.getItem(STORAGE_KEY);
+    currentStorageKey = getStorageKey();
+    const s = localStorage.getItem(currentStorageKey);
     if(s){
       predictions = JSON.parse(s);
       lg(`Geladen: ${predictions.length} predictions uit localStorage`, 'ok');
+
+      // ─── HERSTEL actieve trade/pending uit localStorage ───
+      // Na page-reload zijn activeTrade/activePending null, maar
+      // er kan een trade OPEN of PENDING staan die nog gevolgd moet worden.
+      // Neem de NIEUWSTE open/pending prediction en herstel de state machine.
+      const openPred = [...predictions].reverse().find(p => p.outcome === 'open');
+      const pendPred = [...predictions].reverse().find(p => p.outcome === 'pending');
+
+      if(openPred){
+        activeTrade = {
+          id: openPred.id,
+          dir: openPred.dir,
+          score: openPred.score,
+          setup: openPred.setup,
+          entry: openPred.entry,
+          stop: openPred.stop,
+          tgt: openPred.tgt,
+          rr: openPred.rr,
+          atr: openPred.atr,
+          signalTime: openPred.signalTime,
+          entryTime: openPred.entryTime,
+          barsOpen: 0,
+          status: 'active',
+          contracts: openPred.contracts || 1
+        };
+        lg(`♻ Hersteld: actieve trade #${openPred.id} ${openPred.dir} @ ${openPred.entry}`, 'ok');
+      } else if(pendPred){
+        activePending = {
+          id: pendPred.id,
+          dir: pendPred.dir,
+          score: pendPred.score,
+          setup: pendPred.setup,
+          entry: pendPred.entry,
+          stop: pendPred.stop,
+          tgt: pendPred.tgt,
+          rr: pendPred.rr,
+          atr: pendPred.atr,
+          signalTime: pendPred.signalTime,
+          barsWaiting: 0,
+          status: 'pending',
+          contracts: pendPred.contracts || 1
+        };
+        lg(`♻ Hersteld: pending trade #${pendPred.id} ${pendPred.dir} @ ${pendPred.entry}`, 'ok');
+      }
     }
   } catch(e){ lg('localStorage load fout: '+e.message, 'err'); }
 }
@@ -855,7 +1189,7 @@ function dayOfWeek(timeStr){
 
 function passesFilter(pred){
   if(skipScores.has(pred.score)) return {ok:false, reason:`score ${pred.score} skipped`};
-  const hour = parseInt(pred.signalTime.slice(11,13));
+  const hour = utcToLocalHour(pred.signalTime);
   if(skipHours.has(hour)) return {ok:false, reason:`hour ${hour} skipped`};
   if(setupMode === 'real' && pred.setup === 'none') return {ok:false, reason:`'none' setup skipped`};
   if(setupMode === 'ob_only' && pred.setup !== 'ob_retest') return {ok:false, reason:`only ob_retest`};
@@ -928,53 +1262,73 @@ function onNewCandle(rc){
       else if(directTgt) closeActiveTrade('WIN', tgt, rc.t);
       else lg(`ENTRY FILLED ${dr} @ ${ep}`, 'ok');
     }
-    else if(activePending.barsWaiting >= params.maxBars * params.tf){
-      lg(`Pending verlopen zonder fill (${activePending.dir} @ ${activePending.entry})`, 'warn');
+    else if(activePending.barsWaiting >= 3 * params.tf){
+      // Pending timeout: max 3 × TF candles wachten op fill (bv. TF=15 → 45 min)
+      // Korter dan trade timeout (maxBars × TF) — setup die niet snel vult is niet meer geldig
+      lg(`Pending verlopen: ${activePending.dir} @ ${activePending.entry} — ${activePending.barsWaiting} candles zonder fill`, 'warn');
       cancelPending('expired_no_fill');
     }
   }
 
   // ─── 3. Geen actieve trade/pending → zoek nieuw signaal (na cooldown) ───
   if(!activeTrade && !activePending){
-    // Cooldown check op wall-clock tijd (niet op buffer index)
-    cooldownBars = +$('p-cooldown').value || 0;
-    const sinceCloseMin = lastCloseTime > 0 ? Math.floor((Date.now() - lastCloseTime) / 60000) : 9999;
-    if(cooldownBars > 0 && sinceCloseMin < cooldownBars){
-      $('sig-dir').textContent = `COOLDOWN ${cooldownBars - sinceCloseMin}m`;
+    // Cooldown = aantal candles sinds laatste signaal (identiek aan backtest: lastSignalIdx + tf)
+    // Default = TF waarde (backtest-equivalent). Gebruiker kan aanpassen via UI.
+    const cooldownCandles = +$('p-cooldown').value || params.tf;
+    const sinceSignal = candleBuffer.length - lastSignalCandleIdx;
+    if(lastSignalCandleIdx > 0 && sinceSignal < cooldownCandles){
+      $('sig-score').textContent = '--';
+      $('sig-score').style.color = 'var(--gold)';
+      $('sig-dir').textContent = `COOLDOWN ${cooldownCandles - sinceSignal}`;
       $('sig-dir').style.color = 'var(--gold)';
-      $('sig-filter').textContent = `cooldown ${sinceCloseMin}/${cooldownBars}`;
+      $('sig-setup').textContent = '—';
+      $('sig-entry').textContent = '--';
+      $('sig-target').textContent = '--';
+      $('sig-stop').textContent = '--';
+      $('sig-rr').textContent = '--';
+      $('sig-atr').textContent = '--';
+      $('sig-filter').textContent = `${sinceSignal}/${cooldownCandles} candles`;
       $('sig-filter').style.color = 'var(--gold)';
     } else {
-      const sig = detectLiveSignal(candleBuffer, params);
-      if(sig){
-      // ─── Filter check ───
-      const filter = passesFilter(sig);
-      if(!filter.ok){
-        $('sig-filter').textContent = filter.reason;
-        $('sig-filter').style.color = 'var(--bear)';
-        lg(`Signaal ${sig.dir} score ${sig.score} ${sig.setup} → GEFILTERD (${filter.reason})`, 'warn');
-        showSignalRing(sig, false);
-      } else if(isDuplicateSignal(sig)){
-        // ─── Fingerprint dedup: voorkom rapid-fire op dezelfde setup ───
-        $('sig-filter').textContent = 'duplicate (fingerprint)';
-        $('sig-filter').style.color = 'var(--gold)';
-        showSignalRing(sig, false);
+      try {
+        const sig = detectLiveSignal(candleBuffer, params);
+        if(sig){
+        // ─── Filter check ───
+        const filter = passesFilter(sig);
+        if(!filter.ok){
+          $('sig-filter').textContent = filter.reason;
+          $('sig-filter').style.color = 'var(--bear)';
+          lg(`Signaal ${sig.dir} score ${sig.score} ${sig.setup} → GEFILTERD (${filter.reason})`, 'warn');
+          showSignalRing(sig, false);
+        } else if(isDuplicateSignal(sig)){
+          $('sig-filter').textContent = 'duplicate (fingerprint)';
+          $('sig-filter').style.color = 'var(--gold)';
+          showSignalRing(sig, false);
+        } else {
+          // ─── Nieuw geldig signaal! ───
+          signalCount++;
+          $('ts-signals').textContent = signalCount;
+          $('sig-filter').textContent = '✓ passed';
+          $('sig-filter').style.color = 'var(--bull)';
+          createPending(sig);
+          lg(`★ SIGNAAL ${sig.dir.toUpperCase()} score ${sig.score} ${sig.setup} entry ${sig.entry}`, 'ok');
+          showSignalRing(sig, true);
+          showExecuteBox(sig);
+          playSignalSound();
+          sendBrowserNotification(sig);
+          sendPhonePush(sig);
+        }
       } else {
-        // ─── Nieuw geldig signaal! ───
-        signalCount++;
-        $('ts-signals').textContent = signalCount;
-        $('sig-filter').textContent = '✓ passed';
-        $('sig-filter').style.color = 'var(--bull)';
-        createPending(sig);
-        lg(`★ SIGNAAL ${sig.dir.toUpperCase()} score ${sig.score} ${sig.setup} entry ${sig.entry}`, 'ok');
-        showSignalRing(sig, true);
-        showExecuteBox(sig);
+        // Geen signaal — clear het display
+        clearSignalRing();
       }
-    } else {
-      // Geen signaal — toon laatste candle status
-      $('sig-dir').textContent = 'GEEN SIGNAAL';
-      $('sig-dir').style.color = 'var(--muted)';
-    }
+      } catch(engErr){
+        lg(`⚠ detectLiveSignal fout: ${engErr.message}`, 'err');
+        $('sig-dir').textContent = 'ENGINE ERROR';
+        $('sig-dir').style.color = 'var(--bear)';
+        $('sig-filter').textContent = engErr.message.slice(0,40);
+        $('sig-filter').style.color = 'var(--bear)';
+      }
     }
   }
 
@@ -1012,6 +1366,8 @@ function isDuplicateSignal(sig){
 }
 
 function createPending(sig){
+  // Cooldown start = nu (identiek aan backtest: lastSignalIdx = ri)
+  lastSignalCandleIdx = candleBuffer.length;
   activePending = {
     id: predictions.length + 1,
     dir: sig.dir,
@@ -1067,21 +1423,24 @@ function cancelPending(reason){
     if(connected) updatePredictionOnServer(p.id, {outcome:'expired', exitReason: reason});
   }
   // Korte cooldown ook na pending-cancel
-  lastCloseTime = Date.now();
+  lastSignalCandleIdx = candleBuffer.length;
   activePending = null;
   $('exec-wrap').classList.add('hidden');
   curOrder = null;
+  checkPendingSessionSwitch();
 }
 
 function closeActiveTrade(outcome, exitPrice, exitTime){
   if(!activeTrade) return;
   const params = getEngineParams();
-  const commPts = (params.commission * params.contracts) / 2;
+  // Commissie is in EUR (per side) → omzetten naar punten zodat we 1× kunnen aftrekken
+  const commPtsPerContract = params.commission / PT_VALUE;
   const grossPnl = activeTrade.dir === 'bull'
     ? exitPrice - activeTrade.entry
     : activeTrade.entry - exitPrice;
-  const netPnl = grossPnl * activeTrade.contracts - commPts * activeTrade.contracts;
-  const netUsd = netPnl * 2;
+  // Net in punten (incl. commissie aftrek) — schaalt met contract aantal
+  const netPnl = (grossPnl - commPtsPerContract) * activeTrade.contracts;
+  const netCash = netPnl * PT_VALUE;
 
   const p = predictions.find(x => x.id === activeTrade.id);
   if(p){
@@ -1089,7 +1448,7 @@ function closeActiveTrade(outcome, exitPrice, exitTime){
     p.exitTime = exitTime;
     p.exitPrice = exitPrice;
     p.pnlPt = r2(netPnl);
-    p.pnlUsd = r2(netUsd);
+    p.pnlEur = r2(netCash); p.pnlUsd = p.pnlEur; // alias voor backwards compat
     savePredictions();
     if(connected) updatePredictionOnServer(p.id, {
       outcome, exitTime, exitPrice,
@@ -1097,10 +1456,18 @@ function closeActiveTrade(outcome, exitPrice, exitTime){
     });
   }
   // Cooldown: blokkeer nieuwe signalen voor X minuten na close
-  lastCloseTime = Date.now();
+  lastSignalCandleIdx = candleBuffer.length;
   activeTrade = null;
   $('exec-wrap').classList.add('hidden');
   curOrder = null;
+
+  // Log naar track record
+  const lastPred = predictions[predictions.length - 1];
+  if(lastPred && (lastPred.outcome === 'WIN' || lastPred.outcome === 'LOSS' || lastPred.outcome === 'EXPIRED')){
+    logTradeToTrackRecord(lastPred);
+  }
+
+  checkPendingSessionSwitch();
 }
 
 // ─── SERVER PUSH/PATCH ───
@@ -1149,6 +1516,25 @@ function showSignalRing(sig, valid){
   $('sig-atr').textContent = fmt(sig.atr);
 }
 
+function clearSignalRing(){
+  const circ = 2 * Math.PI * 58;
+  const ring = $('ring');
+  ring.setAttribute('stroke-dasharray', `0 ${circ}`);
+  ring.setAttribute('stroke', 'var(--border)');
+  $('sig-score').textContent = '--';
+  $('sig-score').style.color = 'var(--muted)';
+  $('sig-dir').textContent = 'SCANNING';
+  $('sig-dir').style.color = 'var(--muted)';
+  $('sig-setup').textContent = '—';
+  $('sig-entry').textContent = '--';
+  $('sig-target').textContent = '--';
+  $('sig-stop').textContent = '--';
+  $('sig-rr').textContent = '--';
+  $('sig-atr').textContent = '--';
+  $('sig-filter').textContent = `${candleBuffer.length} candles | TF=${+$('p-tf').value||5}`;
+  $('sig-filter').style.color = 'var(--muted)';
+}
+
 function showExecuteBox(sig){
   curOrder = {
     action: sig.dir,
@@ -1182,9 +1568,9 @@ function showExecuteBox(sig){
 function updExecRisk(){
   if(!curOrder) return;
   const c = +($('ex-contr').value) || 1;
-  const risk = Math.abs(curOrder.entry - curOrder.stop) * 2 * c;
-  const profit = Math.abs(curOrder.target - curOrder.entry) * 2 * c;
-  $('ex-risk').textContent = `-$${risk.toFixed(0)} / +$${profit.toFixed(0)}`;
+  const risk = Math.abs(curOrder.entry - curOrder.stop) * PT_VALUE * c;
+  const profit = Math.abs(curOrder.target - curOrder.entry) * PT_VALUE * c;
+  $('ex-risk').textContent = `-${CURRENCY}${risk.toFixed(0)} / +${CURRENCY}${profit.toFixed(0)}`;
 }
 
 function cancelExec(){
@@ -1205,7 +1591,7 @@ function openConfirm(){
   $('conf-e').textContent = fmt(curOrder.entry);
   $('conf-t').textContent = fmt(curOrder.target);
   $('conf-s').textContent = fmt(curOrder.stop);
-  $('conf-r').textContent = `$${(Math.abs(curOrder.entry - curOrder.stop) * 2 * c).toFixed(0)}`;
+  $('conf-r').textContent = `${CURRENCY}${(Math.abs(curOrder.entry - curOrder.stop) * PT_VALUE * c).toFixed(0)}`;
   $('conf-yes').className = 'btn-cy2 ' + (isL ? 'lc2' : 'sc2');
 }
 function closeConfirm(){ $('confov').classList.remove('show'); }
@@ -1233,7 +1619,7 @@ async function confirmOrder(){
       closeConfirm();
       const o = j.order;
       lg(`✓ ORDER GEREGISTREERD: ${o.action} ${o.contracts}x @ ${o.entry}`, 'ok');
-      alert(`✓ ORDER GEREGISTREERD\n\n${o.action.toUpperCase()} ${o.contracts}x MNQ\nEntry:  ${o.entry}\nTarget: ${o.target} (+$${o.profit_usd?.toFixed(0)||'?'})\nStop:   ${o.stop} (-$${o.risk_usd?.toFixed(0)||'?'})\nR:R 1:${o.rr}\n\n➜ Voer uit in TradingView/MEXEM:\nLimit @${o.entry} | TP @${o.target} | SL @${o.stop}`);
+      alert(`✓ ORDER GEREGISTREERD\n\n${o.action.toUpperCase()} ${o.contracts}x MNQ\nEntry:  ${o.entry}\nTarget: ${o.target} (+€${o.profit_usd?.toFixed(0)||'?'})\nStop:   ${o.stop} (-€${o.risk_usd?.toFixed(0)||'?'})\nR:R 1:${o.rr}\n\n➜ Voer uit in TradingView/IB:\nLimit @${o.entry} | TP @${o.target} | SL @${o.stop}`);
     } else {
       alert('Fout: ' + (j.error || '?'));
     }
@@ -1249,7 +1635,7 @@ async function confirmOrder(){
 function renderPredictions(){
   const tbody = $('pred-tbody');
   if(!predictions.length){
-    tbody.innerHTML = '<tr><td colspan="10" class="empty">Wacht op signaal…</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">Wacht op signaal…</td></tr>';
     return;
   }
 
@@ -1265,9 +1651,9 @@ function renderPredictions(){
     else if(oc === 'pending') badge = '<span class="pbadge pp">⌛ PEND</span>';
     const dirCol = p.dir === 'bull' ? 'var(--bull)' : 'var(--bear)';
     const pnl = p.pnlPt != null ? `<b style="color:${p.pnlPt>=0?'var(--bull)':'var(--bear)'}">${p.pnlPt>=0?'+':''}${p.pnlPt}</b>` : '--';
-    const sigT = p.signalTime ? p.signalTime.slice(11,16) : '--';
-    const entT = p.entryTime  ? p.entryTime.slice(11,16)  : '--';
-    const exiT = p.exitTime   ? p.exitTime.slice(11,16)   : '--';
+    const sigT = p.signalTime ? utcToLocalTime(p.signalTime) : '--';
+    const entT = p.entryTime  ? utcToLocalTime(p.entryTime)  : '--';
+    const exiT = p.exitTime   ? utcToLocalTime(p.exitTime)   : '--';
     return `<tr class="${rowCls}">
       <td style="color:var(--muted)">#${p.id}</td>
       <td>${sigT}</td>
@@ -1277,6 +1663,8 @@ function renderPredictions(){
       <td style="font-size:9px">${p.setup||'?'}</td>
       <td>${p.score||'?'}</td>
       <td>${fmt(p.entry)}</td>
+      <td style="color:var(--bull)">${fmt(p.tgt)}</td>
+      <td style="color:var(--bear)">${fmt(p.stop)}</td>
       <td>${badge}</td>
       <td>${pnl}</td>
     </tr>`;
@@ -1284,6 +1672,11 @@ function renderPredictions(){
 }
 
 function renderStats(){
+  // Update colspan for empty state
+  const tbody = $('pred-tbody');
+  if(tbody && tbody.querySelector('.empty')){
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">Wacht op signaal…</td></tr>';
+  }
   // Filter predictions die WEL door de filters komen
   const filtered = predictions.filter(p => {
     const ok = passesFilter(p);
@@ -1382,30 +1775,960 @@ function setDot(state){
 // ─── INITIAL CANDLE LOAD ───
 // ─── HISTORY CSV IMPORT ───
 function parseHistoryCSV(txt){
-  const lines = txt.trim().split(/\r?\n/);
-  const h = lines[0].replace(/"/g,'').toLowerCase().split(',');
-  const gi = k => h.findIndex(x => x.trim() === k || x.trim().includes(k));
-  const ti = gi('time'), oi = gi('open'), hi = gi('high'), li = gi('low'), ci = gi('close'), vi = gi('volume');
-  if(ci < 0) throw new Error('CSV kolommen niet herkend (verwacht: time,open,high,low,close,volume)');
+  const lines = txt.trim().split(/\r?\n/).filter(l => l.trim());
+  if(lines.length < 2) throw new Error('Geen regels in CSV');
+
+  // 1. Detect delimiter
+  const firstLines = lines.slice(0, 5).join('\n');
+  let delim = ',';
+  if(firstLines.split('\t').length > firstLines.split(',').length && firstLines.split('\t').length > firstLines.split(';').length) delim = '\t';
+  else if(firstLines.split(';').length > firstLines.split(',').length) delim = ';';
+
+  // 2. Parse header
+  const headers = lines[0].replace(/"/g, '').split(delim).map(h => h.trim().toLowerCase());
+  const findCol = (...names) => headers.findIndex(h => names.some(n => h === n || h.startsWith(n)));
+  let iTime = findCol('time', 'date', 'datetime', 'timestamp', 'tijd');
+  let iOpen = findCol('open', 'o');
+  let iHigh = findCol('high', 'h');
+  let iLow  = findCol('low', 'l');
+  let iClose = findCol('close', 'c');
+  let iVol  = findCol('volume', 'vol', 'v');
+
+  // Fallback: assume order
+  if(iTime === -1 && iOpen === -1){ iTime=0; iOpen=1; iHigh=2; iLow=3; iClose=4; iVol=5; }
+  if(iOpen===-1||iHigh===-1||iLow===-1||iClose===-1) throw new Error('CSV kolommen niet herkend (verwacht: time,open,high,low,close,volume). Gevonden: '+headers.join(', '));
+
+  // 3. European decimals?
+  const useCommaDecimal = delim === ';';
+  const parseNum = (s) => {
+    if(!s) return NaN;
+    s = s.trim().replace(/"/g, '');
+    if(useCommaDecimal) s = s.replace(',', '.');
+    return parseFloat(s);
+  };
+
+  // 4. Parse data
   const out = [];
   for(let i = 1; i < lines.length; i++){
-    const c = lines[i].replace(/"/g,'').split(',');
-    if(!c[ci]) continue;
-    let ts = (c[ti]||'').trim();
-    // UNIX timestamp → "YYYY-MM-DD HH:MM"
-    if(/^\d{9,11}$/.test(ts)){
-      const d = new Date(+ts * 1000);
-      const y = d.getUTCFullYear();
-      const mo = String(d.getUTCMonth()+1).padStart(2,'0');
-      const da = String(d.getUTCDate()).padStart(2,'0');
-      const hr = String(d.getUTCHours()).padStart(2,'0');
-      const mi = String(d.getUTCMinutes()).padStart(2,'0');
-      ts = `${y}-${mo}-${da} ${hr}:${mi}`;
+    const line = lines[i].trim();
+    if(!line) continue;
+    // Split respecting quotes
+    const parts = [];
+    let inQ = false, field = '';
+    for(let j = 0; j < line.length; j++){
+      const ch = line[j];
+      if(ch === '"'){ inQ = !inQ; continue; }
+      if(ch === delim && !inQ){ parts.push(field); field = ''; continue; }
+      field += ch;
     }
-    const o = +c[oi]||0, hv = +c[hi]||0, lv = +c[li]||0, cv = +c[ci]||0;
-    if(cv > 0) out.push({t:ts, o, h:hv, l:lv, c:cv, v:+(c[vi]||c[6]||100)});
+    parts.push(field);
+
+    if(parts.length < Math.max(iOpen, iHigh, iLow, iClose) + 1) continue;
+
+    let t = (iTime >= 0 ? parts[iTime] : '').trim().replace(/"/g, '');
+    if(!t || t.length < 10) continue;
+
+    // Unix timestamp
+    if(/^\d{10,13}$/.test(t)){
+      const ms = t.length > 10 ? parseInt(t) : parseInt(t) * 1000;
+      const d = new Date(ms);
+      if(!isNaN(d)) t = d.toISOString().slice(0,16).replace('T',' ');
+      else continue;
+    }
+    // ISO normalize
+    if(t.includes('T')) t = t.replace('T', ' ');
+    if(t.includes('Z')) t = t.replace('Z', '');
+    // DD/MM/YYYY
+    const ddmm = t.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})\s*(.*)/);
+    if(ddmm) t = `${ddmm[3]}-${ddmm[2].padStart(2,'0')}-${ddmm[1].padStart(2,'0')} ${(ddmm[4]||'00:00').trim()}`;
+    t = t.slice(0, 16);
+    if(t.length < 16 && t.length >= 10) t += ' 00:00';
+
+    const o = parseNum(parts[iOpen]);
+    const h = parseNum(parts[iHigh]);
+    const l = parseNum(parts[iLow]);
+    const c = parseNum(parts[iClose]);
+    const v = iVol >= 0 ? (parseNum(parts[iVol]) || 0) : 0;
+
+    if(isNaN(o) || isNaN(h) || isNaN(l) || isNaN(c)) continue;
+    if(o === 0 && h === 0 && l === 0 && c === 0) continue;
+
+    out.push({t, o, h, l, c, v});
   }
-  return out;
+
+  // Dedup + sort
+  out.sort((a,b) => a.t.localeCompare(b.t));
+  const seen = new Set();
+  return out.filter(c => { if(seen.has(c.t)) return false; seen.add(c.t); return true; });
+}
+
+// ─── WARMUP: replay engine door historische candles ───
+// Simuleert de backtest state machine zodat cooldown, pending, en actieve trade
+// exact overeenkomen met wat de backtest zou produceren op dit punt.
+// ═══════════════════════════════════════════════════════════════════
+// LIVE GRID SEARCH — zoek beste strategie op huidige candle buffer
+// ═══════════════════════════════════════════════════════════════════
+
+function gridSearchEngine(candles, params){
+  // Mini-backtest engine: draait 1 parameterset door candles, retourneert stats
+  const tf = params.tf, N = candles.length;
+  if(N < tf * 60) return null;
+
+  // Pre-compute indicators
+  const rollingHTF = new Array(N).fill(null);
+  for(let i = tf-1; i < N; i++) rollingHTF[i] = calcRollingHTF(candles, i, tf);
+  const atrs = new Array(N).fill(0);
+  const e8 = new Array(N).fill(null), e21 = new Array(N).fill(null), e50 = new Array(N).fill(null);
+  const rsis = new Array(N).fill(50), vwaps = new Array(N).fill(null);
+  let avgGain=0, avgLoss=0, rsiInited=false, cumPV=0, cumV=0, prevDay=null;
+
+  for(let i = tf-1; i < N; i++){
+    const htf = rollingHTF[i]; if(!htf) continue;
+    const tr = htf.h - htf.l;
+    atrs[i] = i===tf-1 ? tr : (atrs[i-1]*13+tr)/14;
+    e8[i] = emaUpdate(e8[i-1], htf.c, 8);
+    e21[i] = emaUpdate(e21[i-1], htf.c, 21);
+    e50[i] = emaUpdate(e50[i-1], htf.c, 50);
+    if(i > tf-1){
+      const prev = rollingHTF[i-1];
+      if(prev){
+        const ch = htf.c - prev.c;
+        const g = ch>0?ch:0, l = ch<0?-ch:0;
+        if(!rsiInited){avgGain=g;avgLoss=l;rsiInited=true;}
+        else{avgGain=(avgGain*13+g)/14;avgLoss=(avgLoss*13+l)/14;}
+        rsis[i] = avgLoss===0 ? 100 : (100-100/(1+avgGain/avgLoss));
+      }
+    }
+    const day = htf.t.slice(0,10);
+    if(prevDay!==day){cumPV=0;cumV=0;prevDay=day;}
+    const tp2 = (htf.h+htf.l+htf.c)/3, vol = htf.v||1;
+    cumPV+=tp2*vol; cumV+=vol;
+    vwaps[i] = cumV>0 ? cumPV/cumV : tp2;
+  }
+
+  // State machine
+  let activeTr = null, activePend = null, lastSigIdx = -999;
+  const trades = [];
+  const pendTimeout = 3 * tf;
+  const commPts = params.commission / PT_VALUE;
+
+  for(let ri = tf; ri < N; ri++){
+    const rc = candles[ri];
+
+    // Active trade
+    if(activeTr){
+      let exit = null;
+      if(activeTr.dir==='bull'){
+        if(rc.l<=activeTr.stop)exit={o:'LOSS',p:activeTr.stop};
+        else if(rc.h>=activeTr.tgt)exit={o:'WIN',p:activeTr.tgt};
+      } else {
+        if(rc.h>=activeTr.stop)exit={o:'LOSS',p:activeTr.stop};
+        else if(rc.l<=activeTr.tgt)exit={o:'WIN',p:activeTr.tgt};
+      }
+      activeTr.bars++;
+      if(!exit && activeTr.bars >= params.maxBars*tf) exit={o:'EXPIRED',p:rc.c};
+      if(exit){
+        const gross = activeTr.dir==='bull' ? exit.p-activeTr.entry : activeTr.entry-exit.p;
+        trades.push({outcome:exit.o, pnlPt:r2(gross-commPts), dir:activeTr.dir, setup:activeTr.setup, score:activeTr.score, entry:activeTr.entry, tgt:activeTr.tgt, stp:activeTr.stop, signalTime:activeTr.signalTime, entryTime:activeTr.entryTime, exitTime:rc.t, sigHour:activeTr.sigHour||0});
+        lastSigIdx=ri; activeTr=null;
+      }
+      continue;
+    }
+
+    // Pending
+    if(activePend){
+      let filled=false;
+      if(activePend.dir==='bull'&&rc.h>=activePend.entry)filled=true;
+      if(activePend.dir==='bear'&&rc.l<=activePend.entry)filled=true;
+      activePend.bars++;
+      if(filled){
+        activeTr={...activePend, entryTime:rc.t, bars:0};
+        let ds=false,dt=false;
+        if(activePend.dir==='bull'){if(rc.l<=activePend.stop)ds=true;else if(rc.h>=activePend.tgt)dt=true;}
+        else{if(rc.h>=activePend.stop)ds=true;else if(rc.l<=activePend.tgt)dt=true;}
+        if(ds||dt){
+          const ep=ds?activeTr.stop:activeTr.tgt;
+          const gross=activeTr.dir==='bull'?ep-activeTr.entry:activeTr.entry-ep;
+          trades.push({outcome:ds?'LOSS':'WIN', pnlPt:r2(gross-commPts), dir:activeTr.dir, setup:activeTr.setup, score:activeTr.score, entry:activeTr.entry, tgt:activeTr.tgt, stp:activeTr.stop, signalTime:activeTr.signalTime, entryTime:rc.t, exitTime:rc.t, sigHour:activeTr.sigHour||0});
+          lastSigIdx=ri; activeTr=null;
+        }
+        activePend=null;
+      } else if(activePend.bars>=pendTimeout){
+        lastSigIdx=ri; activePend=null;
+      }
+      continue;
+    }
+
+    // Signal detection
+    if(ri-lastSigIdx < tf) continue;
+    const htf = rollingHTF[ri-1], atr = atrs[ri-1];
+    if(!htf||!atr||atr<=0||atr>params.atrMax) continue;
+    const prev1=rollingHTF[ri-2], prev2=rollingHTF[ri-3];
+    if(!prev1||!prev2) continue;
+    const ema8v=e8[ri-1], ema21v=e21[ri-1], ema50v=e50[ri-1];
+    const rsi=rsis[ri-1], vwap=vwaps[ri-1];
+    if(ema8v==null||ema21v==null||vwap==null) continue;
+
+    const lookback = Math.max(tf, ri-15*tf);
+    const htfBull = params.htfOn ? (ema21v>(e21[lookback]||ema21v)) : true;
+    const htfBear = params.htfOn ? (ema21v<(e21[lookback]||ema21v)) : true;
+    let swH=htf.h,swL=htf.l;
+    for(let j=ri-10;j<ri-1;j++){const r=rollingHTF[j];if(r){if(r.h>swH)swH=r.h;if(r.l<swL)swL=r.l;}}
+
+    let bS=0,rS=0,bSetup='none',rSetup='none';
+    if(ema8v>ema21v&&ema21v>(ema50v||ema21v))bS+=3;else if(ema8v>ema21v)bS+=1;
+    if(ema8v<ema21v&&ema21v<(ema50v||ema21v))rS+=3;else if(ema8v<ema21v)rS+=1;
+    if(htf.c>vwap&&prev1.c<=vwap)bS+=2;else if(htf.c>vwap)bS+=1;
+    if(htf.c<vwap&&prev1.c>=vwap)rS+=2;else if(htf.c<vwap)rS+=1;
+    if(rsi<35)bS+=2;else if(rsi<45)bS+=1;
+    if(rsi>65)rS+=2;else if(rsi>55)rS+=1;
+    if(prev1.l<swL&&htf.c>swL){bS+=4;bSetup='liquidity_sweep';}
+    if(prev1.h>swH&&htf.c<swH){rS+=4;rSetup='liquidity_sweep';}
+    if(prev1&&prev2){
+      if(htf.c>prev1.h&&prev1.l<prev2.l){bS+=3;if(bSetup==='none')bSetup='ob_retest';}
+      if(htf.c<prev1.l&&prev1.h>prev2.h){rS+=3;if(rSetup==='none')rSetup='ob_retest';}
+      if(prev1.l<prev2.l&&htf.l>prev1.l&&htf.c>prev1.h){bS+=2;if(bSetup==='none')bSetup='fvg_fill';}
+      if(prev1.h>prev2.h&&htf.h<prev1.h&&htf.c<prev1.l){rS+=2;if(rSetup==='none')rSetup='fvg_fill';}
+      if(htf.c>prev1.h&&prev1.c<prev2.l){bS+=2;if(bSetup==='none')bSetup='bos';}
+      if(htf.c<prev1.l&&prev1.c>prev2.h){rS+=2;if(rSetup==='none')rSetup='bos';}
+    }
+    if(htf.v>(prev1?.v||0)*1.3){if(htf.c>htf.o)bS+=1;else rS+=1;}
+    if(!htfBull)bS=Math.max(0,bS-3);
+    if(!htfBear)rS=Math.max(0,rS-3);
+
+    let dir=null,score=0,setup='none';
+    if(params.dirMode!=='short'&&bS>rS){dir='bull';score=bS;setup=bSetup;}
+    else if(params.dirMode!=='long'&&rS>bS){dir='bear';score=rS;setup=rSetup;}
+    if(!dir||score<params.minScore) continue;
+
+    // Bewaar signaal-uur (voor post-filtering, niet voor engine-blokkade)
+    const sigHour = utcToLocalHour(candles[ri-1].t);
+
+    lastSigIdx=ri;
+    const slSize=params.sl*atr, tpSize=slSize*params.tp;
+    const ep=snapTick(htf.c);
+    let stop,tgt;
+    if(dir==='bull'){stop=snapStopBull(ep-slSize);tgt=snapTgtBull(ep+tpSize);}
+    else{stop=snapStopBear(ep+slSize);tgt=snapTgtBear(ep-tpSize);}
+    activePend={dir,score,setup,entry:ep,stop,tgt,signalTime:candles[ri-1].t,bars:0,sigHour};
+  }
+
+  // Post-filter: pas skip uur/score toe NA engine (identiek aan backtest)
+  const filtered = trades.filter(t => {
+    if(skipHours.has(t.sigHour)) return false;
+    if(skipScores.has(t.score)) return false;
+    return true;
+  });
+
+  // Compute stats op GEFILTERDE trades
+  const ft = filtered;
+  const n = ft.length;
+  if(n===0) return {n:0,wr:0,pnl:0,ev:0,pf:0,dd:0,wins:0,losses:0,trades:ft,allTrades:trades};
+  const wins = ft.filter(t=>t.outcome==='WIN');
+  const losses = ft.filter(t=>t.outcome==='LOSS');
+  const pnl = ft.reduce((s,t)=>s+t.pnlPt,0);
+  const grossWin = wins.reduce((s,t)=>s+t.pnlPt,0);
+  const grossLoss = Math.abs(losses.reduce((s,t)=>s+t.pnlPt,0));
+  let maxDD=0, peak=0, cum=0;
+  ft.forEach(t=>{cum+=t.pnlPt;if(cum>peak)peak=cum;const dd=peak-cum;if(dd>maxDD)maxDD=dd;});
+  return {n, wr:wins.length/n, pnl:r2(pnl), ev:r2(pnl/n), pf:grossLoss>0?r2(grossWin/grossLoss):99, dd:r2(maxDD), wins:wins.length, losses:losses.length, trades:ft, allTrades:trades};
+}
+
+function updateGridBufferInfo(){
+  if(candleBuffer.length===0){$('grid-buffer-info').textContent='Buffer: geen candles';return;}
+  const first=candleBuffer[0].t, last=candleBuffer[candleBuffer.length-1].t;
+  $('grid-buffer-info').textContent=`Buffer: ${candleBuffer.length} candles · ${utcToLocal(first)} → ${utcToLocal(last)}`;
+  // Auto-fill date inputs (lokale tijd)
+  const toLocalInput = (utc) => {
+    const d = new Date(utc.replace(' ','T')+':00Z');
+    if(isNaN(d)) return '';
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  };
+  if(!$('gs-from').value) $('gs-from').value = toLocalInput(first);
+  if(!$('gs-to').value) $('gs-to').value = toLocalInput(last);
+}
+
+function runLiveGridSearch(){
+  if(candleBuffer.length < 300){alert('Niet genoeg candles (min 300). Upload een CSV of wacht op meer data.');return;}
+
+  // Bewaar welke quality filter actief is
+  const activePresetBtn = document.querySelector('.preset.active');
+  gridSearchFilterName = activePresetBtn ? activePresetBtn.textContent.replace('★','').trim() : 'OFF';
+  gridSearchHasRun = true;
+
+  // Filter candles op datum/uur bereik (lokaal → UTC vergelijking)
+  let candles = [...candleBuffer];
+  const fromVal = $('gs-from').value, toVal = $('gs-to').value;
+  if(fromVal){
+    const fromUtc = new Date(fromVal).toISOString().slice(0,16).replace('T',' ');
+    candles = candles.filter(c => c.t >= fromUtc);
+  }
+  if(toVal){
+    const toUtc = new Date(toVal).toISOString().slice(0,16).replace('T',' ');
+    candles = candles.filter(c => c.t <= toUtc);
+  }
+  if(candles.length < 100){alert(`Niet genoeg candles in geselecteerd bereik (${candles.length}, min 100).`);return;}
+
+  const tf = +$('p-tf').value || 5;
+  const sls = $('gs-sl').value.split(',').map(Number).filter(v=>v>0);
+  const tps = $('gs-tp').value.split(',').map(Number).filter(v=>v>0);
+  const atrs = $('gs-atrmax').value.split(',').map(Number).filter(v=>v>0);
+  const bars = $('gs-bars').value.split(',').map(Number).filter(v=>v>0);
+  const scores = $('gs-score').value.split(',').map(Number).filter(v=>v>0);
+  const htfs = $('gs-htf').value.split(',').map(s=>s.trim().toLowerCase());
+  const dirs = $('gs-dir').value.split(',').map(s=>s.trim().toLowerCase());
+  const comm = +$('p-comm').value || 3.60;
+
+  const combos = [];
+  for(const sl of sls)for(const tp of tps)for(const atr of atrs)for(const mb of bars)
+    for(const ms of scores)for(const htf of htfs)for(const dir of dirs){
+      combos.push({tf,sl,tp,atrMax:atr,maxBars:mb,minScore:ms,htfOn:htf==='aan'||htf==='yes',dirMode:dir==='l+s'?'both':dir,commission:comm,contracts:1});
+    }
+
+  $('gs-status').textContent = `⏳ ${combos.length} combinaties op ${candles.length} candles…`;
+  lg(`🔍 Grid search: ${combos.length} combinaties op ${candles.length} candles (${utcToLocal(candles[0].t)} → ${utcToLocal(candles[candles.length-1].t)})`, 'info');
+
+  // Run async zodat UI niet bevriest
+  const filteredCandles = candles; // bewaar referentie voor callback
+  setTimeout(()=>{
+    const results = [];
+    for(let i=0;i<combos.length;i++){
+      const s = gridSearchEngine(filteredCandles, combos[i]);
+      if(s && s.n >= 2) results.push({params:combos[i], stats:s, rank: s.ev * Math.sqrt(Math.max(1,s.n)) * (s.wr/0.5)});
+    }
+    results.sort((a,b)=>b.rank-a.rank);
+    $('gs-status').textContent = `✅ ${results.length} resultaten (${combos.length} combinaties)`;
+    lg(`✅ Grid search klaar: ${results.length} resultaten met ≥2 trades`, 'ok');
+    showGridSearchResults(results, filteredCandles);
+  }, 50);
+}
+
+let liveGridResults = null;
+let liveGridCandles = null;
+
+function showGridSearchResults(results, candles){
+  liveGridResults = results;
+  liveGridCandles = candles;
+
+  let modal = document.getElementById('gs-modal');
+  if(modal) modal.remove();
+  modal = document.createElement('div');
+  modal.id = 'gs-modal';
+  modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;justify-content:center;align-items:center;overflow:auto';
+  modal.onclick = e => { if(e.target===modal) modal.remove(); };
+
+  const first = utcToLocal(candles[0].t), last = utcToLocal(candles[candles.length-1].t);
+  const top = results.slice(0,50);
+  const rows = top.map((r,i)=>{
+    const p=r.params, s=r.stats;
+    const wrClass = s.wr>=0.5?'pos':'neg';
+    const pnlClass = s.pnl>=0?'pos':'neg';
+    return `<tr style="cursor:pointer" onclick="showLiveGridDetail(${i})">
+      <td>${i+1}</td><td>${p.sl}</td><td>${p.tp}</td><td>${p.atrMax}</td><td>${p.maxBars}</td>
+      <td>${p.minScore}</td><td>${p.htfOn?'AAN':'UIT'}</td><td>${p.dirMode==='both'?'L+S':(p.dirMode==='long'?'L':'S')}</td>
+      <td>${s.n}</td><td class="${wrClass}">${(s.wr*100).toFixed(1)}%</td>
+      <td class="${pnlClass}">${s.pnl.toFixed(1)}</td><td>${s.ev.toFixed(2)}</td>
+      <td>${s.pf.toFixed(2)}</td><td>${s.dd.toFixed(1)}</td>
+    </tr>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="background:white;border-radius:8px;padding:20px;max-width:900px;width:95%;max-height:90vh;overflow:auto;position:relative">
+      <button onclick="this.closest('#gs-modal').remove()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:20px;cursor:pointer;color:#666">✕</button>
+      <h3 style="margin:0 0 4px">🔍 Grid Search Resultaten — Top ${top.length} van ${results.length}</h3>
+      <p style="font-size:11px;color:#666;margin:0 0 10px">TF=${+$('p-tf').value} · ${candles.length} candles · ${first} → ${last}</p>
+      <p style="font-size:10px;color:#1d4ed8;margin:0 0 12px">👆 Klik op een rij om de trades te bekijken</p>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:11px">
+          <thead><tr style="background:#f1f5f9">
+            <th style="padding:6px 4px;text-align:left;font-size:9px">#</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">SL</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">TP</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">ATRm</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">Bars</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">mSc</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">HTF</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">Dir</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">N</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">WR%</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">P&L</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">EV</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">PF</th>
+            <th style="padding:6px 4px;text-align:left;font-size:9px">DD</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+window.showLiveGridDetail = function(idx){
+  if(!liveGridResults || !liveGridCandles) return;
+  const r = liveGridResults[idx];
+  const p = r.params, s = r.stats;
+
+  // Herbereken trades (gridSearchEngine retourneert ze nu)
+  const res = gridSearchEngine(liveGridCandles, p);
+  if(!res || !res.trades) return;
+  const trades = res.trades;
+
+  // Detail modal
+  let detail = document.getElementById('gs-detail');
+  if(detail) detail.remove();
+  detail = document.createElement('div');
+  detail.id = 'gs-detail';
+  detail.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;justify-content:center;align-items:center;overflow:auto';
+  detail.onclick = e => { if(e.target===detail) detail.remove(); };
+
+  const htfLabel = p.htfOn?'AAN':'UIT';
+  const dirLabel = p.dirMode==='both'?'L+S':(p.dirMode==='long'?'L':'S');
+  const pnlCur = r2(s.pnl * PT_VALUE);
+
+  const tradeRows = trades.map((t,i) => {
+    const dur = t.entryTime && t.exitTime ? Math.round((new Date(t.exitTime.replace(' ','T')+':00Z')-new Date(t.entryTime.replace(' ','T')+':00Z'))/60000) : '';
+    const pnlC = r2(t.pnlPt * PT_VALUE);
+    const cls = t.outcome==='WIN'?'pos':(t.outcome==='LOSS'?'neg':'');
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${utcToLocal(t.signalTime)}</td>
+      <td>${utcToLocal(t.entryTime)}</td>
+      <td>${utcToLocal(t.exitTime)}</td>
+      <td>${dur}</td>
+      <td>${t.dir==='bull'?'▲ L':'▼ S'}</td>
+      <td>${t.setup}</td>
+      <td>${t.score}</td>
+      <td>${t.entry}</td>
+      <td>${t.tgt}</td>
+      <td>${t.stp}</td>
+      <td class="${cls}" style="font-weight:600">${t.outcome}</td>
+      <td class="${cls}">${t.pnlPt.toFixed(2)}</td>
+      <td class="${cls}">${CURRENCY}${pnlC}</td>
+    </tr>`;
+  }).join('');
+
+  detail.innerHTML = `
+    <div style="background:white;border-radius:8px;padding:20px;max-width:1000px;width:95%;max-height:90vh;overflow:auto;position:relative">
+      <button onclick="this.closest('#gs-detail').remove()" style="position:absolute;top:10px;right:15px;background:none;border:none;font-size:20px;cursor:pointer;color:#666">✕</button>
+
+      <h3 style="margin:0 0 4px">📊 Grid Detail #${idx+1}</h3>
+      <p style="font-size:11px;color:#666;margin:0 0 12px">TF=${p.tf} · SL=${p.sl}×ATR · TP=${p.tp}×SL · ATRmax=${p.atrMax} · MaxBars=${p.maxBars} · MinScore=${p.minScore} · HTF=${htfLabel} · ${dirLabel}</p>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        <div style="background:#f0fdf4;border:1px solid #86efac;padding:8px 14px;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">Trades</div>
+          <div style="font-size:18px;font-weight:700;color:#166534">${s.n}</div>
+        </div>
+        <div style="background:${s.wr>=0.5?'#f0fdf4':'#fef2f2'};border:1px solid ${s.wr>=0.5?'#86efac':'#fca5a5'};padding:8px 14px;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">Win Rate</div>
+          <div style="font-size:18px;font-weight:700;color:${s.wr>=0.5?'#166534':'#991b1b'}">${(s.wr*100).toFixed(1)}%</div>
+        </div>
+        <div style="background:${s.pnl>=0?'#f0fdf4':'#fef2f2'};border:1px solid ${s.pnl>=0?'#86efac':'#fca5a5'};padding:8px 14px;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">P&L pt</div>
+          <div style="font-size:18px;font-weight:700;color:${s.pnl>=0?'#166534':'#991b1b'}">${s.pnl.toFixed(1)}</div>
+        </div>
+        <div style="background:${pnlCur>=0?'#f0fdf4':'#fef2f2'};border:1px solid ${pnlCur>=0?'#86efac':'#fca5a5'};padding:8px 14px;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">P&L ${CURRENCY}</div>
+          <div style="font-size:18px;font-weight:700;color:${pnlCur>=0?'#166534':'#991b1b'}">${CURRENCY}${pnlCur}</div>
+        </div>
+        <div style="background:#fff7ed;border:1px solid #fed7aa;padding:8px 14px;border-radius:6px;text-align:center;min-width:80px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">EV/trade</div>
+          <div style="font-size:18px;font-weight:700;color:#9a3412">${s.ev.toFixed(2)}</div>
+        </div>
+        <div style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:6px;text-align:center;min-width:60px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">PF</div>
+          <div style="font-size:18px;font-weight:700">${s.pf.toFixed(2)}</div>
+        </div>
+        <div style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:6px;text-align:center;min-width:60px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">Max DD</div>
+          <div style="font-size:18px;font-weight:700;color:#dc2626">${s.dd.toFixed(1)}</div>
+        </div>
+        <div style="padding:8px 14px;border:1px solid #e2e8f0;border-radius:6px;text-align:center;min-width:60px">
+          <div style="font-size:9px;color:#666;text-transform:uppercase">W/L/E</div>
+          <div style="font-size:14px;font-weight:700">${s.wins}/${s.losses}/${s.n-s.wins-s.losses}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <button onclick="applyGridResult(liveGridResults[${idx}].params);document.getElementById('gs-detail').remove();" style="padding:8px 20px;background:#1d4ed8;color:white;border:none;border-radius:5px;cursor:pointer;font-weight:600;font-size:12px">✅ Toepassen + Warmup starten</button>
+        <button onclick="document.getElementById('gs-detail').remove()" style="padding:8px 20px;background:#f1f5f9;color:#475569;border:1px solid #cbd5e1;border-radius:5px;cursor:pointer;font-size:12px">← Terug naar overzicht</button>
+      </div>
+
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-family:'IBM Plex Mono';font-size:11px">
+          <thead><tr style="background:#f1f5f9">
+            <th style="padding:5px 4px;text-align:left;font-size:9px">#</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">SIGNAAL</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">ENTRY</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">EXIT</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">DUUR</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">DIR</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">SETUP</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">SC</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">ENTRY ${CURRENCY}</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">TP</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">SL</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">RESULT</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">P&L pt</th>
+            <th style="padding:5px 4px;text-align:left;font-size:9px">P&L ${CURRENCY}</th>
+          </tr></thead>
+          <tbody>${tradeRows}</tbody>
+        </table>
+      </div>
+    </div>`;
+  document.body.appendChild(detail);
+};
+
+window.applyGridResult = function(params){
+  // Vul parameters in
+  $('p-sl').value = params.sl;
+  $('p-tp').value = params.tp;
+  $('p-atrmax').value = params.atrMax;
+  $('p-maxbars').value = params.maxBars;
+  $('p-minscore').value = params.minScore;
+  $('p-htf').value = params.htfOn ? 'yes' : 'no';
+  $('p-dir').value = params.dirMode;
+
+  // Sluit modal
+  const modal = document.getElementById('gs-modal');
+  if(modal) modal.remove();
+
+  // Sla params op + update strategie context
+  saveParams();
+  updateStrategyContext();
+
+  // Run warmup met nieuwe params
+  if(candleBuffer.length >= 300){
+    warmupEngine();
+  }
+
+  lg(`✅ Parameters ingesteld: SL=${params.sl} TP=${params.tp} ATR=${params.atrMax} Bars=${params.maxBars} Score=${params.minScore} HTF=${params.htfOn?'AAN':'UIT'} Dir=${params.dirMode}`, 'ok');
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// REGIME DETECTIE + PER-SESSIE PARAMETER SUGGESTIES
+// ═══════════════════════════════════════════════════════════════════
+
+const SESSIONS = [
+  {id:'asia',      name:'Azië',           hours:[0,1,2,3,4,5,6,7],     regime:'low_vol_range', color:'#475569', bg:'#f1f5f9'},
+  {id:'eu_only',   name:'EU Only',        hours:[8,9,10,11,12,13,14],  regime:'low_vol_drift', color:'#475569', bg:'#f1f5f9'},
+  {id:'us_pre',    name:'US Pre/Data',    hours:[15],                  regime:'vol_spike',     color:'#9333ea', bg:'#faf5ff'},
+  {id:'us_open',   name:'US Open',        hours:[16,17],               regime:'trending',      color:'#059669', bg:'#ecfdf5'},
+  {id:'us_mid',    name:'US Middag',      hours:[18,19],               regime:'range_chop',    color:'#d97706', bg:'#fffbeb'},
+  {id:'us_late',   name:'US Late',        hours:[20,21],               regime:'low_vol_drift', color:'#475569', bg:'#f1f5f9'},
+  {id:'overnight', name:'Overnight',      hours:[22,23],               regime:'low_vol_range', color:'#475569', bg:'#f1f5f9'},
+];
+
+const REGIME_LABELS = {
+  'low_vol_range': {label:'LOW VOL RANGE',  emoji:'😴', advice:'Weinig volume, veel false signals. Overweeg te pauzeren.'},
+  'vol_spike':     {label:'VOLATILITY SPIKE',emoji:'⚡', advice:'Scherpe moves mogelijk. Wacht op duidelijke richting.'},
+  'trending':      {label:'TRENDING',        emoji:'📈', advice:'Beste window voor trend-following. Standaard parameters.'},
+  'range_chop':    {label:'RANGE / CHOP',    emoji:'↔️', advice:'Mean-reversion domineert. Strakkere stops of pauzeer.'},
+  'chop_fade':     {label:'CHOP / FADE',     emoji:'⚠️', advice:'Tegengestelde flow. Moeilijk te traden. Pauzeer.'},
+  'low_vol_drift': {label:'LOW VOL DRIFT',   emoji:'🐌', advice:'Trage moves op laag volume. Kleine posities.'},
+};
+
+let sessionBestParams = {};  // {sessionId: {params, stats}}
+let gridSearchFilterName = '';  // welke quality filter was actief tijdens grid search
+let gridSearchHasRun = false;  // is er al een grid search gedraaid?
+let pendingSessionSwitch = null;  // {params, sessionName} als sessie wisselde maar trade open
+let isWarmingUp = false;          // true tijdens warmup → trades niet loggen naar trackrecord
+
+// ── TRACK RECORD: log elke gesloten trade naar gedeelde localStorage ──
+const TRACKRECORD_KEY = 'nq_trackrecord';  // gedeeld tussen alle instances
+
+function logTradeToTrackRecord(trade){
+  if(isWarmingUp) return;  // warmup trades niet loggen
+  try {
+    const existing = JSON.parse(localStorage.getItem(TRACKRECORD_KEY) || '[]');
+    const params = getEngineParams();
+    const activePreset = document.querySelector('.preset.active');
+    const filterName = activePreset ? activePreset.textContent.replace('★','').trim() : 'OFF';
+    const session = getSessionForHour(new Date().getHours());
+
+    existing.push({
+      filter: filterName,
+      session: session.name,
+      regime: session.regime,
+      strategy: getStrategyName(),
+      dir: trade.dir,
+      setup: trade.setup || '',
+      score: trade.score || 0,
+      entry: trade.entry || 0,
+      tgt: trade.tgt || 0,
+      stp: trade.stop || trade.stp || 0,
+      outcome: trade.outcome,
+      pnlPt: trade.pnlPt || 0,
+      pnlCur: r2((trade.pnlPt || 0) * PT_VALUE),
+      signalTime: trade.signalTime || '',
+      entryTime: trade.entryTime || '',
+      exitTime: trade.exitTime || '',
+      params: { tf: params.tf, sl: params.sl, tp: params.tp, atrMax: params.atrMax, maxBars: params.maxBars, minScore: params.minScore, htfOn: params.htfOn },
+      logged: new Date().toISOString()
+    });
+
+    localStorage.setItem(TRACKRECORD_KEY, JSON.stringify(existing.slice(-500)));
+    lg(`📝 Track record: ${filterName} ${trade.outcome} ${trade.dir==='bull'?'▲':'▼'} ${trade.pnlPt?.toFixed(1)||0}pt`, trade.outcome==='WIN'?'ok':'warn');
+  } catch(e){
+    lg('⚠ Track record save fout — opruimen…', 'warn');
+    cleanupLocalStorage();
+    try {
+      const retry = JSON.parse(localStorage.getItem(TRACKRECORD_KEY) || '[]');
+      retry.push({filter:'?',outcome:trade.outcome,pnlPt:trade.pnlPt||0,logged:new Date().toISOString()});
+      localStorage.setItem(TRACKRECORD_KEY, JSON.stringify(retry.slice(-300)));
+    } catch(e2){ lg('Track record opslaan mislukt', 'err'); }
+  }
+}
+let currentSessionId = null;
+let currentRegimeSuggestion = null;
+
+function getSessionForHour(h){
+  return SESSIONS.find(s => s.hours.includes(h)) || SESSIONS[0];
+}
+
+function detectRegime(){
+  // Gebruik huidige lokale uur
+  const now = new Date();
+  const hour = now.getHours();
+  const session = getSessionForHour(hour);
+  const regime = REGIME_LABELS[session.regime];
+
+  // Verfijn regime met live ATR data als beschikbaar
+  let liveRegime = session.regime;
+  if(candleBuffer.length > 60){
+    const params = getEngineParams();
+    const tf = params.tf;
+    if(candleBuffer.length >= tf * 2){
+      const htfNow = calcRollingHTF(candleBuffer, candleBuffer.length-1, tf);
+      const htfPrev = calcRollingHTF(candleBuffer, Math.max(tf-1, candleBuffer.length-1-tf*5), tf);
+      if(htfNow && htfPrev){
+        const atrNow = htfNow.h - htfNow.l;
+        const atrPrev = htfPrev.h - htfPrev.l;
+        // Override als ATR signalen iets anders zeggen
+        if(atrNow > atrPrev * 2.0 && session.regime !== 'trending'){
+          liveRegime = 'vol_spike';  // plotse ATR verdubbeling
+        }
+      }
+    }
+  }
+
+  return {session, regime: REGIME_LABELS[liveRegime] || regime, liveRegime, hour};
+}
+
+function updateRegimeStrip(){
+  const det = detectRegime();
+  const s = det.session;
+  const r = det.regime;
+
+  $('regime-session').textContent = `${r.emoji} ${s.name} (${det.hour}h)`;
+  $('regime-type').textContent = r.label;
+  $('regime-type').style.background = s.bg;
+  $('regime-type').style.color = s.color;
+  $('regime-type').style.border = `1px solid ${s.color}`;
+
+  // Check of we per-sessie suggesties hebben
+  const best = sessionBestParams[s.id];
+  const filterTag = gridSearchFilterName ? `<span style="color:#fbbf24;font-weight:600">[${gridSearchFilterName}]</span> ` : '';
+  if(best){
+    const p = best.params;
+    const st = best.stats;
+    $('regime-suggest').innerHTML = `${filterTag}<span style="color:#e2e8f0">Aanbevolen:</span> SL=${p.sl} TP=${p.tp} ATR=${p.atrMax} Bars=${p.maxBars} Sc≥${p.minScore} HTF=${p.htfOn?'AAN':'UIT'} <span style="color:#86efac">(${(st.wr*100).toFixed(0)}% WR, EV ${st.ev.toFixed(1)}, ${st.n} trades)</span>`;
+    $('regime-apply-btn').style.display = 'inline-block';
+    currentRegimeSuggestion = p;
+  } else {
+    $('regime-suggest').innerHTML = `<span style="color:#64748b">${r.advice}</span> <span style="color:#475569">— Draai Grid Search voor suggesties</span>`;
+    $('regime-apply-btn').style.display = 'none';
+    currentRegimeSuggestion = null;
+  }
+
+  // Sessie-wissel detectie + auto-apply
+  if(currentSessionId && currentSessionId !== s.id){
+    lg(`🕐 Sessie gewisseld: ${s.name} (${r.label})`, 'warn');
+    if(best){
+      if(activeTrade || activePending){
+        // Trade open → bewaar voor later
+        pendingSessionSwitch = {params: best.params, sessionName: s.name};
+        lg(`⚠ Trade open — strategie-wissel uitgesteld tot close`, 'warn');
+        lg(`💡 Wachtend: SL=${best.params.sl} TP=${best.params.tp} ATR=${best.params.atrMax} (${(best.stats.wr*100).toFixed(0)}% WR)`, 'info');
+      } else {
+        // Geen open trade → direct toepassen
+        lg(`🔄 Auto-apply: ${s.name} params → SL=${best.params.sl} TP=${best.params.tp} ATR=${best.params.atrMax}`, 'ok');
+        applyGridResult(best.params);
+        pendingSessionSwitch = null;
+      }
+    }
+  }
+  currentSessionId = s.id;
+}
+
+window.applyRegimeSuggestion = function(){
+  if(!currentRegimeSuggestion) return;
+  applyGridResult(currentRegimeSuggestion);
+};
+
+// Check of er een uitgestelde sessie-wissel wacht na trade-close
+function checkPendingSessionSwitch(){
+  if(!pendingSessionSwitch) return;
+  if(activeTrade || activePending) return;  // nog steeds bezig
+  const sw = pendingSessionSwitch;
+  pendingSessionSwitch = null;
+  lg(`🔄 Trade gesloten → uitgestelde sessie-wissel toepassen: ${sw.sessionName}`, 'ok');
+  lg(`✅ Auto-apply: SL=${sw.params.sl} TP=${sw.params.tp} ATR=${sw.params.atrMax}`, 'ok');
+  applyGridResult(sw.params);
+}
+
+// Per-sessie grid search: draait na de gewone grid search
+function computePerSessionBest(results, candles){
+  sessionBestParams = {};
+
+  // Groepeer candles per sessie-uur
+  const sessionCandles = {};
+  SESSIONS.forEach(s => { sessionCandles[s.id] = []; });
+  candles.forEach(c => {
+    const h = utcToLocalHour(c.t);
+    const s = getSessionForHour(h);
+    sessionCandles[s.id].push(c);
+  });
+
+  // Voor elke sessie met genoeg candles: zoek beste params
+  const tf = +$('p-tf').value || 5;
+  const comm = +$('p-comm').value || 3.60;
+
+  for(const session of SESSIONS){
+    const sc = sessionCandles[session.id];
+    if(sc.length < tf * 30) continue;  // min ~30 HTF candles
+
+    // Test top-20 parameter sets uit de globale grid
+    const topGlobal = results.slice(0, Math.min(20, results.length));
+    let best = null;
+
+    for(const r of topGlobal){
+      const res = gridSearchEngine(sc, {...r.params, commission: comm});
+      if(res && res.n >= 2){
+        const rank = res.ev * Math.sqrt(Math.max(1, res.n)) * (res.wr / 0.5);
+        if(!best || rank > best.rank){
+          best = {params: r.params, stats: res, rank};
+        }
+      }
+    }
+
+    if(best) sessionBestParams[session.id] = best;
+  }
+
+  updateRegimeStrip();
+  const sessionsFound = Object.keys(sessionBestParams).length;
+  lg(`📊 Per-sessie optimalisatie: ${sessionsFound} sessies met suggesties`, 'ok');
+}
+
+// Hook into grid search: compute per-session after global search
+const origShowGridSearchResults = showGridSearchResults;
+showGridSearchResults = function(results, candles){
+  origShowGridSearchResults(results, candles);
+  // Compute per-session in background
+  setTimeout(() => computePerSessionBest(results, candles), 100);
+};
+
+function warmupEngine(){
+  isWarmingUp = true;
+  const params = getEngineParams();
+  const tf = params.tf;
+  const N = candleBuffer.length;
+  if(N < tf * 60) { lg('Warmup: niet genoeg candles', 'warn'); return; }
+
+  lg(`🔄 Warmup: engine door ${N} candles lopen (TF=${tf})…`, 'info');
+
+  // Reset state
+  activePending = null;
+  activeTrade = null;
+  lastSignalCandleIdx = -999;
+  predictions = [];
+  signalCount = 0;
+
+  // Pre-bereken alle indicatoren (identiek aan detectLiveSignal)
+  const rollingHTF = new Array(N).fill(null);
+  for(let i = tf - 1; i < N; i++) rollingHTF[i] = calcRollingHTF(candleBuffer, i, tf);
+  const atrs = new Array(N).fill(0);
+  const e8 = new Array(N).fill(null), e21 = new Array(N).fill(null), e50 = new Array(N).fill(null);
+  const rsis = new Array(N).fill(50), vwaps = new Array(N).fill(null);
+  let avgGain = 0, avgLoss = 0, rsiInited = false, cumPV = 0, cumV = 0, prevDay = null;
+
+  for(let i = tf - 1; i < N; i++){
+    const htf = rollingHTF[i]; if(!htf) continue;
+    const tr = htf.h - htf.l;
+    atrs[i] = i === tf - 1 ? tr : (atrs[i-1] * 13 + tr) / 14;
+    e8[i] = emaUpdate(e8[i-1], htf.c, 8);
+    e21[i] = emaUpdate(e21[i-1], htf.c, 21);
+    e50[i] = emaUpdate(e50[i-1], htf.c, 50);
+    if(i > tf - 1){
+      const prev = rollingHTF[i-1];
+      if(prev){
+        const ch = htf.c - prev.c;
+        const g = ch > 0 ? ch : 0, l = ch < 0 ? -ch : 0;
+        if(!rsiInited){ avgGain = g; avgLoss = l; rsiInited = true; }
+        else { avgGain = (avgGain*13+g)/14; avgLoss = (avgLoss*13+l)/14; }
+        rsis[i] = avgLoss === 0 ? 100 : (100 - 100/(1 + avgGain/avgLoss));
+      }
+    }
+    const day = htf.t.slice(0,10);
+    if(prevDay !== day){ cumPV = 0; cumV = 0; prevDay = day; }
+    const tp = (htf.h + htf.l + htf.c)/3, vol = htf.v || 1;
+    cumPV += tp * vol; cumV += vol;
+    vwaps[i] = cumV > 0 ? cumPV/cumV : tp;
+  }
+
+  // State machine loop (identiek aan backtest runBacktestCore)
+  let warmupTrades = 0;
+  const pendingTimeout = 3 * tf;
+
+  for(let ri = tf; ri < N; ri++){
+    const rc = candleBuffer[ri];
+
+    // 1. Active trade check
+    if(activeTrade){
+      let exit = null;
+      if(activeTrade.dir === 'bull'){
+        if(rc.l <= activeTrade.stop) exit = {outcome:'LOSS', price:activeTrade.stop};
+        else if(rc.h >= activeTrade.tgt) exit = {outcome:'WIN', price:activeTrade.tgt};
+      } else {
+        if(rc.h >= activeTrade.stop) exit = {outcome:'LOSS', price:activeTrade.stop};
+        else if(rc.l <= activeTrade.tgt) exit = {outcome:'WIN', price:activeTrade.tgt};
+      }
+      activeTrade.barsOpen = (activeTrade.barsOpen||0) + 1;
+      if(!exit && activeTrade.barsOpen >= params.maxBars * tf) exit = {outcome:'EXPIRED', price:rc.c};
+      if(exit){
+        const commPtsPerContract = params.commission / PT_VALUE;
+        const grossPnl = activeTrade.dir === 'bull' ? exit.price - activeTrade.entry : activeTrade.entry - exit.price;
+        const netPnl = (grossPnl - commPtsPerContract) * (activeTrade.contracts||1);
+        const p = predictions.find(x => x.id === activeTrade.id);
+        if(p){ p.outcome = exit.outcome; p.exitTime = rc.t; p.exitPrice = exit.price; p.pnlPt = r2(netPnl); }
+        lastSignalCandleIdx = ri;
+        activeTrade = null;
+        if(p) logTradeToTrackRecord(p);
+        checkPendingSessionSwitch();
+      }
+      continue;
+    }
+
+    // 2. Pending fill check
+    if(activePending){
+      let filled = false;
+      if(activePending.dir === 'bull' && rc.h >= activePending.entry) filled = true;
+      if(activePending.dir === 'bear' && rc.l <= activePending.entry) filled = true;
+      activePending.barsWaiting = (activePending.barsWaiting||0) + 1;
+      if(filled){
+        const stp = activePending.stop, tgt = activePending.tgt, dr = activePending.dir;
+        activeTrade = {...activePending, entryTime: rc.t, barsOpen: 0};
+        const p = predictions.find(x => x.id === activePending.id);
+        if(p){ p.outcome = 'open'; p.entryTime = rc.t; }
+        activePending = null;
+        // Direct stop/tgt check
+        let ds = false, dt = false;
+        if(dr === 'bull'){ if(rc.l <= stp) ds = true; else if(rc.h >= tgt) dt = true; }
+        else { if(rc.h >= stp) ds = true; else if(rc.l <= tgt) dt = true; }
+        if(ds || dt){
+          const commPtsPerContract = params.commission / PT_VALUE;
+          const ep = ds ? stp : tgt;
+          const grossPnl = dr === 'bull' ? ep - activeTrade.entry : activeTrade.entry - ep;
+          const netPnl = (grossPnl - commPtsPerContract) * (activeTrade.contracts||1);
+          const p2 = predictions.find(x => x.id === activeTrade.id);
+          if(p2){ p2.outcome = ds ? 'LOSS' : 'WIN'; p2.exitTime = rc.t; p2.exitPrice = ep; p2.pnlPt = r2(netPnl); }
+          lastSignalCandleIdx = ri;
+          activeTrade = null;
+          if(p2) logTradeToTrackRecord(p2);
+          checkPendingSessionSwitch();
+        }
+      } else if(activePending.barsWaiting >= pendingTimeout){
+        const p = predictions.find(x => x.id === activePending.id);
+        if(p){ p.outcome = 'expired'; }
+        lastSignalCandleIdx = ri;
+        activePending = null;
+        checkPendingSessionSwitch();
+      }
+      continue;
+    }
+
+    // 3. Signal detection (met cooldown)
+    if(ri - lastSignalCandleIdx < tf) continue;
+
+    const htf = rollingHTF[ri-1], atr = atrs[ri-1];
+    if(!htf || !atr || atr <= 0 || atr > params.atrMax) continue;
+    const prev1 = rollingHTF[ri-2], prev2 = rollingHTF[ri-3];
+    if(!prev1 || !prev2) continue;
+    const ema8 = e8[ri-1], ema21v = e21[ri-1], ema50v = e50[ri-1];
+    const rsi = rsis[ri-1], vwap = vwaps[ri-1];
+    if(ema8 == null || ema21v == null || vwap == null) continue;
+
+    const lookback = Math.max(tf, ri - 15*tf);
+    const htfBull = params.htfOn ? (ema21v > (e21[lookback]||ema21v)) : true;
+    const htfBear = params.htfOn ? (ema21v < (e21[lookback]||ema21v)) : true;
+
+    let swH = htf.h, swL = htf.l;
+    for(let j = ri-10; j < ri-1; j++){ const r = rollingHTF[j]; if(r){ if(r.h > swH) swH = r.h; if(r.l < swL) swL = r.l; } }
+
+    let bS=0,rS=0,bSetup='none',rSetup='none';
+    if(ema8>ema21v && ema21v>(ema50v||ema21v)) bS+=3; else if(ema8>ema21v) bS+=1;
+    if(ema8<ema21v && ema21v<(ema50v||ema21v)) rS+=3; else if(ema8<ema21v) rS+=1;
+    if(htf.c>vwap && prev1.c<=vwap) bS+=2; else if(htf.c>vwap) bS+=1;
+    if(htf.c<vwap && prev1.c>=vwap) rS+=2; else if(htf.c<vwap) rS+=1;
+    if(rsi<35) bS+=2; else if(rsi<45) bS+=1;
+    if(rsi>65) rS+=2; else if(rsi>55) rS+=1;
+    const bSweep = prev1.l < swL && htf.c > swL;
+    const rSweep = prev1.h > swH && htf.c < swH;
+    if(bSweep){bS+=4;bSetup='liquidity_sweep';} if(rSweep){rS+=4;rSetup='liquidity_sweep';}
+    const prev3 = rollingHTF[ri-4];
+    if(prev1 && prev2){
+      if(htf.c>prev1.h && prev1.l<prev2.l){bS+=3;if(bSetup==='none')bSetup='ob_retest';}
+      if(htf.c<prev1.l && prev1.h>prev2.h){rS+=3;if(rSetup==='none')rSetup='ob_retest';}
+      if(prev1.l<prev2.l && htf.l>prev1.l && htf.c>prev1.h){bS+=2;if(bSetup==='none')bSetup='fvg_fill';}
+      if(prev1.h>prev2.h && htf.h<prev1.h && htf.c<prev1.l){rS+=2;if(rSetup==='none')rSetup='fvg_fill';}
+      if(htf.c>prev1.h && prev1.c<prev2.l){bS+=2;if(bSetup==='none')bSetup='bos';}
+      if(htf.c<prev1.l && prev1.c>prev2.h){rS+=2;if(rSetup==='none')rSetup='bos';}
+    }
+    if(htf.v>(prev1?.v||0)*1.3){if(htf.c>htf.o)bS+=1;else rS+=1;}
+    if(!htfBull) bS = Math.max(0,bS-3);
+    if(!htfBear) rS = Math.max(0,rS-3);
+
+    let dir=null,score=0,setup='none';
+    if(params.dirMode!=='short' && bS>rS){dir='bull';score=bS;setup=bSetup;}
+    else if(params.dirMode!=='long' && rS>bS){dir='bear';score=rS;setup=rSetup;}
+    if(!dir || score < params.minScore) continue;
+
+    // Filter check
+    const sigPred = {score, dir, setup, signalTime: candleBuffer[ri-1].t};
+    const flt = passesFilter(sigPred);
+    if(!flt.ok) continue;
+
+    // Create pending
+    lastSignalCandleIdx = ri;
+    const slSize = params.sl * atr, tpSize = slSize * params.tp;
+    const entryPrice = snapTick(htf.c);
+    let stop, tgt;
+    if(dir==='bull'){stop=snapStopBull(entryPrice-slSize);tgt=snapTgtBull(entryPrice+tpSize);}
+    else{stop=snapStopBear(entryPrice+slSize);tgt=snapTgtBear(entryPrice-tpSize);}
+
+    activePending = {
+      id: predictions.length + 1, dir, score, setup,
+      entry: entryPrice, stop, tgt, rr: params.tp, atr: r2(atr),
+      signalTime: candleBuffer[ri-1].t, barsWaiting: 0,
+      contracts: params.contracts, created_at: candleBuffer[ri-1].t
+    };
+    predictions.push({...activePending, outcome: 'pending'});
+    warmupTrades++;
+  }
+
+  // Samenvatting
+  const closed = predictions.filter(p => p.outcome === 'WIN' || p.outcome === 'LOSS');
+  const wins = predictions.filter(p => p.outcome === 'WIN');
+  const wr = closed.length ? (wins.length/closed.length*100).toFixed(1) : '0';
+  savePredictions();
+  renderPredictions();
+  renderStats();
+  drawChart();
+  updateEngineStatus();
+
+  lg(`✅ Warmup klaar: ${warmupTrades} signalen, ${closed.length} gesloten (${wins.length}W/${closed.length-wins.length}L, ${wr}% WR)`, 'ok');
+  lg(`State: ${activeTrade ? 'TRADE OPEN #'+activeTrade.id : (activePending ? 'PENDING #'+activePending.id+' @ '+activePending.entry : 'VRIJ — klaar voor live signalen')}`, 'info');
+  isWarmingUp = false;
 }
 
 async function loadHistoryLocal(){
@@ -1415,7 +2738,11 @@ async function loadHistoryLocal(){
   try {
     const txt = await file.text();
     const candles = parseHistoryCSV(txt);
-    if(candles.length === 0) throw new Error('Geen geldige candles in CSV');
+    if(candles.length === 0){
+      const lines = txt.trim().split(/\r?\n/);
+      const sample = lines.slice(0,3).map(l => l.slice(0,150)).join('\n');
+      throw new Error(`Geen geldige candles.\n\nEerste regels:\n${sample}\n\nVerwacht: time,open,high,low,close,volume`);
+    }
 
     // Merge in candleBuffer met dedup op t
     const existing = new Set(candleBuffer.map(c => c.t));
@@ -1428,7 +2755,7 @@ async function loadHistoryLocal(){
       }
     }
     candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
-    if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
+    if(candleBuffer.length > 100000) candleBuffer = candleBuffer.slice(-100000);
 
     // Chart toont nu de laatste chartZoomCount candles met scroll-offset
     chartScrollOffset = 0;
@@ -1439,14 +2766,14 @@ async function loadHistoryLocal(){
 
     $('hist-status').innerHTML = `<span style="color:var(--bull)">✓ ${added} nieuwe candles geladen (totaal ${candleBuffer.length})</span>`;
     lg(`History CSV: ${added} candles toegevoegd, totaal ${candleBuffer.length}`, 'ok');
+    updateGridBufferInfo();
     updateScrollBar();
     drawChart();
 
-    // Run engine eenmaal op huidige buffer om eventueel direct een signaal te detecteren
+    // Warmup: draai engine door ALLE historische candles zodat state machine
+    // exact op hetzelfde punt uitkomt als de backtest
     if(candleBuffer.length >= 300){
-      // Reset cooldown zodat we niet door history gaan handelen
-      lastCloseTime = 0;
-      lg(`Engine klaar voor live signalen (cooldown reset)`, 'ok');
+      warmupEngine();
     }
   } catch(e){
     $('hist-status').innerHTML = `<span style="color:var(--bear)">✗ ${e.message}</span>`;
@@ -1462,7 +2789,11 @@ async function loadHistoryServer(){
   try {
     const txt = await file.text();
     const candles = parseHistoryCSV(txt);
-    if(candles.length === 0) throw new Error('Geen geldige candles in CSV');
+    if(candles.length === 0){
+      const lines = txt.trim().split(/\r?\n/);
+      const sample = lines.slice(0,3).map(l => l.slice(0,150)).join('\n');
+      throw new Error(`Geen geldige candles.\n\nEerste regels:\n${sample}\n\nVerwacht: time,open,high,low,close,volume`);
+    }
 
     // Push naar server in chunks van 500 om timeout te voorkomen
     const chunkSize = 500;
@@ -1494,7 +2825,7 @@ async function loadHistoryServer(){
 async function loadInitialCandles(){
   try {
     lg('Initiële candles ophalen…', 'info');
-    const r = await fetch(`${serverUrl}/candles?n=2000`);
+    const r = await fetch(`${serverUrl}/candles?n=999999`);
     const j = await r.json();
     if(j.status === 'ok' && j.data){
       // ─── MERGE met bestaande buffer (bv. CSV history) ipv overwrite ───
@@ -1508,12 +2839,13 @@ async function loadInitialCandles(){
         }
       }
       candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
-      if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
+      if(candleBuffer.length > 100000) candleBuffer = candleBuffer.slice(-100000);
 
       cBufForChart = candleBuffer; updateScrollBar();
       candleCount = candleBuffer.length;
       $('ts-candles').textContent = candleCount;
       lg(`Server merge: +${added} candles (totaal ${candleBuffer.length})`, 'ok');
+      updateGridBufferInfo();
       if(candleBuffer.length > 0) lastCandleTs = candleBuffer[candleBuffer.length-1].t;
       drawChart();
 
@@ -1547,11 +2879,38 @@ async function loadInitialCandles(){
 }
 
 // ─── POLL ───
+let lastNewCandleTime = 0;   // wall-clock ms van laatste ECHTE nieuwe candle
+let pollCount = 0;
+
 async function poll(){
   try {
     const r = await fetch(`${serverUrl}/latest`, {signal: AbortSignal.timeout(4000)});
     const j = await r.json();
     setDot('live');
+    pollCount++;
+
+    // Periodieke heartbeat log (elke ~30s = 6 polls)
+    if(pollCount % 6 === 0){
+      const secSinceNew = lastNewCandleTime > 0 ? Math.floor((Date.now() - lastNewCandleTime) / 1000) : -1;
+      const lastT = candleBuffer.length > 0 ? candleBuffer[candleBuffer.length-1].t : '?';
+      lg(`♻ Poll #${pollCount} | ${candleBuffer.length} candles | laatste: ${lastT} | ${secSinceNew > 0 ? secSinceNew+'s geleden' : 'geen nieuwe'}`, 'info');
+    }
+
+    // Stale-data check: als >90s geen nieuwe candle, toon waarschuwing
+    if(lastNewCandleTime > 0 && (Date.now() - lastNewCandleTime) > 90000){
+      const mins = Math.floor((Date.now() - lastNewCandleTime) / 60000);
+      const el = $('engine-status');
+      if(el){
+        el.className = 'engine-status waiting';
+        el.textContent = `⚠ Geen nieuwe data sinds ${mins}min — controleer Pine alerts + webhook URL`;
+      }
+    } else if(lastNewCandleTime === 0 && candleBuffer.length > 0){
+      const el = $('engine-status');
+      if(el){
+        el.className = 'engine-status waiting';
+        el.textContent = `⚠ Alleen historische data — wacht op eerste live candle van Pine`;
+      }
+    }
 
     if(j.status === 'ok' && j.data){
       const d = j.data;
@@ -1565,10 +2924,9 @@ async function poll(){
       const dt = new Date(ts);
       const tStr = dt.toISOString().slice(0,16).replace('T',' ');
 
-      // ─── DEDUP op minuut-bucket (NIET op received_at, want server kan
-      // received_at updaten binnen dezelfde minuut bij meerdere webhooks) ───
+      // ─── DEDUP op minuut-bucket ───
       if(tStr === lastCandleTs){
-        // Zelfde minuut die we al gezien hebben — alleen UI verversen, geen engine trigger
+        // Zelfde minuut — update OHLC maar trigger engine NIET
         const lastInBuf = candleBuffer.length > 0 ? candleBuffer[candleBuffer.length-1] : null;
         if(lastInBuf && lastInBuf.t === tStr){
           lastInBuf.h = Math.max(lastInBuf.h, +d.high);
@@ -1577,6 +2935,8 @@ async function poll(){
           lastInBuf.v = +d.volume;
         }
         updCandleDisplay(d);
+        drawChart();  // Hertekenecht altijd — prijs beweegt binnen de minuut
+        pulseHeartbeat();
         return;
       }
 
@@ -1611,23 +2971,43 @@ async function poll(){
         if(candleBuffer[i].t === tStr){ dupIdx = i; break; }
       }
       if(dupIdx >= 0){
-        // Update bestaande positie ipv append
+        // Update bestaande positie ipv append. Alleen loggen als OHLC echt verandert.
+        const old = candleBuffer[dupIdx];
+        const ohlcChanged = old.o !== newCandle.o || old.h !== newCandle.h || old.l !== newCandle.l || old.c !== newCandle.c;
         candleBuffer[dupIdx] = newCandle;
-        lg(`~candle ${tStr} update bestaande positie #${dupIdx} (server stuurde dup)`, 'warn');
-      } else {
-        candleBuffer.push(newCandle);
-        if(candleBuffer.length > 20000) candleBuffer = candleBuffer.slice(-20000);
-        lg(`+candle ${tStr} OHLC=${newCandle.o}/${newCandle.h}/${newCandle.l}/${newCandle.c}`, 'info');
+        if(ohlcChanged){
+          lg(`~candle ${tStr} OHLC bijgewerkt`, 'info');
+        }
+        // Geen append, geen sort, geen onNewCandle trigger — was al verwerkt
+        cBufForChart = candleBuffer;
+        updCandleDisplay(d);
+        drawChart();
+        return;
       }
+      candleBuffer.push(newCandle);
+      lastNewCandleTime = Date.now();
+      if(candleBuffer.length > 100000) candleBuffer = candleBuffer.slice(-100000);
+      lg(`+candle ${tStr} OHLC=${newCandle.o}/${newCandle.h}/${newCandle.l}/${newCandle.c}`, 'info');
       // Sorteer chronologisch (voor het geval out-of-order)
       candleBuffer.sort((a,b) => a.t.localeCompare(b.t));
-      cBufForChart = candleBuffer; updateScrollBar();
+      cBufForChart = candleBuffer;
+      // Auto-scroll naar NU als gebruiker al bij het einde zat
+      if(chartScrollOffset <= 1) chartScrollOffset = 0;
+      updateScrollBar();
 
       updCandleDisplay(d);
-      onNewCandle(newCandle);
+      pulseHeartbeat();
+      try {
+        onNewCandle(newCandle);
+      } catch(engineErr){
+        lg(`⚠ ENGINE FOUT: ${engineErr.message} (${engineErr.stack?.split('\n')[1]?.trim() || ''})`, 'err');
+      }
     }
   } catch(e){
     setDot('err');
+    if(e.name !== 'AbortError'){
+      lg(`Poll fout: ${e.message}`, 'err');
+    }
   }
 }
 
@@ -1701,6 +3081,45 @@ function updCandleDisplay(d){
     chg.textContent = (ch >= 0 ? '+' : '') + ch.toFixed(2) + ' (' + pct.toFixed(2) + '%)';
     chg.style.color = ch >= 0 ? 'var(--bull)' : 'var(--bear)';
   }
+  // Update last-data time
+  $('ts-last').textContent = new Date().toLocaleTimeString('nl-BE', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  // Update engine status
+  updateEngineStatus();
+}
+
+// ─── VISUAL HEARTBEAT: flash de CANDLES counter bij nieuwe data ───
+function pulseHeartbeat(){
+  const el = $('ts-last-wrap');
+  if(!el) return;
+  el.classList.remove('pulse');
+  void el.offsetWidth; // force reflow
+  el.classList.add('pulse');
+}
+
+// ─── ENGINE STATUS: toon of engine klaar is voor signalen ───
+const MIN_CANDLES_FOR_SIGNALS = 300;
+function updateEngineStatus(){
+  const el = $('engine-status');
+  if(!el) return;
+  const n = candleBuffer.length;
+  if(!connected && n === 0){
+    el.className = 'engine-status nocandl';
+    el.textContent = '⏳ Geen data — connect of upload CSV';
+  } else if(n < MIN_CANDLES_FOR_SIGNALS){
+    const need = MIN_CANDLES_FOR_SIGNALS - n;
+    const mins = need; // 1 candle/min
+    el.className = 'engine-status waiting';
+    el.textContent = `⏳ ${n}/${MIN_CANDLES_FOR_SIGNALS} candles — nog ${need} nodig (±${mins < 60 ? mins + 'min' : Math.ceil(mins/60) + 'u'})`;
+  } else if(activeTrade){
+    el.className = 'engine-status ready';
+    el.textContent = `🟢 ENGINE ACTIEF — trade ${activeTrade.dir.toUpperCase()} open #${activeTrade.id}`;
+  } else if(activePending){
+    el.className = 'engine-status ready';
+    el.textContent = `🟡 PENDING — wacht op fill ${activePending.dir.toUpperCase()} @ ${activePending.entry}`;
+  } else {
+    el.className = 'engine-status ready';
+    el.textContent = `🟢 ENGINE ACTIEF — ${n} candles, zoekt signalen…`;
+  }
 }
 
 // ─── CHART ───
@@ -1767,6 +3186,19 @@ function drawChart(){
     if(trade.entry < mn) mn = trade.entry;
     if(trade.entry > mx) mx = trade.entry;
   }
+  // Ook visible historische trades meenemen — alleen als signal-time in venster valt
+  // (anders blow-up bij oude trades buiten beeld)
+  const visibleTimes = new Set(candles.map(c => c.t));
+  predictions.forEach(p => {
+    if(!p.entry || !p.stop || !p.tgt) return;
+    if(!p.signalTime || !visibleTimes.has(p.signalTime.slice(0,16))) return;
+    if(p.stop < mn) mn = p.stop;
+    if(p.stop > mx) mx = p.stop;
+    if(p.tgt < mn) mn = p.tgt;
+    if(p.tgt > mx) mx = p.tgt;
+    if(p.entry < mn) mn = p.entry;
+    if(p.entry > mx) mx = p.entry;
+  });
   const rawRange = mx - mn;
   const padPx = rawRange * 0.05;
   mn -= padPx; mx += padPx;
@@ -1820,25 +3252,31 @@ function drawChart(){
   for(const s of niceLabelSteps){ if(s >= rawStepX){ labelStep = s; break; } }
 
   // Vind eerste candle waarvan de minuut deelbaar is door labelStep
-  // (zodat labels op mooie tijden vallen: 19:00, 19:15, 19:30, ...)
+  // Toont ALTIJD datum op eerste label + bij dagwissel
   const filteredLabels = [];
   let prevDay = '';
+  let firstLabel = true;
   candles.forEach((c, i) => {
     const t = c.t || '';
     if(t.length < 16) return;
-    const day = t.slice(0, 10);
-    const hr = parseInt(t.slice(11, 13));
-    const mn2 = parseInt(t.slice(14, 16));
+    // Converteer UTC naar lokaal voor display
+    const local = utcToLocal(t);
+    const day = local.slice(0, 10);
+    const hr = parseInt(local.slice(11, 13));
+    const mn2 = parseInt(local.slice(14, 16));
     const totalMin = hr * 60 + mn2;
     const isNewDay = day !== prevDay && prevDay !== '';
     const isLabelTime = labelStep <= 1 || (totalMin % labelStep === 0);
-    if(isLabelTime || isNewDay || (i === 0 && filteredLabels.length === 0)){
+    if(isLabelTime || isNewDay || firstLabel){
+      const showDate = firstLabel || isNewDay;
+      const datePart = local.slice(8, 10) + '/' + local.slice(5, 7);  // DD/MM
       filteredLabels.push({
         i,
         x: toX(i),
-        text: isNewDay ? t.slice(5, 10) + ' ' + t.slice(11, 16) : t.slice(11, 16),
-        bold: isNewDay
+        text: showDate ? datePart + ' ' + local.slice(11, 16) : local.slice(11, 16),
+        bold: showDate
       });
+      firstLabel = false;
     }
     prevDay = day;
   });
@@ -1911,19 +3349,196 @@ function drawChart(){
     }
   });
 
-  // ─── 6. ACTIVE TRADE LINES (entry, stop, target) ───
+  // ─── 6. TRADE MARKERS — alle signalen blijven in historiek zichtbaar ───
+  // Voor ELKE prediction die in het zichtbare candle-venster valt:
+  // - verticale signaal-marker (timestamp van signaal)
+  // - klein label bovenaan: dir-icoon + #id + tijd + outcome
+  // - horizontale TP en SL niveau-segmenten tussen signaal en exit
+  // - prijs-pillen voor TP en SL (kleine labels op de niveaus)
+  // - exit-marker (driehoek) op moment van WIN/LOSS
+  const candleTimeToIdx = new Map();
+  candles.forEach((c, i) => candleTimeToIdx.set(c.t, i));
+
+  const findIdx = (timeStr) => {
+    if(!timeStr) return -1;
+    if(candleTimeToIdx.has(timeStr)) return candleTimeToIdx.get(timeStr);
+    const tt = timeStr.slice(0, 16);
+    return candleTimeToIdx.has(tt) ? candleTimeToIdx.get(tt) : -1;
+  };
+  const clipX = x => Math.max(cL, Math.min(cR, x));
+
+  // Sorteer: actieve trade laatst → tekent bovenop historiek
+  const allPreds = [...predictions].sort((a, b) => {
+    const aActive = a.outcome === 'open' || a.outcome === 'pending' ? 1 : 0;
+    const bActive = b.outcome === 'open' || b.outcome === 'pending' ? 1 : 0;
+    return aActive - bActive;
+  });
+
+  // Track waar al een label staat (voorkom overlap bij signalen kort na elkaar)
+  const labelSlots = []; // array of {x, y, w, h}
+  const collides = (x, y, w, h) => labelSlots.some(s =>
+    !(x + w < s.x || x > s.x + s.w || y + h < s.y || y > s.y + s.h)
+  );
+
+  allPreds.forEach(p => {
+    if(!p.entry || !p.stop || !p.tgt) return;
+    const sigIdx = findIdx(p.signalTime);
+    if(sigIdx < 0) return;
+
+    // Eind van segment
+    let endIdx;
+    const isClosed = (p.outcome === 'WIN' || p.outcome === 'LOSS' || p.outcome === 'EXPIRED');
+    const isActive = (p.outcome === 'open' || p.outcome === 'pending');
+    if(isClosed && p.exitTime){
+      endIdx = findIdx(p.exitTime);
+      if(endIdx < 0) endIdx = candles.length - 1;
+    } else if(isActive){
+      endIdx = candles.length - 1;
+    } else {
+      endIdx = Math.min(sigIdx + 5, candles.length - 1);
+    }
+    if(endIdx <= sigIdx) endIdx = Math.min(sigIdx + 1, candles.length - 1);
+
+    const xSig = toX(sigIdx);
+    const xEnd = toX(endIdx);
+    const isWin = (p.outcome === 'WIN');
+    const isLoss = (p.outcome === 'LOSS');
+    const dirSym = p.dir === 'bull' ? '▲' : '▼';
+
+    // Outcome → kleur thema
+    const outcomeColor = isActive ? '#1d4ed8' : (isWin ? '#15803d' : (isLoss ? '#dc2626' : '#94a3b8'));
+    const outcomeBg    = isActive ? '#dbeafe' : (isWin ? '#dcfce7' : (isLoss ? '#fee2e2' : '#f1f5f9'));
+    const outcomeIcon  = isActive ? '●' : (isWin ? '✓' : (isLoss ? '✗' : '◌'));
+
+    // ─── Verticale signaal-marker (alle historiek zichtbaar) ───
+    ctx.strokeStyle = outcomeColor;
+    ctx.lineWidth = isActive ? 1.6 : 1;
+    ctx.setLineDash(isActive ? [] : [3, 3]);
+    ctx.globalAlpha = isActive ? 0.9 : 0.55;
+    ctx.beginPath();
+    ctx.moveTo(xSig, cT);
+    ctx.lineTo(xSig, cB);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1.0;
+
+    // ─── Horizontale TP/Entry/SL segmenten van signaal naar exit ───
+    const drawSeg = (price, color, isDashed) => {
+      const y = toY(price);
+      if(y < cT - 2 || y > cB + 2) return;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isActive ? 2 : 1.3;
+      ctx.globalAlpha = isActive ? 0.95 : 0.6;
+      ctx.setLineDash(isDashed ? [5, 3] : []);
+      ctx.beginPath();
+      ctx.moveTo(clipX(xSig), y);
+      ctx.lineTo(clipX(xEnd), y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1.0;
+    };
+    drawSeg(p.tgt, '#15803d', true);    // groen TP
+    drawSeg(p.entry, '#1d4ed8', false); // blauw entry
+    drawSeg(p.stop, '#dc2626', true);   // rood SL
+
+    // ─── Prijs-pillen op de TP en SL niveaus (klein, op signaal-moment) ───
+    const drawPricePill = (price, color, prefix) => {
+      const y = toY(price);
+      if(y < cT + 2 || y > cB - 2) return;
+      const txt = `${prefix} ${price.toFixed(2)}`;
+      ctx.font = 'bold 8px IBM Plex Mono';
+      const w = ctx.measureText(txt).width + 6;
+      const h = 11;
+      const x = xSig + 4;
+      ctx.globalAlpha = isActive ? 0.95 : 0.7;
+      ctx.fillStyle = color;
+      ctx.fillRect(x, y - h/2, w, h);
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(txt, x + 3, y);
+      ctx.globalAlpha = 1.0;
+    };
+    drawPricePill(p.tgt, '#15803d', 'T');
+    drawPricePill(p.stop, '#dc2626', 'S');
+
+    // ─── Signaal-label bovenaan (id + tijd + outcome) ───
+    const sigT = utcToLocalTime(p.signalTime || '');
+    const lblText = `${dirSym} #${p.id} ${sigT} ${outcomeIcon}`;
+    ctx.font = 'bold 9px IBM Plex Mono';
+    const lblW = ctx.measureText(lblText).width + 8;
+    const lblH = 14;
+    // Stack labels verticaal als ze overlappen
+    let lblY = cT + 2;
+    while(collides(xSig - lblW/2, lblY, lblW, lblH) && lblY < cT + 60){
+      lblY += lblH + 2;
+    }
+    labelSlots.push({x: xSig - lblW/2, y: lblY, w: lblW, h: lblH});
+    ctx.fillStyle = outcomeColor;
+    ctx.globalAlpha = isActive ? 1.0 : 0.85;
+    ctx.fillRect(xSig - lblW/2, lblY, lblW, lblH);
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(lblText, xSig, lblY + lblH/2 + 0.5);
+    ctx.globalAlpha = 1.0;
+
+    // ─── Exit marker (driehoek) op moment van WIN/LOSS ───
+    if(isClosed && p.exitPrice && p.exitTime){
+      const exitIdx = findIdx(p.exitTime);
+      if(exitIdx >= 0){
+        const xExit = toX(exitIdx);
+        const yExit = toY(p.exitPrice);
+        ctx.fillStyle = isWin ? '#15803d' : '#dc2626';
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if(isWin){
+          ctx.moveTo(xExit, yExit - 7);
+          ctx.lineTo(xExit - 5, yExit + 3);
+          ctx.lineTo(xExit + 5, yExit + 3);
+        } else {
+          ctx.moveTo(xExit, yExit + 7);
+          ctx.lineTo(xExit - 5, yExit - 3);
+          ctx.lineTo(xExit + 5, yExit - 3);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        // Klein P&L label naast exit marker
+        if(p.pnlPt != null){
+          const pnlTxt = (p.pnlPt >= 0 ? '+' : '') + p.pnlPt.toFixed(1);
+          ctx.font = 'bold 9px IBM Plex Mono';
+          const pw = ctx.measureText(pnlTxt).width + 5;
+          ctx.fillStyle = isWin ? '#15803d' : '#dc2626';
+          ctx.globalAlpha = 0.9;
+          ctx.fillRect(xExit + 7, yExit - 6, pw, 12);
+          ctx.fillStyle = '#ffffff';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(pnlTxt, xExit + 9, yExit);
+          ctx.globalAlpha = 1.0;
+        }
+      }
+    }
+  });
+
+  // ─── 7. ACTIEVE TRADE — extra full-width labels rechts (zoals voorheen) ───
   if(trade){
     const drawLine = (price, color, label, dashed) => {
       const y = toY(price);
       if(y < cT || y > cB) return;
+      // Stippellijn over hele breedte (nét achter de segmenten heen)
       ctx.strokeStyle = color;
-      ctx.lineWidth = 1.5;
-      ctx.setLineDash(dashed ? [6, 3] : []);
+      ctx.lineWidth = 0.8;
+      ctx.globalAlpha = 0.35;
+      ctx.setLineDash(dashed ? [6, 3] : [3, 4]);
       ctx.beginPath();
       ctx.moveTo(cL, y);
       ctx.lineTo(cR, y);
       ctx.stroke();
       ctx.setLineDash([]);
+      ctx.globalAlpha = 1.0;
       // Label rechts in een gekleurd vakje (TradingView-stijl)
       const lblText = `${label} ${price.toFixed(2)}`;
       ctx.font = 'bold 10px IBM Plex Mono';
@@ -1937,64 +3552,7 @@ function drawChart(){
     drawLine(trade.tgt, '#15803d', 'TGT', true);
     drawLine(trade.entry, '#1d4ed8', 'ENT', false);
     drawLine(trade.stop, '#dc2626', 'STP', true);
-
-    // ─── 7. ENTRY/EXIT TIJD MARKERS (verticale stippellijnen) ───
-    if(trade.entryTime){
-      // Vind candle index met deze tijd
-      const entryIdx = candles.findIndex(c => c.t === trade.entryTime);
-      if(entryIdx >= 0){
-        const x = toX(entryIdx);
-        ctx.strokeStyle = '#1d4ed8';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 3]);
-        ctx.beginPath();
-        ctx.moveTo(x, cT);
-        ctx.lineTo(x, cB);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        // Label tijd
-        ctx.fillStyle = '#1d4ed8';
-        ctx.font = 'bold 9px IBM Plex Mono';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        const lbl = `▲ ${trade.entryTime.slice(11,16)}`;
-        const lblW = ctx.measureText(lbl).width + 8;
-        ctx.fillRect(x - lblW/2, cT, lblW, 14);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(lbl, x, cT + 2);
-      }
-    }
   }
-
-  // ─── 8. RECENT EXIT MARKERS (laatste 5 closed predictions) ───
-  const recentClosed = predictions
-    .filter(p => p.exitTime && p.outcome && (p.outcome === 'WIN' || p.outcome === 'LOSS'))
-    .slice(-8);
-  recentClosed.forEach(p => {
-    const idx = candles.findIndex(c => c.t === p.exitTime);
-    if(idx < 0) return;
-    const x = toX(idx);
-    const y = toY(p.exitPrice);
-    const col = p.outcome === 'WIN' ? '#15803d' : '#dc2626';
-    ctx.fillStyle = col;
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    if(p.outcome === 'WIN'){
-      // groene driehoek omhoog
-      ctx.moveTo(x, y - 7);
-      ctx.lineTo(x - 5, y + 3);
-      ctx.lineTo(x + 5, y + 3);
-    } else {
-      // rode driehoek omlaag
-      ctx.moveTo(x, y + 7);
-      ctx.lineTo(x - 5, y - 3);
-      ctx.lineTo(x + 5, y - 3);
-    }
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-  });
 
   // ─── 9. CURRENT PRICE LABEL (rechts, gekleurd vakje) ───
   if(candles.length > 0){
@@ -2025,6 +3583,15 @@ function drawChart(){
 }
 
 window.addEventListener('resize', resizeChart);
+
+// ResizeObserver: chart hertekent automatisch als container van grootte verandert
+// (bv. door grid-layout change, window resize, etc.)
+if(typeof ResizeObserver !== 'undefined'){
+  const chartWrap = $('chart-wrap');
+  if(chartWrap){
+    new ResizeObserver(() => resizeChart()).observe(chartWrap);
+  }
+}
 
 // ─── CHART ZOOM/SCROLL HANDLERS ───
 window.chartZoom = function(factor){
@@ -2124,8 +3691,202 @@ if(canvas){
 }
 
 // ═══════════════════════════════════════════════════════════════════
+// RESET FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════
+
+function resetCandles(){
+  if(!confirm('Alle candle data wissen?\n(History backfill + live candles uit lokale buffer)\n\nServer data blijft intact — je kunt opnieuw connecten om te herladen.')) return;
+  candleBuffer = [];
+  cBufForChart = [];
+  candleCount = 0;
+  chartScrollOffset = 0;
+  lastCandleTs = '';
+  $('ts-candles').textContent = '0';
+  $('hist-status').textContent = '';
+  drawChart();
+  updateScrollBar();
+  lg('🗑 Candle buffer gewist (lokaal)', 'warn');
+}
+
+function resetPredictions(){
+  if(!confirm('Alle predictions wissen?\n(Tabel + localStorage)\n\nDit verwijdert WIN/LOSS/OPEN historiek.\nServer predictions blijven intact.')) return;
+  predictions = [];
+  activePending = null;
+  activeTrade = null;
+  signalCount = 0;
+  curOrder = null;
+  $('ts-signals').textContent = '0';
+  $('exec-wrap').classList.add('hidden');
+  savePredictions();
+  renderPredictions();
+  renderStats();
+  drawChart();
+  lg('🗑 Predictions gewist (lokaal + localStorage)', 'warn');
+}
+
+async function resetAll(){
+  if(!confirm('⚠ ALLES WISSEN?\n\n• Lokale candles\n• Lokale predictions\n• Server candle history\n• Server predictions\n\nDit is onomkeerbaar!')) return;
+  // Wis lokaal
+  candleBuffer = [];
+  cBufForChart = [];
+  candleCount = 0;
+  chartScrollOffset = 0;
+  lastCandleTs = '';
+  predictions = [];
+  activePending = null;
+  activeTrade = null;
+  signalCount = 0;
+  curOrder = null;
+  $('ts-candles').textContent = '0';
+  $('ts-signals').textContent = '0';
+  $('exec-wrap').classList.add('hidden');
+  $('hist-status').textContent = '';
+  savePredictions();
+  renderPredictions();
+  renderStats();
+  drawChart();
+  updateScrollBar();
+
+  // Wis server
+  if(connected && serverUrl){
+    try {
+      const r = await fetch(`${serverUrl}/clear?secret=${serverSecret}&keep_preds=0`, {method:'POST'});
+      const j = await r.json();
+      lg(`🗑 Server gewist: candles + predictions`, 'ok');
+    } catch(e){
+      lg('Server clear fout: '+e.message, 'err');
+    }
+  }
+  lg('🗑 ALLES GEWIST — klaar voor verse start', 'warn');
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STALE PREDICTION CLEANUP
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Bij page-reload gaan activePending/activeTrade verloren.
+ * Predictions die nog "open" of "pending" staan worden nooit meer gesloten.
+ * Deze functie markeert oude open/pending predictions als EXPIRED.
+ *
+ * Logica: als een prediction ouder is dan maxBars*tf minuten EN niet actief
+ * in de huidige state machine, dan expiren we hem.
+ */
+function cleanupStalePredictions(){
+  const params = getEngineParams();
+  const maxLifeMinutes = params.maxBars * params.tf + 5; // kleine marge
+  const now = Date.now();
+  let cleaned = 0;
+
+  predictions.forEach(p => {
+    if(p.outcome !== 'open' && p.outcome !== 'pending') return;
+    // Is dit de huidige actieve trade/pending? Dan niet aanraken.
+    if(activePending && activePending.id === p.id) return;
+    if(activeTrade && activeTrade.id === p.id) return;
+
+    // Check leeftijd
+    const sigTime = p.signalTime || p.created_at || '';
+    if(!sigTime) { p.outcome = 'EXPIRED'; p.exitReason = 'stale_cleanup'; cleaned++; return; }
+
+    let ageMin = Infinity;
+    try {
+      // signalTime is UTC "YYYY-MM-DD HH:MM"
+      const t = new Date(sigTime.replace(' ', 'T') + ':00Z').getTime();
+      if(t) ageMin = (now - t) / 60000;
+    } catch(e){}
+
+    if(ageMin > maxLifeMinutes){
+      p.outcome = 'EXPIRED';
+      p.exitReason = 'stale_cleanup';
+      cleaned++;
+    }
+  });
+
+  if(cleaned > 0){
+    savePredictions();
+    lg(`🧹 ${cleaned} verouderde OPEN/PENDING predictions → EXPIRED`, 'warn');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// XLSX EXPORT — live predictions
+// ═══════════════════════════════════════════════════════════════════
+
+function exportLivePredictions(){
+  if(!predictions.length){ alert('Geen predictions om te exporteren'); return; }
+  const params = getEngineParams();
+
+  const headers = ['#','Signaal','Entry','Exit','Duur (min)','Dir','Setup','Score',
+    'Entry '+CURRENCY,'Target','Stop','R:R','ATR','Uitkomst','P&L pt','P&L '+CURRENCY,
+    'TF','SL factor','TP factor','Max Bars','HTF','Direction'];
+  const rows = predictions.map((p,i) => {
+    const dur = p.entryTime && p.exitTime ? Math.round(
+      (new Date(p.exitTime.replace(' ','T')+':00Z') - new Date(p.entryTime.replace(' ','T')+':00Z')) / 60000
+    ) : '';
+    const pnlCur = p.pnlPt != null ? r2(p.pnlPt * PT_VALUE) : '';
+    return [
+      i+1, utcToExport(p.signalTime), utcToExport(p.entryTime), utcToExport(p.exitTime),
+      dur, p.dir === 'bull' ? 'LONG' : 'SHORT', p.setup || '', p.score || '',
+      p.entry || '', p.tgt || '', p.stop || '', p.rr || '', p.atr || '',
+      p.outcome || '', p.pnlPt != null ? p.pnlPt : '', pnlCur,
+      params.tf, params.sl, params.tp, params.maxBars,
+      params.htfOn ? 'AAN' : 'UIT', params.dirMode === 'both' ? 'L+S' : (params.dirMode === 'long' ? 'L' : 'S')
+    ];
+  });
+
+  // Probeer XLSX, anders CSV
+  if(typeof XLSX !== 'undefined'){
+    try {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      ws['!cols'] = [{wch:4},{wch:20},{wch:20},{wch:20},{wch:8},{wch:6},{wch:14},{wch:6},
+        {wch:10},{wch:10},{wch:10},{wch:5},{wch:6},{wch:8},{wch:8},{wch:8},
+        {wch:5},{wch:8},{wch:8},{wch:8},{wch:5},{wch:6}];
+      const closed = predictions.filter(p => p.outcome === 'WIN' || p.outcome === 'LOSS');
+      const wins = predictions.filter(p => p.outcome === 'WIN');
+      const pnl = closed.reduce((s,p) => s + (p.pnlPt || 0), 0);
+      const sumData = [
+        ['Live Predictions Export'],[''],['Parameter','Waarde'],
+        ['Datum', new Date().toLocaleString('nl-BE')],
+        ['Predictions', predictions.length], ['Gesloten', closed.length],
+        ['Wins', wins.length], ['Win rate', closed.length ? (wins.length/closed.length*100).toFixed(1)+'%' : '--'],
+        ['P&L pt', pnl.toFixed(1)], ['P&L '+CURRENCY, (pnl*PT_VALUE).toFixed(0)],
+        [''],['Strategie'],
+        ['Naam', getStrategyName()],
+        ['Timeframe', params.tf], ['SL × ATR', params.sl], ['TP × SL', params.tp],
+        ['ATR Max', params.atrMax], ['Max Bars', params.maxBars],
+        ['HTF Filter', params.htfOn ? 'AAN' : 'UIT'],
+        ['Direction', params.dirMode === 'both' ? 'L+S' : params.dirMode],
+      ];
+      const wsSummary = XLSX.utils.aoa_to_sheet(sumData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'Samenvatting');
+      XLSX.utils.book_append_sheet(wb, ws, 'Predictions');
+      XLSX.writeFile(wb, `Live_Predictions_${new Date().toISOString().slice(0,10)}.xlsx`);
+      lg('📥 XLSX geëxporteerd', 'ok');
+      return;
+    } catch(e){ console.error('XLSX fout:', e); }
+  }
+  // CSV fallback
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `Live_Predictions_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+}
+
+// ═══════════════════════════════════════════════════════════════════
 // FILTERS — chips + presets
 // ═══════════════════════════════════════════════════════════════════
+
+// ─── Debounced auto-rerun grid search bij filter-wijziging ───
+let gridRerunTimer = null;
+function scheduleGridRerun(){
+  if(!gridSearchHasRun || candleBuffer.length < 300) return;
+  if(gridRerunTimer) clearTimeout(gridRerunTimer);
+  gridRerunTimer = setTimeout(() => {
+    lg(`♻ Filters gewijzigd → Grid Search opnieuw…`, 'info');
+    runLiveGridSearch();
+  }, 1500);  // 1.5s debounce: wacht tot je klaar bent met klikken
+}
 
 const PRESETS = {
   off: () => {
@@ -2135,17 +3896,17 @@ const PRESETS = {
   },
   balanced: () => {
     skipScores = new Set([6]);
-    skipHours = new Set([16,17]);
+    skipHours = new Set([18,19]);
     setupMode = 'all';
   },
   quality: () => {
     skipScores = new Set([3,6]);
-    skipHours = new Set([14,16,17]);
+    skipHours = new Set([16,18,19]);
     setupMode = 'real';
   },
   strict: () => {
     skipScores = new Set([3,6]);
-    skipHours = new Set([14,16,17]);
+    skipHours = new Set([16,18,19]);
     setupMode = 'real';
   }
 };
@@ -2162,6 +3923,7 @@ function renderChips(){
       renderChips();
       saveFilters();
       renderStats();
+      scheduleGridRerun();
     };
     sChips.appendChild(el);
   });
@@ -2177,6 +3939,7 @@ function renderChips(){
       renderChips();
       saveFilters();
       renderStats();
+      scheduleGridRerun();
     };
     hChips.appendChild(el);
   });
@@ -2192,6 +3955,11 @@ document.querySelectorAll('.preset').forEach(btn => {
     renderChips();
     saveFilters();
     renderStats();
+    // Auto-rerun grid search als er al een gedraaid is
+    if(gridSearchHasRun && candleBuffer.length >= 300){
+      lg(`♻ Quality filter gewijzigd → Grid Search opnieuw draaien…`, 'info');
+      setTimeout(runLiveGridSearch, 100);
+    }
   };
 });
 
@@ -2199,6 +3967,7 @@ $('setup-filter').onchange = e => {
   setupMode = e.target.value;
   saveFilters();
   renderStats();
+  scheduleGridRerun();
 };
 
 // Save params on change
@@ -2259,7 +4028,7 @@ document.getElementById('seed-csv').addEventListener('change', async (e) => {
     });
     merged.sort((a,b) => a.t.localeCompare(b.t));
 
-    candleBuffer = merged.slice(-20000);
+    candleBuffer = merged.slice(-100000);
     cBufForChart = candleBuffer; updateScrollBar();
     candleCount = candleBuffer.length;
     $('ts-candles').textContent = candleCount;
@@ -2270,7 +4039,7 @@ document.getElementById('seed-csv').addEventListener('change', async (e) => {
     drawChart();
 
     // Reset cooldown zodat eerste live candle direct geanalyseerd wordt
-    lastCloseTime = 0;
+    lastSignalCandleIdx = -999;
 
     alert(`✓ ${seedCandles.length} candles geladen. Engine heeft nu warmup. Klik CONNECT en wacht op live candle.`);
     e.target.value = ''; // reset zodat zelfde file opnieuw geladen kan worden
@@ -2283,12 +4052,75 @@ document.getElementById('seed-csv').addEventListener('change', async (e) => {
 
 loadFilters();
 loadParams();
+
+// ── Strategie-context: update display + herlaad predictions bij param-wijziging ──
+function updateStrategyContext(){
+  const name = getStrategyName();
+  $('strat-name').textContent = '📋 ' + name;
+  const newKey = getStorageKey();
+  if(currentStorageKey && newKey !== currentStorageKey){
+    // Parameters zijn gewijzigd → wissel naar andere predictions-opslag
+    currentStorageKey = newKey;
+    predictions = [];
+    activePending = null;
+    activeTrade = null;
+    loadPredictions();
+    cleanupStalePredictions();
+    renderPredictions();
+    renderStats();
+    lg(`♻ Strategie gewisseld: ${name}`, 'info');
+  } else {
+    currentStorageKey = newKey;
+  }
+}
+updateStrategyContext();
+
+// Luister naar parameterwijzigingen
+['p-tf','p-sl','p-tp','p-atrmax','p-maxbars','p-minscore','p-htf','p-dir'].forEach(id => {
+  const el = $(id);
+  if(el) el.addEventListener('change', () => { saveParams(); updateStrategyContext(); });
+});
+
 loadPredictions();
+cleanupStalePredictions();
 renderChips();
 renderPredictions();
 renderStats();
-setTimeout(() => { resizeChart(); updateScrollBar(); }, 100);
+setTimeout(() => { resizeChart(); updateScrollBar(); updateEngineStatus(); updateRegimeStrip(); cleanupLocalStorage(); }, 100);
+
+// Update regime elke minuut
+setInterval(updateRegimeStrip, 60000);
+
+// ─── Tooltip positioning: fixed near element, shifted right ───
+document.querySelectorAll('.tip').forEach(tip => {
+  const box = tip.querySelector('.tip-box');
+  if(!box) return;
+  tip.addEventListener('mouseenter', () => {
+    const rect = tip.getBoundingClientRect();
+    // Position: to the right of the element, vertically aligned
+    let left = rect.right + 10;
+    let top = rect.top;
+    // If it would overflow right, show below instead
+    if(left + 340 > window.innerWidth){
+      left = Math.max(10, rect.left);
+      top = rect.bottom + 8;
+    }
+    // If it would overflow bottom
+    if(top + 200 > window.innerHeight){
+      top = Math.max(10, window.innerHeight - 300);
+    }
+    box.style.left = left + 'px';
+    box.style.top = top + 'px';
+  });
+});
 lg('NQ Oracle LIVE v1 ready · Klik CONNECT om te starten', 'info');
+
+// Request browser notification permission
+if('Notification' in window && Notification.permission === 'default'){
+  Notification.requestPermission().then(p => {
+    lg(`Browser notificaties: ${p}`, p === 'granted' ? 'ok' : 'warn');
+  });
+}
 
 // Auto-connect if URL fields are pre-filled
 if($('srv-url').value && $('srv-sec').value){

@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NQ Oracle — Track Record</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" async></script>
+<style>
+:root{--bg:#0f172a;--bg2:#1e293b;--bg3:#334155;--text:#e2e8f0;--muted:#94a3b8;--border:#334155;--bull:#22c55e;--bear:#ef4444;--gold:#fbbf24;--blue:#3b82f6}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px}
+body{display:flex;flex-direction:column;padding:20px 30px}
+
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.header h1{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.header h1 span{color:var(--gold)}
+.header-actions{display:flex;gap:8px;align-items:center}
+.btn{padding:8px 16px;border:1px solid var(--border);background:var(--bg2);color:var(--text);border-radius:6px;cursor:pointer;font-family:'JetBrains Mono';font-size:12px;font-weight:600;transition:all 0.15s}
+.btn:hover{background:var(--bg3);border-color:var(--muted)}
+.btn-primary{background:var(--blue);border-color:var(--blue);color:white}
+.btn-primary:hover{background:#2563eb}
+.btn-danger{background:#991b1b;border-color:#991b1b;color:white}
+.btn-danger:hover{background:#7f1d1d}
+.date-info{font-family:'JetBrains Mono';font-size:12px;color:var(--muted)}
+
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.summary-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:16px;position:relative;overflow:hidden}
+.summary-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.summary-card.off::before{background:#64748b}
+.summary-card.bal::before{background:var(--gold)}
+.summary-card.qual::before{background:var(--blue)}
+.summary-card.strict::before{background:#a855f7}
+.card-filter{font-family:'JetBrains Mono';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);margin-bottom:10px}
+.card-filter.off{color:#64748b}
+.card-filter.bal{color:var(--gold)}
+.card-filter.qual{color:var(--blue)}
+.card-filter.strict{color:#a855f7}
+.card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.card-stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.card-stat .val{font-family:'JetBrains Mono';font-size:18px;font-weight:700;margin-top:2px}
+.card-stat .val.pos{color:var(--bull)}
+.card-stat .val.neg{color:var(--bear)}
+.card-pnl{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between}
+.card-pnl .big{font-family:'JetBrains Mono';font-size:22px;font-weight:800}
+
+.total-bar{display:flex;gap:16px;align-items:center;padding:14px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:20px;flex-wrap:wrap}
+.total-bar .total-label{font-weight:700;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em}
+.total-bar .total-val{font-family:'JetBrains Mono';font-size:20px;font-weight:800}
+
+.tabs{display:flex;gap:4px;margin-bottom:16px}
+.tab{padding:8px 16px;border:1px solid var(--border);background:transparent;color:var(--muted);border-radius:6px 6px 0 0;cursor:pointer;font-family:'JetBrains Mono';font-size:12px;font-weight:600}
+.tab.active{background:var(--bg2);color:var(--text);border-bottom-color:var(--bg2)}
+
+.table-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:0 8px 8px 8px;overflow-x:auto;max-height:60vh;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono';font-size:12px}
+thead{position:sticky;top:0;z-index:1}
+th{text-align:left;padding:8px 10px;background:var(--bg3);color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:0.05em;font-weight:600;border-bottom:2px solid var(--border)}
+td{padding:6px 10px;border-bottom:1px solid rgba(51,65,85,0.5)}
+tr:hover{background:rgba(59,130,246,0.05)}
+.pos{color:var(--bull)}
+.neg{color:var(--bear)}
+.filter-tag{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:0.05em}
+.filter-tag.off{background:rgba(100,116,139,0.2);color:#94a3b8}
+.filter-tag.bal{background:rgba(251,191,36,0.15);color:#fbbf24}
+.filter-tag.qual{background:rgba(59,130,246,0.15);color:#60a5fa}
+.filter-tag.strict{background:rgba(168,85,247,0.15);color:#c084fc}
+
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:16px}
+
+@media(max-width:900px){.summary-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.summary-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📊 NQ Oracle — <span>Track Record</span></h1>
+    <div class="date-info" id="date-info">Laden…</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn" onclick="loadData()">🔄 Vernieuwen</button>
+    <button class="btn btn-primary" onclick="exportXLSX()">📥 Export XLSX</button>
+    <button class="btn btn-danger" onclick="clearTrackRecord()">🗑 Wis record</button>
+  </div>
+</div>
+
+<div id="total-bar" class="total-bar" style="display:none">
+  <span class="total-label">Totaal</span>
+  <span class="total-val" id="total-trades">—</span>
+  <span class="total-label" style="margin-left:16px">P&L</span>
+  <span class="total-val" id="total-pnl">—</span>
+</div>
+
+<div class="summary-grid" id="summary-grid"></div>
+
+<div class="tabs" id="tabs"></div>
+<div class="table-wrap" id="table-wrap">
+  <div class="empty">Nog geen trades gelogd.<br><br>Open NQ Oracle LIVE met je 4 filter-vensters.<br>Zodra trades sluiten verschijnen ze hier automatisch.</div>
+</div>
+
+<script>
+const TRACKRECORD_KEY = 'nq_trackrecord';
+const PT_VALUE = 2;
+const CURRENCY = '$';
+const FILTERS = ['OFF','BAL','QUAL','STRICT'];
+
+function utcToLocal(utcStr){
+  if(!utcStr || utcStr.length < 16) return utcStr || '--';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const da = String(d.getDate()).padStart(2,'0');
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${da}/${mo} ${hr}:${mi}`;
+}
+
+function utcToExport(utcStr){
+  if(!utcStr || utcStr.length < 16) return '';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const da = String(d.getDate()).padStart(2,'0');
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const y = d.getFullYear();
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${da}/${mo}/${y}  ${hr}:${mi}:00`;
+}
+
+let allTrades = [];
+let activeTab = 'ALL';
+
+function loadData(){
+  try {
+    allTrades = JSON.parse(localStorage.getItem(TRACKRECORD_KEY) || '[]');
+  } catch(e){ allTrades = []; }
+
+  // Sort by logged time
+  allTrades.sort((a,b) => (a.logged||'').localeCompare(b.logged||''));
+
+  const today = new Date().toISOString().slice(0,10);
+  const todayTrades = allTrades.filter(t => (t.logged||'').startsWith(today));
+
+  document.getElementById('date-info').textContent =
+    `${allTrades.length} trades totaal · ${todayTrades.length} vandaag · Laatste update: ${new Date().toLocaleTimeString('nl-BE')}`;
+
+  renderSummary();
+  renderTabs();
+  renderTable();
+}
+
+function renderSummary(){
+  const grid = document.getElementById('summary-grid');
+  const today = new Date().toISOString().slice(0,10);
+
+  let totalPnlAll = 0, totalTradesAll = 0, totalPnlToday = 0, totalTradesToday = 0;
+
+  const cards = FILTERS.map(f => {
+    const trades = allTrades.filter(t => (t.filter||'').toUpperCase() === f);
+    const todayTr = trades.filter(t => (t.logged||'').startsWith(today));
+
+    // ALL-TIME stats
+    const allClosed = trades.filter(t => t.outcome === 'WIN' || t.outcome === 'LOSS');
+    const allWins = trades.filter(t => t.outcome === 'WIN');
+    const allPnl = trades.reduce((s,t) => s + (t.pnlPt||0), 0);
+    const allPnlCur = trades.reduce((s,t) => s + (t.pnlCur||0), 0);
+    const allWr = allClosed.length ? (allWins.length/allClosed.length*100).toFixed(1) : '—';
+
+    // TODAY stats
+    const tdClosed = todayTr.filter(t => t.outcome === 'WIN' || t.outcome === 'LOSS');
+    const tdWins = todayTr.filter(t => t.outcome === 'WIN');
+    const tdPnl = todayTr.reduce((s,t) => s + (t.pnlPt||0), 0);
+    const tdPnlCur = todayTr.reduce((s,t) => s + (t.pnlCur||0), 0);
+    const tdWr = tdClosed.length ? (tdWins.length/tdClosed.length*100).toFixed(1) : '—';
+
+    totalPnlAll += allPnlCur; totalTradesAll += trades.length;
+    totalPnlToday += tdPnlCur; totalTradesToday += todayTr.length;
+
+    const fClass = f.toLowerCase();
+    const allPnlClass = allPnlCur >= 0 ? 'pos' : 'neg';
+    const tdPnlClass = tdPnlCur >= 0 ? 'pos' : 'neg';
+
+    return `
+      <div class="summary-card ${fClass}">
+        <div class="card-filter ${fClass}">${f === 'BAL' ? '★ '+f : f}</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Totaal</div>
+        <div class="card-stats">
+          <div class="card-stat"><div class="lbl">Trades</div><div class="val">${trades.length}</div></div>
+          <div class="card-stat"><div class="lbl">Win Rate</div><div class="val ${allWins.length/Math.max(1,allClosed.length)>=0.5?'pos':'neg'}">${allWr}%</div></div>
+          <div class="card-stat"><div class="lbl">W / L</div><div class="val">${allWins.length} / ${allClosed.length - allWins.length}</div></div>
+        </div>
+        <div class="card-pnl">
+          <div><div style="font-size:10px;color:var(--muted)">P&L pt</div><div class="big ${allPnlClass}">${allPnl.toFixed(1)}</div></div>
+          <div style="text-align:right"><div style="font-size:10px;color:var(--muted)">P&L ${CURRENCY}</div><div class="big ${allPnlClass}">${CURRENCY}${allPnlCur.toFixed(0)}</div></div>
+        </div>
+        ${todayTr.length > 0 ? `
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+          <div style="font-size:10px;color:var(--gold);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Vandaag</div>
+          <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:12px">
+            <span>${todayTr.length} trades</span>
+            <span>${tdWr}% WR</span>
+            <span class="${tdPnlClass}" style="font-weight:700">${tdPnl>0?'+':''}${tdPnl.toFixed(1)}pt</span>
+            <span class="${tdPnlClass}" style="font-weight:700">${CURRENCY}${tdPnlCur.toFixed(0)}</span>
+          </div>
+        </div>` : ''}
+      </div>`;
+  }).join('');
+
+  grid.innerHTML = cards;
+
+  // Total bar
+  const bar = document.getElementById('total-bar');
+  bar.style.display = 'flex';
+  document.getElementById('total-trades').textContent = `${totalTradesAll} trades totaal`;
+  const el = document.getElementById('total-pnl');
+  el.textContent = `${CURRENCY}${totalPnlAll.toFixed(0)}`;
+  el.className = 'total-val ' + (totalPnlAll >= 0 ? 'pos' : 'neg');
+
+  // Add today section to total bar if trades today
+  let todayHtml = '';
+  if(totalTradesToday > 0){
+    const tdClass = totalPnlToday >= 0 ? 'pos' : 'neg';
+    todayHtml = `<span class="total-label" style="margin-left:24px;border-left:1px solid var(--border);padding-left:16px">Vandaag</span>
+      <span class="total-val">${totalTradesToday} trades</span>
+      <span class="total-label">P&L</span>
+      <span class="total-val ${tdClass}">${CURRENCY}${totalPnlToday.toFixed(0)}</span>`;
+  }
+  const existingToday = document.getElementById('today-section');
+  if(existingToday) existingToday.remove();
+  if(todayHtml){
+    const span = document.createElement('span');
+    span.id = 'today-section';
+    span.innerHTML = todayHtml;
+    span.style.display = 'contents';
+    bar.appendChild(span);
+  }
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  const items = ['ALL', ...FILTERS];
+  tabs.innerHTML = items.map(f =>
+    `<div class="tab ${activeTab===f?'active':''}" onclick="activeTab='${f}';renderTable()">${f === 'ALL' ? 'Alle trades' : f}</div>`
+  ).join('');
+}
+
+function renderTable(){
+  const wrap = document.getElementById('table-wrap');
+  let trades = activeTab === 'ALL' ? allTrades : allTrades.filter(t => (t.filter||'').toUpperCase() === activeTab);
+
+  if(trades.length === 0){
+    wrap.innerHTML = '<div class="empty">Geen trades voor dit filter.</div>';
+    return;
+  }
+
+  // Reverse: nieuwste bovenaan
+  const sorted = [...trades].reverse();
+
+  const rows = sorted.map((t, i) => {
+    const cls = t.outcome === 'WIN' ? 'pos' : (t.outcome === 'LOSS' ? 'neg' : '');
+    const fClass = (t.filter||'off').toLowerCase();
+    const dur = t.entryTime && t.exitTime ? Math.round(
+      (new Date(t.exitTime.replace(' ','T')+':00Z') - new Date(t.entryTime.replace(' ','T')+':00Z')) / 60000
+    ) : '';
+    return `<tr>
+      <td>${sorted.length - i}</td>
+      <td><span class="filter-tag ${fClass}">${t.filter||'?'}</span></td>
+      <td>${t.session||''}</td>
+      <td>${utcToLocal(t.signalTime)}</td>
+      <td>${utcToLocal(t.entryTime)}</td>
+      <td>${utcToLocal(t.exitTime)}</td>
+      <td>${dur}</td>
+      <td>${t.dir==='bull'?'▲ L':'▼ S'}</td>
+      <td>${t.setup||''}</td>
+      <td>${t.score||''}</td>
+      <td>${t.entry||''}</td>
+      <td>${t.tgt||''}</td>
+      <td>${t.stp||''}</td>
+      <td class="${cls}" style="font-weight:700">${t.outcome||''}</td>
+      <td class="${cls}">${(t.pnlPt||0).toFixed(2)}</td>
+      <td class="${cls}">${CURRENCY}${(t.pnlCur||0).toFixed(0)}</td>
+      <td style="font-size:10px;color:var(--muted)">${t.params ? `SL${t.params.sl} TP${t.params.tp}` : ''}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>#</th><th>Filter</th><th>Sessie</th><th>Signaal</th><th>Entry</th><th>Exit</th>
+        <th>Duur</th><th>Dir</th><th>Setup</th><th>Sc</th>
+        <th>Entry ${CURRENCY}</th><th>TP</th><th>SL</th>
+        <th>Result</th><th>P&L pt</th><th>P&L ${CURRENCY}</th><th>Strategie</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  // Re-render tabs to update active state
+  renderTabs();
+}
+
+function exportXLSX(){
+  if(typeof XLSX === 'undefined'){ alert('SheetJS niet geladen'); return; }
+  if(!allTrades.length){ alert('Geen trades'); return; }
+
+  const headers = ['#','Filter','Sessie','Signaal','Entry','Exit','Duur','Dir','Setup','Score',
+    'Entry €','TP','SL','Uitkomst','P&L pt','P&L €','SL factor','TP factor','TF','ATR Max','Max Bars','Min Score','HTF'];
+
+  const rows = allTrades.map((t,i) => {
+    const dur = t.entryTime && t.exitTime ? Math.round(
+      (new Date(t.exitTime.replace(' ','T')+':00Z') - new Date(t.entryTime.replace(' ','T')+':00Z')) / 60000
+    ) : '';
+    return [
+      i+1, t.filter, t.session, utcToExport(t.signalTime), utcToExport(t.entryTime), utcToExport(t.exitTime),
+      dur, t.dir==='bull'?'LONG':'SHORT', t.setup, t.score,
+      t.entry, t.tgt, t.stp, t.outcome, t.pnlPt, t.pnlCur,
+      t.params?.sl, t.params?.tp, t.params?.tf, t.params?.atrMax, t.params?.maxBars, t.params?.minScore,
+      t.params?.htfOn ? 'AAN' : 'UIT'
+    ];
+  });
+
+  // Summary per filter
+  const sumRows = [['Track Record — Samenvatting'],[''],['Filter','Trades','Wins','Losses','Win Rate','P&L pt','P&L €']];
+  FILTERS.forEach(f => {
+    const ft = allTrades.filter(t => (t.filter||'').toUpperCase() === f);
+    const wins = ft.filter(t => t.outcome === 'WIN');
+    const losses = ft.filter(t => t.outcome === 'LOSS');
+    const pnl = ft.reduce((s,t) => s + (t.pnlPt||0), 0);
+    const pnlCur = ft.reduce((s,t) => s + (t.pnlCur||0), 0);
+    const wr = (wins.length + losses.length) ? (wins.length/(wins.length+losses.length)*100).toFixed(1)+'%' : '—';
+    sumRows.push([f, ft.length, wins.length, losses.length, wr, pnl.toFixed(1), pnlCur.toFixed(0)]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  ws['!cols'] = [{wch:4},{wch:8},{wch:14},{wch:18},{wch:18},{wch:18},{wch:6},{wch:6},{wch:14},{wch:4},
+    {wch:10},{wch:10},{wch:10},{wch:8},{wch:8},{wch:8},{wch:6},{wch:6},{wch:4},{wch:6},{wch:6},{wch:6},{wch:5}];
+  const wsSummary = XLSX.utils.aoa_to_sheet(sumRows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Samenvatting');
+  XLSX.utils.book_append_sheet(wb, ws, 'Trades');
+  XLSX.writeFile(wb, `NQ_TrackRecord_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+function clearTrackRecord(){
+  if(!confirm('⚠ ALLE trades uit het track record wissen?\n\nDit kan niet ongedaan gemaakt worden.')) return;
+  localStorage.removeItem(TRACKRECORD_KEY);
+  allTrades = [];
+  loadData();
+}
+
+// Auto-refresh elke 10 seconden
+setInterval(loadData, 10000);
+loadData();
+</script>
+</body>
+</html>

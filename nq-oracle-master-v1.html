@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NQ Oracle Master v1 — Backtest + Grid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fafafa;--card:#fff;--border:#e5e5e5;--text:#0a0a0a;--muted:#737373;
+  --green:#16a34a;--red:#dc2626;--blue:#2563eb;--amber:#d97706;--purple:#7c3aed;
+  --green-bg:#f0fdf4;--red-bg:#fef2f2;--blue-bg:#eff6ff;--amber-bg:#fffbeb;--purple-bg:#faf5ff;
+  --gray-bg:#f5f5f5;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;padding:16px}
+.app{max-width:1400px;margin:0 auto}
+header{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+header h1{font-size:22px;font-weight:700;letter-spacing:-0.02em}
+header .sub{color:var(--muted);font-size:13px;margin-top:4px}
+header .badge{display:inline-block;background:var(--text);color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 6px;border-radius:3px;margin-left:8px;letter-spacing:0.04em}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:14px}
+.card h2{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;color:var(--muted)}
+.card h2 .num{display:inline-block;width:20px;height:20px;background:var(--text);color:#fff;border-radius:50%;text-align:center;line-height:20px;font-size:11px;margin-right:6px;font-family:'IBM Plex Mono',monospace}
+
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:90px}
+.field label{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em}
+input[type=text],input[type=number],select{font-family:'IBM Plex Mono',monospace;font-size:13px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;background:#fff;width:100%}
+input[type=file]{font-size:12px}
+input[type=text]:focus,input[type=number]:focus,select:focus{outline:none;border-color:var(--text)}
+
+.btn{font-family:'Inter',sans-serif;font-size:13px;font-weight:600;padding:8px 14px;border:1px solid var(--border);background:#fff;border-radius:4px;cursor:pointer;transition:all 0.15s}
+.btn:hover{background:var(--gray-bg)}
+.btn-primary{background:var(--text);color:#fff;border-color:var(--text)}
+.btn-primary:hover{background:#262626}
+.btn-primary:disabled{background:#a3a3a3;cursor:not-allowed;border-color:#a3a3a3}
+.btn-sm{font-size:11px;padding:4px 8px}
+.btn-ghost{border-color:transparent;background:transparent}
+.btn-ghost:hover{background:var(--gray-bg)}
+
+.toggle-group{display:flex;gap:0;border:1px solid var(--border);border-radius:4px;overflow:hidden;width:fit-content}
+.toggle-group button{padding:6px 12px;border:none;background:#fff;cursor:pointer;font-family:inherit;font-size:12px;font-weight:500;color:var(--muted);border-right:1px solid var(--border)}
+.toggle-group button:last-child{border-right:none}
+.toggle-group button.active{background:var(--text);color:#fff}
+
+.preset-group{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.preset{padding:6px 10px;border:1px solid var(--border);background:#fff;border-radius:4px;cursor:pointer;font-size:11px;font-weight:600;color:var(--text);transition:all 0.15s}
+.preset:hover{background:var(--gray-bg)}
+.preset.active{background:var(--text);color:#fff;border-color:var(--text)}
+.preset .desc{display:block;font-weight:400;font-size:10px;opacity:0.7;margin-top:2px}
+
+.chip-group{display:flex;flex-wrap:wrap;gap:4px}
+.chip{padding:4px 10px;border:1px solid var(--border);background:#fff;border-radius:14px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;user-select:none}
+.chip:hover{background:var(--gray-bg)}
+.chip.skip{background:var(--red-bg);color:var(--red);border-color:var(--red);text-decoration:line-through}
+.chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+
+.help{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.4}
+
+.progress{margin-top:8px;display:none}
+.progress.show{display:block}
+.progress-bar{height:6px;background:var(--gray-bg);border-radius:3px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--text);transition:width 0.2s}
+.progress-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+
+.results{margin-top:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:14px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:6px;padding:10px}
+.stat .lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.04em;font-weight:600}
+.stat .val{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;margin-top:2px}
+.stat.pos .val{color:var(--green)}
+.stat.neg .val{color:var(--red)}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:12px;overflow-x:auto}
+.tab{padding:8px 14px;border:none;background:transparent;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tab.active{color:var(--text);border-bottom-color:var(--text)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px}
+table th{text-align:left;padding:6px 8px;background:var(--gray-bg);border-bottom:1px solid var(--border);font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted);position:sticky;top:0;cursor:pointer;user-select:none}
+table th:hover{background:#ebebeb}
+table th.sorted{color:var(--text)}
+table th.sorted::after{content:' ↓';color:var(--text)}
+.filter-row td{padding:2px 3px;background:#f8fafc;border-bottom:2px solid var(--border)}
+.col-filter{width:100%;padding:3px 4px;border:1px solid #e2e8f0;border-radius:3px;font-family:'IBM Plex Mono';font-size:10px;text-align:center;background:white;box-sizing:border-box}
+.col-filter:focus{border-color:var(--blue);outline:none;box-shadow:0 0 0 2px rgba(59,130,246,0.15)}
+select.col-filter{padding:2px 2px;cursor:pointer}
+table th.sorted.asc::after{content:' ↑'}
+table td{padding:5px 8px;border-bottom:1px solid #f0f0f0}
+table tr:hover{background:#fafafa}
+table tr.clickable{cursor:pointer}
+table tr.clickable:hover{background:var(--blue-bg)}
+
+.tbl-wrap{max-height:600px;overflow:auto;border:1px solid var(--border);border-radius:6px}
+
+.win{color:var(--green);font-weight:600}
+.loss{color:var(--red);font-weight:600}
+.exp{color:var(--amber);font-weight:600}
+.pos{color:var(--green)}
+.neg{color:var(--red)}
+
+.dir-bull{color:var(--green);font-weight:600}
+.dir-bear{color:var(--red);font-weight:600}
+
+.setup-badge{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600}
+.setup-ob_retest{background:var(--blue-bg);color:var(--blue)}
+.setup-liquidity_sweep{background:var(--purple-bg);color:var(--purple)}
+.setup-fvg_fill{background:var(--amber-bg);color:var(--amber)}
+.setup-bos{background:var(--green-bg);color:var(--green)}
+.setup-none{background:var(--gray-bg);color:var(--muted)}
+
+.score-badge{display:inline-block;width:24px;text-align:center;padding:1px;border-radius:3px;font-weight:600;font-size:11px}
+.score-low{background:var(--red-bg);color:var(--red)}
+.score-mid{background:var(--amber-bg);color:var(--amber)}
+.score-high{background:var(--green-bg);color:var(--green)}
+
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:30px 16px;overflow-y:auto}
+.modal.show{display:flex}
+.modal-content{background:#fff;border-radius:8px;max-width:1280px;width:100%;padding:20px;max-height:calc(100vh - 60px);overflow-y:auto}
+.modal-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.modal-header h3{font-size:18px;font-weight:700}
+.modal-header .params{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:4px}
+.modal-close{background:transparent;border:none;font-size:24px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-close:hover{color:var(--text)}
+
+.log{background:#0a0a0a;color:#a3a3a3;font-family:'IBM Plex Mono',monospace;font-size:11px;padding:10px;border-radius:6px;max-height:140px;overflow-y:auto;margin-top:12px}
+.log .info{color:#a3a3a3}
+.log .ok{color:#4ade80}
+.log .warn{color:#fbbf24}
+.log .err{color:#f87171}
+
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.empty h3{font-size:16px;margin-bottom:6px;color:var(--text)}
+.empty p{font-size:13px}
+
+.legend-box{background:var(--blue-bg);border:1px solid var(--blue);border-radius:6px;padding:10px;font-size:11px;color:var(--text);margin-bottom:12px}
+.legend-box strong{font-weight:600}
+
+@media (max-width:768px){
+  .card{padding:12px}
+  .stat .val{font-size:14px}
+  table{font-size:10px}
+  table th,table td{padding:4px 6px}
+}
+</style>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+<div class="app">
+
+<header>
+  <h1>NQ Oracle Master <span class="badge">v1</span></h1>
+  <p class="sub">Grid Search + Backtest in één tool · v13 rolling window logica · data-driven filters</p>
+</header>
+
+<!-- ═══════ 1. CSV UPLOAD ═══════ -->
+<div class="card">
+  <h2><span class="num">1</span>CSV Data</h2>
+  <div class="row">
+    <div class="field" style="flex:1;min-width:280px">
+      <label>1-min OHLCV CSV (TradingView export)</label>
+      <input type="file" id="csv-input" accept=".csv">
+    </div>
+    <div class="field"><label>Status</label><span id="file-info" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted)">Geen bestand</span></div>
+  </div>
+</div>
+
+<!-- ═══════ 2. MODE TOGGLE ═══════ -->
+<div class="card">
+  <h2><span class="num">2</span>Mode</h2>
+  <div class="toggle-group" id="mode-toggle">
+    <button data-mode="single" class="active">Single Backtest</button>
+    <button data-mode="grid">Grid Search</button>
+  </div>
+  <p class="help">Single = test 1 parameterset. Grid = test honderden combinaties, klik op resultaat voor details.</p>
+</div>
+
+<!-- ═══════ 3. STRATEGY PARAMS ═══════ -->
+<div class="card">
+  <h2><span class="num">3</span>Strategy Parameters</h2>
+
+  <!-- Single mode -->
+  <div id="single-params">
+    <div class="row">
+      <div class="field"><label>Timeframe (min)</label><input type="number" id="s-tf" value="5" min="1" max="60"></div>
+      <div class="field"><label>SL × ATR</label><input type="number" id="s-sl" value="1.0" step="0.1" min="0.3"></div>
+      <div class="field"><label>TP × SL</label><input type="number" id="s-tp" value="1.5" step="0.1" min="0.5"></div>
+      <div class="field"><label>ATR Max</label><input type="number" id="s-atrmax" value="26" min="5"></div>
+      <div class="field"><label>Max Open Bars</label><input type="number" id="s-maxbars" value="19" min="3"></div>
+      <div class="field"><label>Min Score</label><input type="number" id="s-minscore" value="4" min="1" max="15"></div>
+      <div class="field"><label>HTF Trend Filter</label>
+        <select id="s-htf"><option value="yes">AAN</option><option value="no">UIT</option></select>
+      </div>
+      <div class="field"><label>Direction</label>
+        <select id="s-dir"><option value="both">LONG + SHORT</option><option value="long">LONG only</option><option value="short">SHORT only</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid mode -->
+  <div id="grid-params" hidden>
+    <div class="row">
+      <div class="field"><label>Timeframes</label><input type="text" id="g-tf" value="5"></div>
+      <div class="field"><label>SL × ATR (lijst)</label><input type="text" id="g-sl" value="0.8,1.0,1.2,1.5"></div>
+      <div class="field"><label>TP × SL (lijst)</label><input type="text" id="g-tp" value="1.3,1.5,1.8,2.0"></div>
+      <div class="field"><label>ATR Max (lijst)</label><input type="text" id="g-atrmax" value="22,26,30"></div>
+      <div class="field"><label>Max Bars (lijst)</label><input type="text" id="g-maxbars" value="12,19,24"></div>
+      <div class="field"><label>Min Score (lijst)</label><input type="text" id="g-minscore" value="4,5"></div>
+      <div class="field"><label>HTF Filter (lijst)</label><input type="text" id="g-htf" value="yes,no"></div>
+      <div class="field"><label>Direction (lijst)</label><input type="text" id="g-dir" value="both"></div>
+    </div>
+    <p class="help" id="grid-combos">Combinaties: <strong>—</strong></p>
+  </div>
+</div>
+
+<!-- ═══════ 4. DATA-DRIVEN FILTERS ═══════ -->
+<div class="card">
+  <h2><span class="num">4</span>Quality Filters <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">(data-driven, gebaseerd op v13 analyse)</span></h2>
+
+  <div class="legend-box">
+    <strong>Wat de v13 analyse leerde:</strong> Score 6 = anomalie (-2.25 EV). Setup 'none' = laag (+1.07 EV).
+    Uren 16/18/19 (Belgische tijd) = NY chop, samen -10 tot -17 EV. Met juiste filters: 42% → 51% WR.
+  </div>
+
+  <div class="preset-group">
+    <button class="preset" data-preset="off">Geen filters
+      <span class="desc">Pure v13: ~42% WR, alle trades</span>
+    </button>
+    <button class="preset active" data-preset="balanced">Balanced ★
+      <span class="desc">Skip score 6 + uren 16/17: ~46% WR</span>
+    </button>
+    <button class="preset" data-preset="quality">High Quality
+      <span class="desc">+ skip 'none' setup: ~51% WR</span>
+    </button>
+    <button class="preset" data-preset="strict">Strict (max WR)
+      <span class="desc">+ skip Wed/Thu: ~52% WR</span>
+    </button>
+  </div>
+
+  <div class="row" style="align-items:flex-start;gap:20px">
+
+    <div style="flex:1;min-width:240px">
+      <div class="field" style="margin-bottom:8px"><label>Skip scores (klik om te wisselen)</label></div>
+      <div class="chip-group" id="score-chips"></div>
+    </div>
+
+    <div style="flex:1;min-width:240px">
+      <div class="field" style="margin-bottom:8px"><label>Setup filter</label></div>
+      <select id="setup-filter">
+        <option value="all">Alle setups (incl. 'none')</option>
+        <option value="real">Alleen echte setups (skip 'none')</option>
+        <option value="ob_only">Alleen ob_retest</option>
+        <option value="ob_sweep">ob_retest + liquidity_sweep</option>
+      </select>
+    </div>
+
+  </div>
+
+  <div class="row" style="align-items:flex-start;gap:20px;margin-top:14px">
+
+    <div style="flex:1;min-width:280px">
+      <div class="field" style="margin-bottom:8px"><label>Skip uren (Belgische tijd, klik om te wisselen)</label></div>
+      <div class="chip-group" id="hour-chips"></div>
+      <p class="help">Uren in Belgische tijd. 18h-19h = NY middag chop (vermijden).</p>
+    </div>
+
+    <div style="flex:1;min-width:240px">
+      <div class="field" style="margin-bottom:8px"><label>Days of week</label></div>
+      <div class="chip-group" id="day-chips"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ 5. COSTS ═══════ -->
+<div class="card">
+  <h2><span class="num">5</span>Trading Costs (MNQ)</h2>
+  <div class="row">
+    <div class="field"><label>Contracts</label><input type="number" id="contracts" value="1" min="1"></div>
+    <div class="field"><label>Commission ($/round trip)</label><input type="number" id="commission" value="3.00" step="0.10" min="0"></div>
+    <div class="field" style="flex:1"><label>&nbsp;</label>
+      <p class="help" style="margin-top:0">MNQ tickwaarde: $2/punt. $3/trade = 1.5 pt.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ 6. RUN ═══════ -->
+<div class="card">
+  <div class="row">
+    <button class="btn btn-primary" id="btn-run" style="font-size:14px;padding:10px 20px">▶ START</button>
+    <button class="btn" id="btn-demo">Demo Data</button>
+  </div>
+  <div class="progress" id="progress">
+    <div class="progress-bar"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="progress-text" id="prog-text">Wachten…</div>
+  </div>
+  <div class="log" id="log" style="display:none"></div>
+</div>
+
+<!-- ═══════ 7. RESULTS ═══════ -->
+<div id="results" class="results">
+  <div class="empty">
+    <h3>Nog geen resultaten</h3>
+    <p>Upload een CSV en klik START</p>
+  </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="modal-content" id="modal-content"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
+let rawCandles = [];
+let lastResults = null; // last single backtest result
+let lastGrid = null;    // last grid result {results, configs}
+let currentMode = 'single';
+
+const SCORES = [3,4,5,6,7,8,9,10,11,12];
+const HOURS  = Array.from({length:24}, (_,i)=>i);
+const DAYS   = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+
+// Filter state
+let skipScores = new Set();
+let skipHours  = new Set();
+let activeDays = new Set([0,1,2,3,4,5,6]); // dow indices
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function r2(v){ return Math.round(v*100)/100; }
+
+// ── Timezone helpers: UTC → lokale browser-tijd (= Belgisch) ──
+function utcToLocal(utcStr){
+  if(!utcStr || utcStr.length < 16) return utcStr || '--';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0');
+  const da = String(d.getDate()).padStart(2,'0');
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${y}-${mo}-${da} ${hr}:${mi}`;
+}
+function utcToLocalTime(utcStr){
+  if(!utcStr || utcStr.length < 16) return '--';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr.slice(11,16);
+  return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function utcToLocalHour(utcStr){
+  if(!utcStr || utcStr.length < 16) return -1;
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  return isNaN(d) ? parseInt(utcStr.slice(11,13)) : d.getHours();
+}
+// Export formaat: "21/04/2026  17:55:00"
+function utcToExport(utcStr){
+  if(!utcStr || utcStr.length < 16) return '';
+  const d = new Date(utcStr.replace(' ','T') + ':00Z');
+  if(isNaN(d)) return utcStr;
+  const da = String(d.getDate()).padStart(2,'0');
+  const mo = String(d.getMonth()+1).padStart(2,'0');
+  const y = d.getFullYear();
+  const hr = String(d.getHours()).padStart(2,'0');
+  const mi = String(d.getMinutes()).padStart(2,'0');
+  return `${da}/${mo}/${y}  ${hr}:${mi}:00`;
+}
+
+// ── Tick-snapping (identiek aan live engine) ──
+const TICK_SIZE = 0.25;  // MNQ: 0.25pt per tick
+const snapTick = v => Math.round(v / TICK_SIZE) * TICK_SIZE;
+function snapStopBull(v){ return Math.floor(v / TICK_SIZE) * TICK_SIZE; }
+function snapStopBear(v){ return Math.ceil(v / TICK_SIZE) * TICK_SIZE; }
+function snapTgtBull(v){ return Math.floor(v / TICK_SIZE) * TICK_SIZE; }
+function snapTgtBear(v){ return Math.ceil(v / TICK_SIZE) * TICK_SIZE; }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function $(id){ return document.getElementById(id); }
+function lg(msg, type='info'){
+  const log = $('log');
+  log.style.display='block';
+  const div = document.createElement('div');
+  div.className = type;
+  div.textContent = msg;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function setProg(pct, text){
+  $('progress').classList.add('show');
+  $('prog-fill').style.width = pct+'%';
+  $('prog-text').textContent = text;
+}
+function fmt(v, dec=1){ return v==null||isNaN(v) ? '—' : v.toFixed(dec); }
+function fmtPct(v){ return v==null||isNaN(v) ? '—' : v.toFixed(1)+'%'; }
+function scoreBadge(s){
+  const cls = s<=4 ? 'score-low' : (s<=6 ? 'score-mid' : 'score-high');
+  return `<span class="score-badge ${cls}">${s}</span>`;
+}
+function setupBadge(s){
+  const safe = s.replace(/[^a-z_]/g,'');
+  return `<span class="setup-badge setup-${safe}">${s}</span>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CSV PARSER (zoals v13/v20 — geen tijdzone conversie)
+// ═══════════════════════════════════════════════════════════════════
+function parseCSV(txt){
+  const lines = txt.trim().split(/\r?\n/);
+  const h = lines[0].replace(/"/g,'').toLowerCase().split(',');
+  const gi = k => h.findIndex(x => x.trim() === k || x.trim().includes(k));
+  const ti = gi('time'), oi = gi('open'), hi = gi('high'), li = gi('low'), ci = gi('close'), vi = gi('volume');
+  if(ci < 0) throw new Error('Kolommen niet herkend (verwacht: time,open,high,low,close,volume)');
+  const out = [];
+  for(let i=1; i<lines.length; i++){
+    const c = lines[i].replace(/"/g,'').split(',');
+    if(!c[ci]) continue;
+    let ts = (c[ti]||'').trim();
+    // UNIX timestamp → string ZONDER tijdzone conversie (CSV is al lokale tijd)
+    if(/^\d{9,11}$/.test(ts)){
+      const d = new Date(+ts * 1000);
+      const y = d.getUTCFullYear();
+      const mo = String(d.getUTCMonth()+1).padStart(2,'0');
+      const da = String(d.getUTCDate()).padStart(2,'0');
+      const hr = String(d.getUTCHours()).padStart(2,'0');
+      const mi = String(d.getUTCMinutes()).padStart(2,'0');
+      ts = `${y}-${mo}-${da} ${hr}:${mi}`;
+    }
+    const o = +c[oi]||0, hv = +c[hi]||0, lv = +c[li]||0, cv = +c[ci]||0;
+    if(cv > 0) out.push({t:ts, o, h:hv, l:lv, c:cv, v:+(c[vi]||c[6]||100)});
+  }
+  return out;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INDICATORS (v13 stijl, op rolling HTF)
+// ═══════════════════════════════════════════════════════════════════
+function calcRollingHTF(rawCandles, endIdx, period){
+  const startIdx = Math.max(0, endIdx - period + 1);
+  if(endIdx - startIdx + 1 < period) return null;
+  let h = -Infinity, l = Infinity, vol = 0;
+  for(let i = startIdx; i <= endIdx; i++){
+    if(rawCandles[i].h > h) h = rawCandles[i].h;
+    if(rawCandles[i].l < l) l = rawCandles[i].l;
+    vol += rawCandles[i].v || 0;
+  }
+  return {
+    t: rawCandles[endIdx].t,
+    o: rawCandles[startIdx].o,
+    h, l,
+    c: rawCandles[endIdx].c,
+    v: vol
+  };
+}
+
+// EMA smoothing factor
+function emaUpdate(prev, val, period){
+  const k = 2/(period+1);
+  return prev == null ? val : prev * (1-k) + val * k;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// CORE BACKTEST (v13 rolling logica, exact zoals proven)
+// Returns { trades, summary }
+// ═══════════════════════════════════════════════════════════════════
+async function runBacktestCore(params, progressCb){
+  const tf = params.tf;
+  const slMlt = params.sl;
+  const tpMlt = params.tp;
+  const atrMax = params.atrMax;
+  const maxB = params.maxBars;
+  const minSc = params.minScore;
+  const htfOn = params.htfOn;
+  const dirMode = params.dirMode;
+  const contracts = params.contracts || 1;
+  const commUSD = params.commission || 3.00;
+  const commPts = (commUSD * contracts) / 2; // MNQ: 1pt = $2 (per contract)
+
+  const N = rawCandles.length;
+  if(N < tf + 50) return { trades: [], summary: {n:0} };
+
+  // === Pre-bereken rolling HTF candles ===
+  const rollingHTF = new Array(N).fill(null);
+  for(let i = tf - 1; i < N; i++){
+    rollingHTF[i] = calcRollingHTF(rawCandles, i, tf);
+    if(progressCb && i % 5000 === 0) await sleep(0);
+  }
+
+  // === Bereken indicatoren op rolling HTF candles (per minuut) ===
+  const atrs = new Array(N).fill(0);
+  const e8   = new Array(N).fill(null);
+  const e21  = new Array(N).fill(null);
+  const e50  = new Array(N).fill(null);
+  const rsis = new Array(N).fill(50);
+  const vwaps= new Array(N).fill(null);
+
+  // Wilder ATR proxy: gebruik HTF range als basis
+  // EMA running update voor alle 3 EMAs
+  // RSI met Wilder smoothing op HTF closes
+  let avgGain = 0, avgLoss = 0, rsiInited = false;
+  let cumPV = 0, cumV = 0;
+
+  for(let i = tf - 1; i < N; i++){
+    const htf = rollingHTF[i];
+    if(!htf) continue;
+
+    // ATR = simpele HTF range met Wilder smoothing
+    const tr = htf.h - htf.l;
+    atrs[i] = i === tf - 1 ? tr : (atrs[i-1] * 13 + tr) / 14;
+
+    // EMA op rolling HTF close
+    e8[i]  = emaUpdate(e8[i-1],  htf.c, 8);
+    e21[i] = emaUpdate(e21[i-1], htf.c, 21);
+    e50[i] = emaUpdate(e50[i-1], htf.c, 50);
+
+    // RSI op HTF closes (Wilder)
+    if(i > tf - 1){
+      const prevHTF = rollingHTF[i-1];
+      if(prevHTF){
+        const ch = htf.c - prevHTF.c;
+        const gain = ch > 0 ? ch : 0;
+        const loss = ch < 0 ? -ch : 0;
+        if(!rsiInited){
+          avgGain = gain; avgLoss = loss; rsiInited = true;
+        } else {
+          avgGain = (avgGain * 13 + gain) / 14;
+          avgLoss = (avgLoss * 13 + loss) / 14;
+        }
+        if(avgLoss === 0) rsis[i] = 100;
+        else {
+          const rs = avgGain / avgLoss;
+          rsis[i] = 100 - 100 / (1 + rs);
+        }
+      }
+    }
+
+    // VWAP — typical price * volume cumulatief, per kalenderdag reset
+    const day = htf.t.slice(0,10);
+    if(i === tf - 1 || rollingHTF[i-1] == null || rollingHTF[i-1].t.slice(0,10) !== day){
+      cumPV = 0; cumV = 0;
+    }
+    const tp = (htf.h + htf.l + htf.c) / 3;
+    const vol = htf.v || 1;
+    cumPV += tp * vol;
+    cumV  += vol;
+    vwaps[i] = cumV > 0 ? cumPV / cumV : tp;
+  }
+
+  // === Trade execution loop (1-min granularity, limit-style entry zoals v13) ===
+  const trades = [];
+  const maxBarsRaw = maxB * tf;
+  let pendingSetup = null;
+  let activeTrade = null;
+  let tradeExpireIdx = 0;
+  let lastSignalIdx = -999;
+
+  for(let ri = tf; ri < N; ri++){
+    if(progressCb && ri % 2000 === 0){
+      await progressCb(ri / N);
+    }
+
+    const rc = rawCandles[ri];
+
+    // (1) ACTIVE TRADE: check exit op 1-min basis
+    if(activeTrade){
+      let exited = false;
+      if(activeTrade.dir === 'bull'){
+        if(rc.l <= activeTrade.stp){
+          activeTrade.outcome = 'LOSS';
+          activeTrade.pnl = activeTrade.stp - activeTrade.entry;
+          activeTrade.exitTime = rc.t;
+          exited = true;
+        } else if(rc.h >= activeTrade.tgt){
+          activeTrade.outcome = 'WIN';
+          activeTrade.pnl = activeTrade.tgt - activeTrade.entry;
+          activeTrade.exitTime = rc.t;
+          exited = true;
+        }
+      } else {
+        if(rc.h >= activeTrade.stp){
+          activeTrade.outcome = 'LOSS';
+          activeTrade.pnl = activeTrade.entry - activeTrade.stp;
+          activeTrade.exitTime = rc.t;
+          exited = true;
+        } else if(rc.l <= activeTrade.tgt){
+          activeTrade.outcome = 'WIN';
+          activeTrade.pnl = activeTrade.entry - activeTrade.tgt;
+          activeTrade.exitTime = rc.t;
+          exited = true;
+        }
+      }
+      if(!exited && ri >= tradeExpireIdx){
+        activeTrade.outcome = 'EXPIRED';
+        activeTrade.pnl = activeTrade.dir === 'bull' ? rc.c - activeTrade.entry : activeTrade.entry - rc.c;
+        activeTrade.exitTime = rc.t;
+        exited = true;
+      }
+      if(exited){
+        trades.push(activeTrade);
+        activeTrade = null;
+      }
+      continue;
+    }
+
+    // (2) PENDING SETUP: check of entry-prijs geraakt wordt op deze 1-min candle (limit order)
+    if(pendingSetup){
+      let filled = false;
+      if(pendingSetup.dir === 'bull'){
+        if(rc.h >= pendingSetup.entry) filled = true;
+      } else {
+        if(rc.l <= pendingSetup.entry) filled = true;
+      }
+      if(!filled && ri >= pendingSetup.expireIdx){
+        pendingSetup = null; // setup verlopen
+        continue;
+      }
+      if(!filled) continue;
+
+      pendingSetup.entryTime = rc.t;
+      pendingSetup.entryIdx = ri;
+
+      // Direct stop check binnen entry candle (worst case)
+      let directStop = false, directTgt = false;
+      if(pendingSetup.dir === 'bull'){
+        if(rc.l <= pendingSetup.stp) directStop = true;
+        else if(rc.h >= pendingSetup.tgt) directTgt = true;
+      } else {
+        if(rc.h >= pendingSetup.stp) directStop = true;
+        else if(rc.l <= pendingSetup.tgt) directTgt = true;
+      }
+
+      if(directStop){
+        pendingSetup.outcome = 'LOSS';
+        pendingSetup.pnl = pendingSetup.dir === 'bull'
+          ? pendingSetup.stp - pendingSetup.entry
+          : pendingSetup.entry - pendingSetup.stp;
+        pendingSetup.exitTime = rc.t;
+        trades.push(pendingSetup);
+        pendingSetup = null;
+      } else if(directTgt){
+        pendingSetup.outcome = 'WIN';
+        pendingSetup.pnl = pendingSetup.dir === 'bull'
+          ? pendingSetup.tgt - pendingSetup.entry
+          : pendingSetup.entry - pendingSetup.tgt;
+        pendingSetup.exitTime = rc.t;
+        trades.push(pendingSetup);
+        pendingSetup = null;
+      } else {
+        activeTrade = pendingSetup;
+        tradeExpireIdx = ri + maxBarsRaw;
+        pendingSetup = null;
+      }
+      continue;
+    }
+
+    // (3) NIEUW SIGNAAL op rolling HTF van vorige minuut
+    const htf = rollingHTF[ri - 1];
+    const atr = atrs[ri - 1];
+    if(!htf || !atr || atr <= 0 || atr > atrMax) continue;
+    if(ri - lastSignalIdx < tf) continue; // cooldown
+
+    const prev1 = rollingHTF[ri - 2];
+    const prev2 = rollingHTF[ri - 3];
+    const prev3 = rollingHTF[ri - 4];
+    if(!prev1 || !prev2) continue;
+
+    const ema8 = e8[ri - 1], ema21 = e21[ri - 1], ema50 = e50[ri - 1];
+    const rsi = rsis[ri - 1], vwap = vwaps[ri - 1];
+    if(ema8 == null || ema21 == null || vwap == null) continue;
+
+    // HTF trend filter
+    const lookback = Math.max(tf, ri - 15 * tf);
+    const ema21Old = e21[lookback] || ema21;
+    const htfBull = htfOn ? (ema21 > ema21Old) : true;
+    const htfBear = htfOn ? (ema21 < ema21Old) : true;
+
+    // Swing levels over laatste 10 HTF candles
+    let swH = htf.h, swL = htf.l;
+    for(let j = ri - 10; j < ri - 1; j++){
+      const r = rollingHTF[j];
+      if(r){
+        if(r.h > swH) swH = r.h;
+        if(r.l < swL) swL = r.l;
+      }
+    }
+
+    let bScore = 0, rScore = 0, bSetup = 'none', rSetup = 'none';
+
+    // 1. EMA alignment
+    if(ema8 > ema21 && ema21 > (ema50 || ema21)) bScore += 3;
+    else if(ema8 > ema21) bScore += 1;
+    if(ema8 < ema21 && ema21 < (ema50 || ema21)) rScore += 3;
+    else if(ema8 < ema21) rScore += 1;
+
+    // 2. VWAP
+    if(htf.c > vwap && prev1.c <= vwap) bScore += 2;
+    else if(htf.c > vwap) bScore += 1;
+    if(htf.c < vwap && prev1.c >= vwap) rScore += 2;
+    else if(htf.c < vwap) rScore += 1;
+
+    // 3. RSI
+    if(rsi < 35) bScore += 2; else if(rsi < 45) bScore += 1;
+    if(rsi > 65) rScore += 2; else if(rsi > 55) rScore += 1;
+
+    // 4. Liquidity sweep (sterkste signaal)
+    const bSweep = htf.l < prev1.l && htf.l < prev2.l && htf.c > prev1.l && htf.c > htf.o;
+    const rSweep = htf.h > prev1.h && htf.h > prev2.h && htf.c < prev1.h && htf.c < htf.o;
+    if(bSweep){ bScore += 4; bSetup = 'liquidity_sweep'; }
+    if(rSweep){ rScore += 4; rSetup = 'liquidity_sweep'; }
+
+    // 5. Order block retest
+    const bOBbig = prev2.c > prev2.o && (prev2.c - prev2.o) > atr * 0.5;
+    const refOB = prev3 || prev2;
+    if(bOBbig && htf.l <= refOB.h && htf.l >= refOB.l && htf.c > htf.o && ema8 > ema21){
+      bScore += 3; if(bSetup === 'none') bSetup = 'ob_retest';
+    }
+    const rOBbig = prev2.c < prev2.o && (prev2.o - prev2.c) > atr * 0.5;
+    if(rOBbig && htf.h >= refOB.l && htf.h <= refOB.h && htf.c < htf.o && ema8 < ema21){
+      rScore += 3; if(rSetup === 'none') rSetup = 'ob_retest';
+    }
+
+    // 6. FVG fill
+    if(htf.l > prev2.h && htf.c >= prev2.h && htf.c <= htf.h && ema8 > ema21){
+      bScore += 2; if(bSetup === 'none') bSetup = 'fvg_fill';
+    }
+    if(htf.h < prev2.l && htf.c <= prev2.l && htf.c >= htf.l && ema8 < ema21){
+      rScore += 2; if(rSetup === 'none') rSetup = 'fvg_fill';
+    }
+
+    // 7. Break of structure
+    if(htf.c > swH && htf.c > htf.o && (htf.c - htf.o) > atr * 0.3){
+      bScore += 2; if(bSetup === 'none') bSetup = 'bos';
+    }
+    if(htf.c < swL && htf.c < htf.o && (htf.o - htf.c) > atr * 0.3){
+      rScore += 2; if(rSetup === 'none') rSetup = 'bos';
+    }
+
+    // 8. Volume spike
+    let avgV = 0, avgN = 0;
+    for(let j = Math.max(tf, ri - 10); j < ri; j++){
+      if(rollingHTF[j]){ avgV += rollingHTF[j].v; avgN++; }
+    }
+    avgV = avgN > 0 ? avgV / avgN : htf.v;
+    if(htf.v > avgV * 1.3){
+      if(htf.c > htf.o) bScore += 1; else rScore += 1;
+    }
+
+    // HTF filter penalty
+    if(!htfBull) bScore = Math.max(0, bScore - 3);
+    if(!htfBear) rScore = Math.max(0, rScore - 3);
+
+    // Bepaal richting en score
+    let dir = null, score = 0, setup = 'none';
+    if(dirMode !== 'short' && bScore > rScore){ dir = 'bull'; score = bScore; setup = bSetup; }
+    else if(dirMode !== 'long' && rScore > bScore){ dir = 'bear'; score = rScore; setup = rSetup; }
+
+    if(!dir || score < minSc) continue;
+
+    // ── SIGNAAL GEVONDEN — maak pending limit setup ──
+    lastSignalIdx = ri;
+    const slSize = slMlt * atr;
+    const tpSize = slSize * tpMlt;
+    const entryPrice = snapTick(htf.c);
+    let stop, tgt;
+    if(dir === 'bull'){
+      stop = snapStopBull(entryPrice - slSize);
+      tgt  = snapTgtBull(entryPrice + tpSize);
+    } else {
+      stop = snapStopBear(entryPrice + slSize);
+      tgt  = snapTgtBear(entryPrice - tpSize);
+    }
+
+    pendingSetup = {
+      id: trades.length + 1,
+      dir, score, setup,
+      entry: entryPrice,
+      stp: stop,
+      tgt: tgt,
+      rr: tpMlt,
+      atr: r2(atr),
+      signalTime: rawCandles[ri-1].t,
+      signalHour: utcToLocalHour(rawCandles[ri-1].t),
+      signalDow: dayOfWeek(rawCandles[ri-1].t),
+      entryTime: null,
+      exitTime: null,
+      outcome: null,
+      pnl: null,
+      expireIdx: ri + 3 * tf  // Pending fill timeout: 3×TF candles (bv. TF=15 → 45 min)
+    };
+  }
+
+  // Sluit open posities
+  if(activeTrade){
+    const last = rawCandles[N-1];
+    activeTrade.outcome = 'EXPIRED';
+    activeTrade.pnl = activeTrade.dir === 'bull' ? last.c - activeTrade.entry : activeTrade.entry - last.c;
+    activeTrade.exitTime = last.t;
+    trades.push(activeTrade);
+  }
+
+  // Verrijk trades met netto P&L (na commissie × contracten)
+  trades.forEach(t => {
+    t.pnlGross = r2(t.pnl);
+    t.pnlPt = r2(t.pnl * contracts - commPts * contracts);
+    t.pnlUSD = r2(t.pnlPt * 2); // MNQ tickwaarde
+    t.contracts = contracts;
+    t.entryHour = t.entryTime ? utcToLocalHour(t.entryTime) : t.signalHour;
+    t.entryDow = t.entryTime ? dayOfWeek(t.entryTime) : t.signalDow;
+    t.duration = t.entryTime && t.exitTime ? minutesBetween(t.entryTime, t.exitTime) : 0;
+  });
+
+  return { trades, params };
+}
+
+function dayOfWeek(timeStr){
+  // Direct uit string parsen (al lokale tijd)
+  const m = timeStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+  if(!m) return -1;
+  const d = new Date(Date.UTC(+m[1], +m[2]-1, +m[3]));
+  return d.getUTCDay() === 0 ? 6 : d.getUTCDay() - 1; // 0=Mon
+}
+
+function minutesBetween(a, b){
+  const pa = a.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+  const pb = b.match(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/);
+  if(!pa || !pb) return 0;
+  const da = Date.UTC(+pa[1], +pa[2]-1, +pa[3], +pa[4], +pa[5]);
+  const db = Date.UTC(+pb[1], +pb[2]-1, +pb[3], +pb[4], +pb[5]);
+  return Math.round((db - da) / 60000);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILTER TRADES (post-hoc, exact zoals analyse)
+// ═══════════════════════════════════════════════════════════════════
+function applyFilters(trades, filters){
+  return trades.filter(t => {
+    if(filters.skipScores.has(t.score)) return false;
+    if(filters.skipHours.has(t.entryHour)) return false;
+    if(!filters.activeDays.has(t.entryDow)) return false;
+    if(filters.setupMode === 'real' && t.setup === 'none') return false;
+    if(filters.setupMode === 'ob_only' && t.setup !== 'ob_retest') return false;
+    if(filters.setupMode === 'ob_sweep' && !['ob_retest','liquidity_sweep'].includes(t.setup)) return false;
+    return true;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// STATS COMPUTATION
+// ═══════════════════════════════════════════════════════════════════
+function computeStats(trades){
+  const n = trades.length;
+  if(n === 0) return { n:0, wr:0, pnl:0, pnlUSD:0, ev:0, pf:0, dd:0, wins:0, losses:0, exp:0, avgWin:0, avgLoss:0 };
+
+  const wins = trades.filter(t => t.outcome === 'WIN');
+  const losses = trades.filter(t => t.outcome === 'LOSS');
+  const expired = trades.filter(t => t.outcome === 'EXPIRED');
+  const pnl = trades.reduce((s,t) => s + t.pnlPt, 0);
+  const pnlUSD = trades.reduce((s,t) => s + t.pnlUSD, 0);
+  const wr = wins.length / n * 100;
+  const ev = pnl / n;
+
+  const grossW = trades.filter(t => t.pnlPt > 0).reduce((s,t) => s + t.pnlPt, 0);
+  const grossL = Math.abs(trades.filter(t => t.pnlPt < 0).reduce((s,t) => s + t.pnlPt, 0));
+  const pf = grossL > 0 ? grossW / grossL : 99;
+
+  // Drawdown (chronologisch)
+  const sorted = [...trades].sort((a,b) => (a.entryTime||a.signalTime).localeCompare(b.entryTime||b.signalTime));
+  let cum = 0, peak = 0, maxDD = 0;
+  sorted.forEach(t => {
+    cum += t.pnlPt;
+    if(cum > peak) peak = cum;
+    if(peak - cum > maxDD) maxDD = peak - cum;
+  });
+
+  const avgWin = wins.length ? wins.reduce((s,t) => s + t.pnlPt, 0) / wins.length : 0;
+  const avgLoss = losses.length ? losses.reduce((s,t) => s + t.pnlPt, 0) / losses.length : 0;
+
+  return {
+    n, wr, pnl, pnlUSD, ev, pf, dd: maxDD,
+    wins: wins.length, losses: losses.length, exp: expired.length,
+    avgWin, avgLoss
+  };
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// UI INIT — chips voor scores/hours/days
+// ═══════════════════════════════════════════════════════════════════
+function renderChips(){
+  const sChips = $('score-chips');
+  sChips.innerHTML = '';
+  SCORES.forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'chip' + (skipScores.has(s) ? ' skip' : '');
+    el.textContent = s;
+    el.dataset.score = s;
+    el.onclick = () => {
+      if(skipScores.has(s)) skipScores.delete(s); else skipScores.add(s);
+      renderChips();
+      maybeRerender();
+    };
+    sChips.appendChild(el);
+  });
+
+  const hChips = $('hour-chips');
+  hChips.innerHTML = '';
+  HOURS.forEach(h => {
+    const el = document.createElement('div');
+    el.className = 'chip' + (skipHours.has(h) ? ' skip' : '');
+    el.textContent = String(h).padStart(2,'0');
+    el.dataset.hour = h;
+    el.onclick = () => {
+      if(skipHours.has(h)) skipHours.delete(h); else skipHours.add(h);
+      renderChips();
+      maybeRerender();
+    };
+    hChips.appendChild(el);
+  });
+
+  const dChips = $('day-chips');
+  dChips.innerHTML = '';
+  DAYS.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'chip' + (activeDays.has(i) ? ' active' : ' skip');
+    el.textContent = d;
+    el.dataset.dow = i;
+    el.onclick = () => {
+      if(activeDays.has(i)) activeDays.delete(i); else activeDays.add(i);
+      renderChips();
+      maybeRerender();
+    };
+    dChips.appendChild(el);
+  });
+}
+
+// Re-render results live indien single backtest al gedraaid is
+function maybeRerender(){
+  if(currentMode === 'single' && lastResults){
+    renderSingleResults();
+  } else if(currentMode === 'grid' && lastGrid){
+    renderGridResults();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PRESETS
+// ═══════════════════════════════════════════════════════════════════
+const PRESETS = {
+  off: () => {
+    skipScores = new Set();
+    skipHours = new Set();
+    activeDays = new Set([0,1,2,3,4,5,6]);
+    $('setup-filter').value = 'all';
+  },
+  balanced: () => {
+    skipScores = new Set([6]);
+    skipHours = new Set([18,19]);
+    activeDays = new Set([0,1,2,3,4,5,6]);
+    $('setup-filter').value = 'all';
+  },
+  quality: () => {
+    skipScores = new Set([3,6]);
+    skipHours = new Set([16,18,19]);
+    activeDays = new Set([0,1,2,3,4,5,6]);
+    $('setup-filter').value = 'real';
+  },
+  strict: () => {
+    skipScores = new Set([3,6]);
+    skipHours = new Set([16,18,19]);
+    activeDays = new Set([0,1,4]); // Mon, Tue, Fri
+    $('setup-filter').value = 'real';
+  }
+};
+
+document.querySelectorAll('.preset').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    PRESETS[btn.dataset.preset]();
+    renderChips();
+    maybeRerender();
+  };
+});
+
+$('setup-filter').onchange = maybeRerender;
+
+// ═══════════════════════════════════════════════════════════════════
+// MODE TOGGLE
+// ═══════════════════════════════════════════════════════════════════
+$('mode-toggle').addEventListener('click', e => {
+  if(e.target.tagName !== 'BUTTON') return;
+  const mode = e.target.dataset.mode;
+  currentMode = mode;
+  document.querySelectorAll('#mode-toggle button').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
+  $('single-params').hidden = mode !== 'single';
+  $('grid-params').hidden = mode !== 'grid';
+  $('btn-run').textContent = mode === 'grid' ? '▶ START GRID' : '▶ START BACKTEST';
+  updateGridCount();
+});
+
+// Grid combinaties tellen
+['g-tf','g-sl','g-tp','g-atrmax','g-maxbars','g-minscore','g-htf','g-dir'].forEach(id => {
+  $(id).addEventListener('input', updateGridCount);
+});
+function updateGridCount(){
+  if(currentMode !== 'grid') return;
+  const counts = ['g-tf','g-sl','g-tp','g-atrmax','g-maxbars','g-minscore','g-htf','g-dir'].map(id => {
+    return $(id).value.split(',').filter(x => x.trim()).length;
+  });
+  const total = counts.reduce((a,b) => a*b, 1);
+  $('grid-combos').innerHTML = `Combinaties: <strong>${total}</strong>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// FILE INPUT
+// ═══════════════════════════════════════════════════════════════════
+$('csv-input').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  if(!f) return;
+  $('file-info').textContent = 'Inlezen…';
+  const txt = await f.text();
+  try {
+    rawCandles = parseCSV(txt);
+    $('file-info').textContent = `✓ ${rawCandles.length} candles (${rawCandles[0].t.slice(0,10)} → ${rawCandles[rawCandles.length-1].t.slice(0,10)})`;
+    lg(`CSV geladen: ${rawCandles.length} candles`, 'ok');
+  } catch(err){
+    $('file-info').textContent = '✗ ' + err.message;
+    lg('CSV fout: ' + err.message, 'err');
+  }
+});
+
+$('btn-demo').onclick = () => {
+  const N = 8000;
+  rawCandles = [];
+  let p = 24000, trend = 1, age = 0;
+  const base = Date.UTC(2026, 0, 2, 14, 30);
+  for(let i=0; i<N; i++){
+    age++;
+    if(age > 30 + Math.random()*60){ trend *= -1; age = 0; }
+    const body = (3 + Math.random()*6) * trend * 0.5;
+    const wick = Math.random() * 3;
+    const c = r2(p + body);
+    const h = r2(Math.max(p, c) + wick);
+    const l = r2(Math.min(p, c) - wick);
+    const t = new Date(base + i * 60000);
+    const ts = t.toISOString().slice(0,16).replace('T',' ');
+    rawCandles.push({t:ts, o:p, h, l, c, v: 100 + Math.floor(Math.random()*200)});
+    p = c;
+  }
+  $('file-info').textContent = `✓ ${N} demo candles`;
+  lg(`Demo data: ${N} candles`, 'ok');
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// RUN BUTTON
+// ═══════════════════════════════════════════════════════════════════
+$('btn-run').onclick = async () => {
+  if(rawCandles.length < 100){ alert('Upload eerst een CSV (of klik Demo Data)'); return; }
+  $('btn-run').disabled = true;
+  $('log').innerHTML = '';
+  $('log').style.display = 'block';
+
+  try {
+    if(currentMode === 'single'){
+      await runSingle();
+    } else {
+      await runGrid();
+    }
+  } catch(e){
+    lg('Fout: ' + e.message, 'err');
+    console.error(e);
+  } finally {
+    $('btn-run').disabled = false;
+    setProg(100, 'Klaar');
+    setTimeout(() => $('progress').classList.remove('show'), 500);
+  }
+};
+
+function getFilters(){
+  return {
+    skipScores: new Set(skipScores),
+    skipHours: new Set(skipHours),
+    activeDays: new Set(activeDays),
+    setupMode: $('setup-filter').value
+  };
+}
+
+function getSingleParams(){
+  return {
+    tf: +$('s-tf').value || 5,
+    sl: +$('s-sl').value || 1.0,
+    tp: +$('s-tp').value || 1.5,
+    atrMax: +$('s-atrmax').value || 26,
+    maxBars: +$('s-maxbars').value || 19,
+    minScore: +$('s-minscore').value || 4,
+    htfOn: $('s-htf').value === 'yes',
+    dirMode: $('s-dir').value,
+    contracts: +$('contracts').value || 1,
+    commission: +$('commission').value || 3.0
+  };
+}
+
+function parseList(str, type='float'){
+  return str.split(',').map(x => x.trim()).filter(Boolean).map(x => {
+    if(type === 'float') return parseFloat(x);
+    if(type === 'int') return parseInt(x);
+    return x;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// SINGLE BACKTEST
+// ═══════════════════════════════════════════════════════════════════
+async function runSingle(){
+  const params = getSingleParams();
+  lg(`Single backtest: TF=${params.tf} SL=${params.sl} TP=${params.tp} minScore=${params.minScore}`, 'info');
+  setProg(0, 'Bereken indicatoren…');
+  await sleep(20);
+
+  const t0 = Date.now();
+  const res = await runBacktestCore(params, async (pct) => {
+    setProg(10 + Math.round(pct * 80), `${Math.round(pct*100)}% door data…`);
+    await sleep(0);
+  });
+
+  const dt = Date.now() - t0;
+  lg(`Backtest klaar in ${dt}ms — ${res.trades.length} signalen gevonden`, 'ok');
+
+  lastResults = res;
+  setProg(95, 'Render resultaten…');
+  await sleep(10);
+  renderSingleResults();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GRID SEARCH
+// ═══════════════════════════════════════════════════════════════════
+async function runGrid(){
+  const tfs = parseList($('g-tf').value, 'int');
+  const sls = parseList($('g-sl').value, 'float');
+  const tps = parseList($('g-tp').value, 'float');
+  const atrs = parseList($('g-atrmax').value, 'int');
+  const mbs = parseList($('g-maxbars').value, 'int');
+  const mss = parseList($('g-minscore').value, 'int');
+  const htfs = parseList($('g-htf').value, 'str');
+  const dirs = parseList($('g-dir').value, 'str');
+
+  const combos = [];
+  for(const tf of tfs) for(const sl of sls) for(const tp of tps)
+    for(const atr of atrs) for(const mb of mbs) for(const ms of mss)
+      for(const ht of htfs) for(const dr of dirs){
+        combos.push({
+          tf, sl, tp, atrMax: atr, maxBars: mb, minScore: ms,
+          htfOn: ht === 'yes', dirMode: dr,
+          contracts: +$('contracts').value || 1,
+          commission: +$('commission').value || 3.0
+        });
+      }
+
+  lg(`Grid: ${combos.length} combinaties`, 'info');
+  setProg(0, `0/${combos.length}`);
+
+  const results = [];
+  const t0 = Date.now();
+
+  for(let i = 0; i < combos.length; i++){
+    const params = combos[i];
+    setProg(Math.round(i / combos.length * 95), `${i+1}/${combos.length} — TF${params.tf} SL${params.sl} TP${params.tp} mS${params.minScore}`);
+    await sleep(0);
+
+    const r = await runBacktestCore(params, null);
+    results.push({ params, trades: r.trades });
+  }
+
+  const dt = Date.now() - t0;
+  lg(`Grid klaar in ${(dt/1000).toFixed(1)}s — ${combos.length} combos`, 'ok');
+
+  lastGrid = { results, configs: combos };
+  setProg(98, 'Render…');
+  await sleep(10);
+  renderGridResults();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER: SINGLE RESULTS
+// ═══════════════════════════════════════════════════════════════════
+function renderSingleResults(){
+  if(!lastResults) return;
+  const filters = getFilters();
+  const allTrades = lastResults.trades;
+  const filtered = applyFilters(allTrades, filters);
+  const stats = computeStats(filtered);
+  const allStats = computeStats(allTrades);
+
+  const params = lastResults.params;
+
+  let html = `
+    <div class="card">
+      <h2>Single Backtest Resultaat</h2>
+      <p style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:14px">
+        Params: TF=${params.tf}min · SL=${params.sl}×ATR · TP=${params.tp}×SL · ATRmax=${params.atrMax} · MaxBars=${params.maxBars} · MinScore=${params.minScore} · HTF=${params.htfOn?'AAN':'UIT'} · ${params.dirMode}
+      </p>
+
+      <div class="stats-grid">
+        <div class="stat ${stats.pnl>=0?'pos':'neg'}"><div class="lbl">Trades (gefilterd)</div><div class="val">${stats.n}</div></div>
+        <div class="stat"><div class="lbl">Win Rate</div><div class="val">${fmtPct(stats.wr)}</div></div>
+        <div class="stat ${stats.pnl>=0?'pos':'neg'}"><div class="lbl">P&L (pt)</div><div class="val">${fmt(stats.pnl)}</div></div>
+        <div class="stat ${stats.pnlUSD>=0?'pos':'neg'}"><div class="lbl">P&L ($)</div><div class="val">$${fmt(stats.pnlUSD,0)}</div></div>
+        <div class="stat ${stats.ev>=0?'pos':'neg'}"><div class="lbl">EV / trade</div><div class="val">${fmt(stats.ev,2)}</div></div>
+        <div class="stat ${stats.pf>=1?'pos':'neg'}"><div class="lbl">Profit Factor</div><div class="val">${fmt(stats.pf,2)}</div></div>
+        <div class="stat neg"><div class="lbl">Max Drawdown</div><div class="val">${fmt(stats.dd)}</div></div>
+        <div class="stat"><div class="lbl">W / L / Exp</div><div class="val" style="font-size:13px">${stats.wins}/${stats.losses}/${stats.exp}</div></div>
+      </div>
+
+      <p style="font-size:11px;color:var(--muted)">
+        Voor filtering: ${allStats.n} trades, ${fmtPct(allStats.wr)} WR, ${fmt(allStats.pnl)}pt P&L, EV ${fmt(allStats.ev,2)}.
+        Filters elimineerden ${allStats.n - stats.n} trades (${fmtPct((allStats.n-stats.n)/allStats.n*100)}).
+      </p>
+
+      <div class="tabs" style="margin-top:14px">
+        <button class="tab active" data-tab="trades">Trades (${stats.n})</button>
+        <button class="tab" data-tab="setup">Per Setup</button>
+        <button class="tab" data-tab="score">Per Score</button>
+        <button class="tab" data-tab="hour">Per Uur</button>
+        <button class="tab" data-tab="dow">Per Dag</button>
+        <button class="tab" data-tab="daily">P&L per dag</button>
+      </div>
+
+      <div class="tab-content active" data-tab="trades">${renderTradesTable(filtered)}</div>
+      <div class="tab-content" data-tab="setup">${renderSetupBreakdown(filtered)}</div>
+      <div class="tab-content" data-tab="score">${renderScoreBreakdown(filtered)}</div>
+      <div class="tab-content" data-tab="hour">${renderHourBreakdown(filtered)}</div>
+      <div class="tab-content" data-tab="dow">${renderDowBreakdown(filtered)}</div>
+      <div class="tab-content" data-tab="daily">${renderDailyPnL(filtered)}</div>
+    </div>
+  `;
+
+  $('results').innerHTML = html;
+  attachTabs();
+}
+
+function renderTradesTable(trades){
+  if(trades.length === 0) return '<p class="empty">Geen trades na filtering</p>';
+
+  const sorted = [...trades].sort((a,b) => (a.entryTime||a.signalTime).localeCompare(b.entryTime||b.signalTime));
+
+  const rows = sorted.map((t,i) => {
+    const cls = t.outcome === 'WIN' ? 'win' : (t.outcome === 'LOSS' ? 'loss' : 'exp');
+    const dir = t.dir === 'bull' ? '<span class="dir-bull">▲ L</span>' : '<span class="dir-bear">▼ S</span>';
+    return `<tr>
+      <td>${i+1}</td>
+      <td>${t.signalTime ? utcToLocal(t.signalTime) : ''}</td>
+      <td>${t.entryTime ? utcToLocal(t.entryTime) : '—'}</td>
+      <td>${t.exitTime ? utcToLocal(t.exitTime) : '—'}</td>
+      <td>${t.duration}m</td>
+      <td>${dir}</td>
+      <td>${setupBadge(t.setup)}</td>
+      <td>${scoreBadge(t.score)}</td>
+      <td>${fmt(t.entry,2)}</td>
+      <td>${fmt(t.tgt,2)}</td>
+      <td>${fmt(t.stp,2)}</td>
+      <td><span class="${cls}">${t.outcome}</span></td>
+      <td class="${t.pnlPt>=0?'pos':'neg'}">${fmt(t.pnlPt,2)}</td>
+      <td class="${t.pnlUSD>=0?'pos':'neg'}">$${fmt(t.pnlUSD,0)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <span style="font-size:11px;color:var(--muted)">Sorteer per kolom door te klikken</span>
+      <button class="btn btn-sm" onclick="exportXLSX()">Export XLSX</button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Signaal</th><th>Entry</th><th>Exit</th><th>Duur</th>
+            <th>Dir</th><th>Setup</th><th>Score</th>
+            <th>Entry $</th><th>TP</th><th>SL</th><th>Result</th>
+            <th>P&L pt</th><th>P&L $</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderSetupBreakdown(trades){
+  const grp = {};
+  trades.forEach(t => {
+    if(!grp[t.setup]) grp[t.setup] = [];
+    grp[t.setup].push(t);
+  });
+  const rows = Object.entries(grp).sort((a,b) => {
+    const sa = computeStats(a[1]).pnl, sb = computeStats(b[1]).pnl;
+    return sb - sa;
+  }).map(([setup, ts]) => {
+    const s = computeStats(ts);
+    return `<tr>
+      <td>${setupBadge(setup)}</td>
+      <td>${s.n}</td>
+      <td>${fmtPct(s.wr)}</td>
+      <td class="${s.pnl>=0?'pos':'neg'}">${fmt(s.pnl)}</td>
+      <td class="${s.ev>=0?'pos':'neg'}">${fmt(s.ev,2)}</td>
+      <td>${fmt(s.pf,2)}</td>
+      <td class="neg">${fmt(s.dd)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Setup</th><th>N</th><th>WR%</th><th>P&L pt</th><th>EV</th><th>PF</th><th>DD</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderScoreBreakdown(trades){
+  const grp = {};
+  trades.forEach(t => {
+    if(!grp[t.score]) grp[t.score] = [];
+    grp[t.score].push(t);
+  });
+  const rows = Object.entries(grp).sort((a,b) => +a[0] - +b[0]).map(([sc, ts]) => {
+    const s = computeStats(ts);
+    return `<tr>
+      <td>${scoreBadge(+sc)}</td>
+      <td>${s.n}</td>
+      <td>${fmtPct(s.wr)}</td>
+      <td class="${s.pnl>=0?'pos':'neg'}">${fmt(s.pnl)}</td>
+      <td class="${s.ev>=0?'pos':'neg'}">${fmt(s.ev,2)}</td>
+      <td>${fmt(s.pf,2)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Score</th><th>N</th><th>WR%</th><th>P&L pt</th><th>EV</th><th>PF</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderHourBreakdown(trades){
+  const grp = {};
+  trades.forEach(t => {
+    const h = t.entryHour;
+    if(!grp[h]) grp[h] = [];
+    grp[h].push(t);
+  });
+  const rows = Object.entries(grp).sort((a,b) => +a[0] - +b[0]).map(([h, ts]) => {
+    const s = computeStats(ts);
+    const flag = s.ev > 8 && s.n >= 5 ? '⭐' : (s.ev < -2 && s.n >= 5 ? '❌' : '');
+    return `<tr>
+      <td>${String(h).padStart(2,'0')}:00 UTC</td>
+      <td>${s.n}</td>
+      <td>${fmtPct(s.wr)}</td>
+      <td class="${s.pnl>=0?'pos':'neg'}">${fmt(s.pnl)}</td>
+      <td class="${s.ev>=0?'pos':'neg'}">${fmt(s.ev,2)}</td>
+      <td>${flag}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Uur</th><th>N</th><th>WR%</th><th>P&L pt</th><th>EV</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderDowBreakdown(trades){
+  const grp = {};
+  trades.forEach(t => {
+    if(!grp[t.entryDow]) grp[t.entryDow] = [];
+    grp[t.entryDow].push(t);
+  });
+  const rows = Object.entries(grp).sort((a,b) => +a[0] - +b[0]).map(([d, ts]) => {
+    const s = computeStats(ts);
+    return `<tr>
+      <td>${DAYS[d]||d}</td>
+      <td>${s.n}</td>
+      <td>${fmtPct(s.wr)}</td>
+      <td class="${s.pnl>=0?'pos':'neg'}">${fmt(s.pnl)}</td>
+      <td class="${s.ev>=0?'pos':'neg'}">${fmt(s.ev,2)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Dag</th><th>N</th><th>WR%</th><th>P&L pt</th><th>EV</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function renderDailyPnL(trades){
+  const grp = {};
+  trades.forEach(t => {
+    const d = utcToLocal(t.entryTime||t.signalTime).slice(0,10);
+    if(!grp[d]) grp[d] = [];
+    grp[d].push(t);
+  });
+  let cum = 0;
+  const rows = Object.entries(grp).sort((a,b) => a[0].localeCompare(b[0])).map(([d, ts]) => {
+    const s = computeStats(ts);
+    cum += s.pnl;
+    const cls = s.pnl >= 0 ? 'pos' : 'neg';
+    return `<tr>
+      <td>${d}</td>
+      <td>${s.n}</td>
+      <td>${s.wins}</td>
+      <td>${s.losses}</td>
+      <td>${fmtPct(s.wr)}</td>
+      <td class="${cls}">${fmt(s.pnl,2)}</td>
+      <td class="${s.pnlUSD>=0?'pos':'neg'}">$${fmt(s.pnlUSD,0)}</td>
+      <td class="${cum>=0?'pos':'neg'}">${fmt(cum,2)}</td>
+    </tr>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table>
+    <thead><tr><th>Datum</th><th>Trades</th><th>W</th><th>L</th><th>WR%</th><th>P&L pt</th><th>P&L $</th><th>Cum</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>`;
+}
+
+function attachTabs(){
+  document.querySelectorAll('.tab').forEach(t => {
+    t.onclick = () => {
+      const tab = t.dataset.tab;
+      const card = t.closest('.card') || t.closest('.modal-content');
+      card.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
+      card.querySelectorAll('.tab-content').forEach(x => x.classList.toggle('active', x.dataset.tab === tab));
+    };
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER: GRID RESULTS
+// ═══════════════════════════════════════════════════════════════════
+let gridSortKey = 'rank';
+let gridSortAsc = false;
+let gridColFilterValues = {};  // persisteert filter-waarden over re-renders
+
+function renderGridResults(){
+  if(!lastGrid) return;
+  const filters = getFilters();
+
+  // Voor elke combo: filter trades en bereken stats
+  const enriched = lastGrid.results.map((r, idx) => {
+    const filtered = applyFilters(r.trades, filters);
+    const stats = computeStats(filtered);
+    const rank = stats.ev * Math.sqrt(Math.max(1, stats.n)) * (stats.wr / 50);
+    return { idx, params: r.params, trades: filtered, stats, rank };
+  });
+
+  // ─── Column filters ───
+  const paramCols = new Set(['tf','sl','tp','atrMax','maxBars','minScore','htfOn','dirMode']);
+  function applyColFilters(rows){
+    const cf = gridColFilterValues;
+    if(Object.keys(cf).length === 0) return rows;
+
+    return rows.filter(r => {
+      for(const [col, raw] of Object.entries(cf)){
+        if(!raw) continue;
+        let actual;
+        if(col === 'n') actual = r.stats.n;
+        else if(col === 'wr') actual = r.stats.wr * 100;
+        else if(col === 'pnl') actual = r.stats.pnl;
+        else if(col === 'ev') actual = r.stats.ev;
+        else if(col === 'pf') actual = r.stats.pf;
+        else if(col === 'dd') actual = r.stats.dd;
+        else if(col === 'htfOn') actual = r.params.htfOn ? 'AAN' : 'UIT';
+        else if(col === 'dirMode') actual = r.params.dirMode === 'both' ? 'L+S' : (r.params.dirMode === 'long' ? 'L' : 'S');
+        else actual = r.params[col];
+
+        if(paramCols.has(col)){
+          // Dropdown: exact match
+          if(String(actual) !== String(raw)) return false;
+        } else {
+          // Stats: ondersteun operators >=, >, <, <=
+          const m = raw.match(/^([<>]=?)?(.+)$/);
+          if(!m) continue;
+          const op = m[1] || (col === 'dd' ? '<=' : '>=');
+          const target = parseFloat(m[2]);
+          if(isNaN(target)) continue;
+          if(op === '>' && !(actual > target)) return false;
+          if(op === '>=' && !(actual >= target)) return false;
+          if(op === '<' && !(actual < target)) return false;
+          if(op === '<=' && !(actual <= target)) return false;
+          if(op === '=' && actual !== target) return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  // Sort
+  const sortKeyMap = {
+    rank: r => r.rank,
+    ev: r => r.stats.ev,
+    wr: r => r.stats.wr,
+    pnl: r => r.stats.pnl,
+    n: r => r.stats.n,
+    dd: r => -r.stats.dd,
+    pf: r => r.stats.pf
+  };
+  const keyFn = sortKeyMap[gridSortKey] || sortKeyMap.rank;
+  enriched.sort((a,b) => gridSortAsc ? keyFn(a) - keyFn(b) : keyFn(b) - keyFn(a));
+
+  // Pas kolomfilters toe (na sort, voor render)
+  const colFiltered = applyColFilters(enriched);
+  const top = colFiltered.slice(0, 200);
+  // Bouw dropdown opties uit unieke waarden in de grid
+  const uniqueVals = {};
+  ['tf','sl','tp','atrMax','maxBars','minScore'].forEach(col => {
+    const vals = [...new Set(enriched.map(r => r.params[col]))].sort((a,b) => a-b);
+    uniqueVals[col] = vals;
+  });
+  // HTF en Dir
+  uniqueVals.htfOn = [...new Set(enriched.map(r => r.params.htfOn ? 'AAN' : 'UIT'))].sort();
+  uniqueVals.dirMode = [...new Set(enriched.map(r => r.params.dirMode === 'both' ? 'L+S' : (r.params.dirMode === 'long' ? 'L' : 'S')))].sort();
+
+  const mkSelect = (col) => {
+    const opts = uniqueVals[col] || [];
+    const sel = gridColFilterValues[col] || '';
+    return `<select class="col-filter" data-col="${col}"><option value="">—</option>${opts.map(v => `<option value="${v}"${String(v)===sel?' selected':''}>${v}</option>`).join('')}</select>`;
+  };
+
+  const filterRow = `
+    <tr class="filter-row">
+      <td></td>
+      <td>${mkSelect('tf')}</td>
+      <td>${mkSelect('sl')}</td>
+      <td>${mkSelect('tp')}</td>
+      <td>${mkSelect('atrMax')}</td>
+      <td>${mkSelect('maxBars')}</td>
+      <td>${mkSelect('minScore')}</td>
+      <td>${mkSelect('htfOn')}</td>
+      <td>${mkSelect('dirMode')}</td>
+      <td><input class="col-filter" data-col="n" placeholder="≥" value="${gridColFilterValues.n||''}"></td>
+      <td><input class="col-filter" data-col="wr" placeholder="≥" value="${gridColFilterValues.wr||''}"></td>
+      <td><input class="col-filter" data-col="pnl" placeholder="≥" value="${gridColFilterValues.pnl||''}"></td>
+      <td><input class="col-filter" data-col="ev" placeholder="≥" value="${gridColFilterValues.ev||''}"></td>
+      <td><input class="col-filter" data-col="pf" placeholder="≥" value="${gridColFilterValues.pf||''}"></td>
+      <td><input class="col-filter" data-col="dd" placeholder="≤" value="${gridColFilterValues.dd||''}"></td>
+      <td></td>
+    </tr>`;
+
+  const maxes = {
+    wr: Math.max(...colFiltered.map(r => r.stats.wr)),
+    ev: Math.max(...colFiltered.map(r => r.stats.ev)),
+    pnl: Math.max(...colFiltered.map(r => r.stats.pnl)),
+    pf: Math.max(...colFiltered.map(r => r.stats.pf))
+  };
+
+  const rows = top.map((r, i) => {
+    const p = r.params;
+    return `<tr class="clickable" onclick="openGridDetail(${r.idx})">
+      <td>${i+1}</td>
+      <td>${p.tf}</td>
+      <td>${p.sl}</td>
+      <td>${p.tp}</td>
+      <td>${p.atrMax}</td>
+      <td>${p.maxBars}</td>
+      <td>${p.minScore}</td>
+      <td>${p.htfOn?'AAN':'UIT'}</td>
+      <td>${p.dirMode==='both'?'L+S':(p.dirMode==='long'?'L':'S')}</td>
+      <td>${r.stats.n}</td>
+      <td class="${r.stats.wr>=50?'pos':''}">${fmtPct(r.stats.wr)}</td>
+      <td class="${r.stats.pnl>=0?'pos':'neg'}">${fmt(r.stats.pnl)}</td>
+      <td class="${r.stats.ev>=0?'pos':'neg'}">${fmt(r.stats.ev,2)}</td>
+      <td>${fmt(r.stats.pf,2)}</td>
+      <td class="neg">${fmt(r.stats.dd)}</td>
+      <td>${fmt(r.rank,2)}</td>
+    </tr>`;
+  }).join('');
+
+  $('results').innerHTML = `
+    <div class="card">
+      <h2>Grid Search Resultaten — ${colFiltered.length}/${enriched.length} combinaties</h2>
+
+      <div class="stats-grid">
+        <div class="stat pos"><div class="lbl">MAX Win Rate</div><div class="val">${fmtPct(maxes.wr)}</div></div>
+        <div class="stat pos"><div class="lbl">MAX Expectancy</div><div class="val">${fmt(maxes.ev,2)}</div></div>
+        <div class="stat pos"><div class="lbl">MAX P&L</div><div class="val">${fmt(maxes.pnl)}</div></div>
+        <div class="stat"><div class="lbl">MAX Profit Factor</div><div class="val">${fmt(maxes.pf,2)}</div></div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+        <div>
+          <span style="font-size:11px;color:var(--muted)">Sorteer:</span>
+          <select id="grid-sort" style="display:inline-block;width:auto;margin-left:6px">
+            <option value="rank">Combined Rank</option>
+            <option value="ev">EV / trade</option>
+            <option value="wr">Win Rate</option>
+            <option value="pnl">P&L Total</option>
+            <option value="pf">Profit Factor</option>
+            <option value="n">Aantal Trades</option>
+            <option value="dd">Drawdown</option>
+          </select>
+        </div>
+        <span style="display:flex;gap:8px;align-items:center">
+          <button onclick="gridColFilterValues={};renderGridResults();" style="padding:4px 10px;font-size:10px;font-family:'IBM Plex Mono';border:1px solid #fca5a5;background:#fef2f2;color:#dc2626;border-radius:3px;cursor:pointer;font-weight:600">✕ Reset filters</button>
+          <span style="font-size:11px;color:var(--muted)">Klik een rij voor detail backtest</span>
+        </span>
+      </div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th><th>TF</th><th>SL</th><th>TP</th><th>ATRm</th><th>Bars</th><th>mScore</th><th>HTF</th><th>Dir</th>
+              <th>N</th><th>WR%</th><th>P&L</th><th>EV</th><th>PF</th><th>DD</th><th>Rank</th>
+            </tr>
+            ${filterRow}
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  $('grid-sort').value = gridSortKey;
+  $('grid-sort').onchange = e => {
+    gridSortKey = e.target.value;
+    renderGridResults();
+  };
+
+  // Herstel filter-waarden + attach listeners
+  document.querySelectorAll('.col-filter').forEach(el => {
+    const col = el.dataset.col;
+    if(gridColFilterValues[col]) el.value = gridColFilterValues[col];
+    const handler = () => {
+      gridColFilterValues[col] = el.value.trim();
+      renderGridResults();
+    };
+    if(el.tagName === 'SELECT') el.onchange = handler;
+    else el.oninput = handler;
+  });
+}
+
+window.openGridDetail = function(idx){
+  if(!lastGrid) return;
+  const filters = getFilters();
+  const r = lastGrid.results[idx];
+  const trades = applyFilters(r.trades, filters);
+  const stats = computeStats(trades);
+  const params = r.params;
+
+  // Zet lastResults zodat exportXLSX() ook vanuit grid-detail werkt
+  lastResults = { trades: r.trades, params: params };
+
+  $('modal-content').innerHTML = `
+    <div class="modal-header">
+      <div>
+        <h3>Backtest Detail #${idx+1}</h3>
+        <p class="params">TF=${params.tf} · SL=${params.sl}×ATR · TP=${params.tp}×SL · ATRmax=${params.atrMax} · MaxBars=${params.maxBars} · MinScore=${params.minScore} · HTF=${params.htfOn?'AAN':'UIT'} · ${params.dirMode}</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat ${stats.pnl>=0?'pos':'neg'}"><div class="lbl">Trades</div><div class="val">${stats.n}</div></div>
+      <div class="stat"><div class="lbl">Win Rate</div><div class="val">${fmtPct(stats.wr)}</div></div>
+      <div class="stat ${stats.pnl>=0?'pos':'neg'}"><div class="lbl">P&L pt</div><div class="val">${fmt(stats.pnl)}</div></div>
+      <div class="stat ${stats.pnlUSD>=0?'pos':'neg'}"><div class="lbl">P&L $</div><div class="val">$${fmt(stats.pnlUSD,0)}</div></div>
+      <div class="stat ${stats.ev>=0?'pos':'neg'}"><div class="lbl">EV/trade</div><div class="val">${fmt(stats.ev,2)}</div></div>
+      <div class="stat"><div class="lbl">PF</div><div class="val">${fmt(stats.pf,2)}</div></div>
+      <div class="stat neg"><div class="lbl">Max DD</div><div class="val">${fmt(stats.dd)}</div></div>
+      <div class="stat"><div class="lbl">W/L/E</div><div class="val" style="font-size:13px">${stats.wins}/${stats.losses}/${stats.exp}</div></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="trades">Trades (${stats.n})</button>
+      <button class="tab" data-tab="setup">Per Setup</button>
+      <button class="tab" data-tab="score">Per Score</button>
+      <button class="tab" data-tab="hour">Per Uur</button>
+      <button class="tab" data-tab="dow">Per Dag</button>
+      <button class="tab" data-tab="daily">P&L per dag</button>
+    </div>
+
+    <div class="tab-content active" data-tab="trades">${renderTradesTable(trades)}</div>
+    <div class="tab-content" data-tab="setup">${renderSetupBreakdown(trades)}</div>
+    <div class="tab-content" data-tab="score">${renderScoreBreakdown(trades)}</div>
+    <div class="tab-content" data-tab="hour">${renderHourBreakdown(trades)}</div>
+    <div class="tab-content" data-tab="dow">${renderDowBreakdown(trades)}</div>
+    <div class="tab-content" data-tab="daily">${renderDailyPnL(trades)}</div>
+  `;
+  $('modal').classList.add('show');
+  attachTabs();
+};
+
+window.closeModal = function(){ $('modal').classList.remove('show'); };
+$('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') closeModal(); });
+
+// ═══════════════════════════════════════════════════════════════════
+// CSV EXPORT
+// ═══════════════════════════════════════════════════════════════════
+window.exportXLSX = function(){
+  if(!lastResults){ alert('Draai eerst een backtest'); return; }
+  const filters = getFilters();
+  const trades = applyFilters(lastResults.trades, filters);
+  const stats = computeStats(trades);
+  const p = lastResults.params;
+
+  const headers = ['#','Signaal','Entry','Exit','Duur (min)','Dir','Setup','Score',
+    'Entry $','Target','Stop','R:R','ATR','Uitkomst','P&L pt','P&L $',
+    'TF','SL factor','TP factor','Max Bars','HTF','Direction'];
+  const rows = trades.map((t,i) => [
+    i+1, utcToExport(t.signalTime), utcToExport(t.entryTime), utcToExport(t.exitTime),
+    t.duration||'', t.dir==='bull'?'LONG':'SHORT', t.setup, t.score,
+    t.entry, t.tgt, t.stp, t.rr, t.atr,
+    t.outcome, t.pnlPt, t.pnlUSD,
+    p.tf, p.sl, p.tp, p.maxBars, p.htfOn?'AAN':'UIT',
+    p.dirMode==='both'?'L+S':(p.dirMode==='long'?'L':'S')
+  ]);
+
+  if(typeof XLSX !== 'undefined'){
+    try {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      ws['!cols'] = [{wch:4},{wch:20},{wch:20},{wch:20},{wch:8},{wch:6},{wch:14},{wch:6},
+        {wch:10},{wch:10},{wch:10},{wch:5},{wch:6},{wch:8},{wch:8},{wch:8},
+        {wch:5},{wch:8},{wch:8},{wch:8},{wch:5},{wch:6}];
+      const sumData = [
+        ['NQ Oracle Backtest — Resultaten'],[''],['Parameter','Waarde'],
+        ['Datum export', new Date().toLocaleString('nl-BE')],
+        ['Trades', stats.n], ['Win rate', (stats.wr*100).toFixed(1)+'%'],
+        ['W/L/E', `${stats.wins}/${stats.losses}/${stats.n-stats.wins-stats.losses}`],
+        ['P&L pt', stats.pnl.toFixed(1)], ['P&L $', stats.pnlUSD.toFixed(0)],
+        ['EV/trade', stats.ev.toFixed(2)], ['PF', stats.pf.toFixed(2)],
+        ['Max DD', stats.dd.toFixed(1)],
+        [''],['Strategie parameters'],
+        ['Timeframe', p.tf], ['SL × ATR', p.sl], ['TP × SL', p.tp],
+        ['ATR Max', p.atrMax], ['Max Bars', p.maxBars],
+        ['HTF Filter', p.htfOn?'AAN':'UIT'],
+        ['Direction', p.dirMode==='both'?'L+S':p.dirMode],
+      ];
+      const wsSummary = XLSX.utils.aoa_to_sheet(sumData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'Samenvatting');
+      XLSX.utils.book_append_sheet(wb, ws, 'Trades');
+      XLSX.writeFile(wb, `NQ_Backtest_${new Date().toISOString().slice(0,10)}.xlsx`);
+      return;
+    } catch(e){ console.error('XLSX export fout:', e); }
+  }
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob(['\ufeff'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `NQ_Backtest_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════════
+PRESETS.balanced();
+renderChips();
+updateGridCount();
+</script>
+</body>
+</html>
